@@ -84,7 +84,7 @@ def status():
         "pozostalo_w_limicie_api": s["pozostalo_w_limicie"],
         "ostatni_cykl_harmonogramu": _czas(s["ostatni_cykl"]),
         "ostatnia_synchronizacja_z_repo": _czas(s["ostatnia_synchronizacja_repo"]),
-        "harmonogram": {"watek_dziala": _watek.is_alive(), "etap": s["etap"], "pid": os.getpid(),
+        "harmonogram": {"watek_dziala": bool(_watek and _watek.is_alive()), "etap": s["etap"], "pid": os.getpid(),
                         "ostatni_blad": s["ostatni_blad"]},
     })
 
@@ -153,10 +153,31 @@ def watek_harmonogramu():
         time.sleep(INTERWAL_HARMONOGRAMU_MIN * 60)
 
 
-# Wszystko, co może dotykać sieci, startuje w wątku - import modułu (start gunicorna) jest natychmiastowy
-_watek = threading.Thread(target=watek_harmonogramu, daemon=True)
-_watek.start()
+# Harmonogram startuje dopiero w procesie, który faktycznie obsługuje zapytania (przy pierwszym
+# zapytaniu). Gdyby startował przy imporcie, gunicorn z --preload uruchomiłby go w procesie
+# głównym, a proces obsługujący zapytania dostałby tylko martwą kopię (patrz po_starcie_procesu).
+_watek = None
+_watek_pid = None
+_blokada_startu = threading.Lock()
+
+
+def _upewnij_sie_ze_harmonogram_dziala():
+    global _watek, _watek_pid
+    if _watek is not None and _watek_pid == os.getpid() and _watek.is_alive(): return
+    with _blokada_startu:
+        if _watek is not None and _watek_pid == os.getpid() and _watek.is_alive(): return
+        if _watek_pid != os.getpid(): dane.po_starcie_procesu()
+        _watek_pid = os.getpid()
+        _watek = threading.Thread(target=watek_harmonogramu, daemon=True)
+        _watek.start()
+
+
+@app.before_request
+def _start_harmonogramu():
+    _upewnij_sie_ze_harmonogram_dziala()
+
 
 if __name__ == "__main__":
+    _upewnij_sie_ze_harmonogram_dziala()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, threaded=True)

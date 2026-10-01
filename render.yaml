@@ -6,6 +6,8 @@ services:
     buildCommand: pip install -r requirements_serwer.txt
     # Jeden worker, wiele wątków - harmonogram pobierania z API działa w obrębie procesu
     startCommand: gunicorn -w 1 --threads 8 --timeout 120 -b 0.0.0.0:$PORT serwer:app
+    # Render odpytuje ten adres po starcie - to pierwsze zapytanie uruchamia harmonogram
+    healthCheckPath: /
     envVars:
       - key: RAPIDAPI_KEY
         sync: false

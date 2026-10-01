@@ -410,6 +410,17 @@ def _wyczysc_stary_cache():
     if len(_gotowe_mecze) > 100000: _gotowe_mecze.clear()
 
 
+def po_starcie_procesu():
+    """Świeże blokady w nowym procesie. Gunicorn potrafi wczytać kod w procesie głównym i dopiero
+    potem go sklonować - klon dostaje kopię pamięci (np. blokadę zajętą przez wątek, który w klonie
+    nie istnieje), a wątki nie przechodzą do klonu."""
+    global _blokada_harmonogramu, _blokada_slownika
+    _blokada_harmonogramu = threading.Lock()
+    _blokada_slownika = threading.Lock()
+    STATYSTYKI.update({"start": time.time(), "zapytania_api": 0, "etap": "oczekiwanie", "ostatni_blad": None,
+                       "ostatni_cykl": None, "ostatnia_synchronizacja_repo": None})
+
+
 def cykl_harmonogramu():
     """Jeden przebieg harmonogramu. Zwraca listę opisów tego, co pobrano z API."""
     if not _blokada_harmonogramu.acquire(blocking=False):
