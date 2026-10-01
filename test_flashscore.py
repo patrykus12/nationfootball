@@ -37,8 +37,8 @@ from dopasowanie import normalizuj_tekst, podobienstwo, wczytaj_kluby, dopasuj_m
 
 # --- KONFIGURACJA ---
 # Aplikacja nie łączy się z RapidAPI - wszystkie dane bierze z serwera NationFootball (serwer.py).
-# Adres można nadpisać zmienną środowiskową NF_SERWER (np. http://127.0.0.1:5000 do testów lokalnych).
-SERWER_URL = os.environ.get("NF_SERWER", "http://127.0.0.1:5000").rstrip("/")
+# Adres można nadpisać zmienną środowiskową NF_SERWER (np. http://127.0.0.1:5000 do testów z lokalnym serwer.py).
+SERWER_URL = os.environ.get("NF_SERWER", "https://nationfootball.onrender.com").rstrip("/")
 # Darmowe hostingi usypiają serwer po bezczynności - pierwsze zapytanie może czekać ~minutę
 TIMEOUT_SERWERA = 90
 
