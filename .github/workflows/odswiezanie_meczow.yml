@@ -10,6 +10,8 @@ on:
 
 jobs:
   ping:
+    # Dopóki nie ustawiono zmiennej NF_SERWER (Settings -> Secrets and variables -> Actions -> Variables) - pomijaj
+    if: vars.NF_SERWER != ''
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
