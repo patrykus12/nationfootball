@@ -1,0 +1,16 @@
+name: Odswiezanie meczow Polakow
+
+# Co 30 min budzi serwer (darmowy Render usypia po 15 min bez ruchu) i każe mu od razu
+# dociągnąć wyniki/składy meczów z Polakami, które zaczęły się ~2,5 h temu.
+# Uwaga: GitHub potrafi opóźniać zaplanowane uruchomienia o kilka-kilkanaście minut.
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - run: curl -fsS --max-time 300 --retry 3 --retry-delay 20 "${{ vars.NF_SERWER }}/cron"

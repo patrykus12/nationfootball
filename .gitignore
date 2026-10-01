@@ -1,0 +1,29 @@
+# Dane generowane w runtime - nie trzeba wersjonować
+mecze_*.json
+archiwum_*.txt
+cache_sklady/
+cache_flagi/
+CRASH_LOG.txt
+
+# Build artefakty PyInstallera (gotowy .exe rozsyłamy osobno, nie przez repozytorium)
+build/
+dist/
+*.spec
+NationFootball.exe
+*.tmp
+*.bak
+*.przed_skanem
+
+# Python
+__pycache__/
+*.pyc
+
+# Sekrety - NIGDY do repozytorium
+rapidapi_klucz.txt
+admin_serwer.txt
+
+# Cache serwera
+serwer_cache/
+
+# Kopie zapasowe
+zawodnicy_kopia_zapasowa.xlsx

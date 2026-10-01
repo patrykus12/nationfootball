@@ -1,0 +1,1878 @@
+{
+    "260": {
+        "nazwa": "Kategoria Superiore",
+        "flaga": "alb"
+    },
+    "9173": {
+        "nazwa": "Superiore Qualification",
+        "flaga": "alb"
+    },
+    "10175": {
+        "nazwa": "Superkupa e Shqipërisë",
+        "flaga": "alb"
+    },
+    "516": {
+        "nazwa": "Ligue 1",
+        "flaga": "alg"
+    },
+    "112": {
+        "nazwa": "Liga Profesional",
+        "flaga": "ar"
+    },
+    "8965": {
+        "nazwa": "Primera B Nacional",
+        "flaga": "ar"
+    },
+    "9213": {
+        "nazwa": "Primera B Metropolitana & Torneo Federal A",
+        "flaga": "ar"
+    },
+    "9305": {
+        "nazwa": "Copa Argentina",
+        "flaga": "ar"
+    },
+    "9381": {
+        "nazwa": "Super Copa International",
+        "flaga": "ar"
+    },
+    "9170": {
+        "nazwa": "Argentina Promotion/Relegation",
+        "flaga": "ar"
+    },
+    "10007": {
+        "nazwa": "Copa de la Liga Profesional",
+        "flaga": "ar"
+    },
+    "10832": {
+        "nazwa": "Supercopa",
+        "flaga": "ar"
+    },
+    "10075": {
+        "nazwa": "Torneo de Verano",
+        "flaga": "ar"
+    },
+    "10053": {
+        "nazwa": "Trofeo de Campeones",
+        "flaga": "ar"
+    },
+    "490": {
+        "nazwa": "Armenian Cup",
+        "flaga": "arm"
+    },
+    "118": {
+        "nazwa": "Premier League",
+        "flaga": "arm"
+    },
+    "113": {
+        "nazwa": "A-League",
+        "flaga": "au"
+    },
+    "9495": {
+        "nazwa": "A-League Women",
+        "flaga": "au"
+    },
+    "8938": {
+        "nazwa": "Australia Championship",
+        "flaga": "au"
+    },
+    "9471": {
+        "nazwa": "Australia Cup",
+        "flaga": "au"
+    },
+    "38": {
+        "nazwa": "Bundesliga",
+        "flaga": "at"
+    },
+    "119": {
+        "nazwa": "2. Liga",
+        "flaga": "at"
+    },
+    "278": {
+        "nazwa": "Austrian Cup",
+        "flaga": "at"
+    },
+    "285": {
+        "nazwa": "Landesliga",
+        "flaga": "at"
+    },
+    "262": {
+        "nazwa": "Premier League",
+        "flaga": "aze"
+    },
+    "11925": {
+        "nazwa": "Premier League Qualification",
+        "flaga": "aze"
+    },
+    "10443": {
+        "nazwa": "Premier League",
+        "flaga": "ban"
+    },
+    "263": {
+        "nazwa": "Premier League",
+        "flaga": "blr"
+    },
+    "9255": {
+        "nazwa": "Premier League qualification",
+        "flaga": "blr"
+    },
+    "9521": {
+        "nazwa": "Belarusian Cup",
+        "flaga": "blr"
+    },
+    "9658": {
+        "nazwa": "Super Cup",
+        "flaga": "blr"
+    },
+    "40": {
+        "nazwa": "First Division A",
+        "flaga": "be"
+    },
+    "149": {
+        "nazwa": "Belgian Cup",
+        "flaga": "be"
+    },
+    "41": {
+        "nazwa": "First Division A Qualification",
+        "flaga": "be"
+    },
+    "264": {
+        "nazwa": "First Division B",
+        "flaga": "be"
+    },
+    "266": {
+        "nazwa": "Super Cup",
+        "flaga": "be"
+    },
+    "144": {
+        "nazwa": "Primera Division",
+        "flaga": "bol"
+    },
+    "9334": {
+        "nazwa": "Primera Division Qualification",
+        "flaga": "bol"
+    },
+    "267": {
+        "nazwa": "Premier League",
+        "flaga": "bih"
+    },
+    "268": {
+        "nazwa": "Serie A",
+        "flaga": "br"
+    },
+    "8814": {
+        "nazwa": "Serie B",
+        "flaga": "br"
+    },
+    "8971": {
+        "nazwa": "Serie C",
+        "flaga": "br"
+    },
+    "9067": {
+        "nazwa": "Copa do Brasil",
+        "flaga": "br"
+    },
+    "9429": {
+        "nazwa": "Copa do Nordeste",
+        "flaga": "br"
+    },
+    "10077": {
+        "nazwa": "Supercopa do Brasil",
+        "flaga": "br"
+    },
+    "10290": {
+        "nazwa": "Baiano",
+        "flaga": "br"
+    },
+    "10272": {
+        "nazwa": "Carioca",
+        "flaga": "br"
+    },
+    "11646": {
+        "nazwa": "Copa Paulista",
+        "flaga": "br"
+    },
+    "10274": {
+        "nazwa": "Gaúcho",
+        "flaga": "br"
+    },
+    "10291": {
+        "nazwa": "Goiano",
+        "flaga": "br"
+    },
+    "10273": {
+        "nazwa": "Mineiro",
+        "flaga": "br"
+    },
+    "10244": {
+        "nazwa": "Paulista A1",
+        "flaga": "br"
+    },
+    "9483": {
+        "nazwa": "Paulista A2",
+        "flaga": "br"
+    },
+    "10078": {
+        "nazwa": "Recopa Gaúcha",
+        "flaga": "br"
+    },
+    "9464": {
+        "nazwa": "Serie D",
+        "flaga": "br"
+    },
+    "270": {
+        "nazwa": "First Professional League",
+        "flaga": "bg"
+    },
+    "271": {
+        "nazwa": "Bulgarian Cup",
+        "flaga": "bg"
+    },
+    "9584": {
+        "nazwa": "First professional league Qualification",
+        "flaga": "bg"
+    },
+    "9096": {
+        "nazwa": "Second Professional League",
+        "flaga": "bg"
+    },
+    "272": {
+        "nazwa": "Super Cup",
+        "flaga": "bg"
+    },
+    "9986": {
+        "nazwa": "Premier League",
+        "flaga": "can"
+    },
+    "9837": {
+        "nazwa": "Canadian Championship",
+        "flaga": "can"
+    },
+    "10872": {
+        "nazwa": "Northern Super League",
+        "flaga": "can"
+    },
+    "273": {
+        "nazwa": "Liga de Primera",
+        "flaga": "cl"
+    },
+    "9091": {
+        "nazwa": "Copa Chile",
+        "flaga": "cl"
+    },
+    "11697": {
+        "nazwa": "Copa de la Liga",
+        "flaga": "cl"
+    },
+    "9126": {
+        "nazwa": "Liga de Ascenso",
+        "flaga": "cl"
+    },
+    "9407": {
+        "nazwa": "Super Cup",
+        "flaga": "cl"
+    },
+    "120": {
+        "nazwa": "Super League",
+        "flaga": "chn"
+    },
+    "9137": {
+        "nazwa": "China League One",
+        "flaga": "chn"
+    },
+    "9550": {
+        "nazwa": "Chinese FA Cup",
+        "flaga": "chn"
+    },
+    "9491": {
+        "nazwa": "Super Cup",
+        "flaga": "chn"
+    },
+    "9490": {
+        "nazwa": "Copa Colombia",
+        "flaga": "co"
+    },
+    "274": {
+        "nazwa": "Primera A",
+        "flaga": "co"
+    },
+    "9125": {
+        "nazwa": "Primera B",
+        "flaga": "co"
+    },
+    "11536": {
+        "nazwa": "Superliga",
+        "flaga": "co"
+    },
+    "121": {
+        "nazwa": "Primera Division",
+        "flaga": "crc"
+    },
+    "12888": {
+        "nazwa": "Primera Division Qualification",
+        "flaga": "crc"
+    },
+    "10223": {
+        "nazwa": "Super cup",
+        "flaga": "crc"
+    },
+    "252": {
+        "nazwa": "HNL",
+        "flaga": "hr"
+    },
+    "275": {
+        "nazwa": "Croatian Cup",
+        "flaga": "hr"
+    },
+    "276": {
+        "nazwa": "Super Cup",
+        "flaga": "hr"
+    },
+    "136": {
+        "nazwa": "1. Division",
+        "flaga": "cy"
+    },
+    "9100": {
+        "nazwa": "2. Division",
+        "flaga": "cy"
+    },
+    "330": {
+        "nazwa": "Cyprus Cup ",
+        "flaga": "cy"
+    },
+    "521": {
+        "nazwa": "Super Cup",
+        "flaga": "cy"
+    },
+    "122": {
+        "nazwa": "1. Liga",
+        "flaga": "cz"
+    },
+    "10025": {
+        "nazwa": "1. Liga qualification",
+        "flaga": "cz"
+    },
+    "254": {
+        "nazwa": "Czech Cup",
+        "flaga": "cz"
+    },
+    "253": {
+        "nazwa": "FNL",
+        "flaga": "cz"
+    },
+    "46": {
+        "nazwa": "Superligaen",
+        "flaga": "dk"
+    },
+    "85": {
+        "nazwa": "1. Division",
+        "flaga": "dk"
+    },
+    "239": {
+        "nazwa": "2. Division",
+        "flaga": "dk"
+    },
+    "240": {
+        "nazwa": "3. Division",
+        "flaga": "dk"
+    },
+    "256": {
+        "nazwa": "A-Liga",
+        "flaga": "dk"
+    },
+    "241": {
+        "nazwa": "Danmarksserien",
+        "flaga": "dk"
+    },
+    "242": {
+        "nazwa": "DBU Pokalen",
+        "flaga": "dk"
+    },
+    "10046": {
+        "nazwa": "Copa Ecuador",
+        "flaga": "ec"
+    },
+    "246": {
+        "nazwa": "Serie A",
+        "flaga": "ec"
+    },
+    "11035": {
+        "nazwa": "Supercopa de Ecuador",
+        "flaga": "ec"
+    },
+    "519": {
+        "nazwa": "Premier League",
+        "flaga": "eg"
+    },
+    "9941": {
+        "nazwa": "Egypt Cup",
+        "flaga": "eg"
+    },
+    "10270": {
+        "nazwa": "League Cup",
+        "flaga": "eg"
+    },
+    "10314": {
+        "nazwa": "Super Cup",
+        "flaga": "eg"
+    },
+    "335": {
+        "nazwa": "Primera Division",
+        "flaga": "sv"
+    },
+    "47": {
+        "nazwa": "Premier League",
+        "flaga": "gb-eng"
+    },
+    "48": {
+        "nazwa": "Championship",
+        "flaga": "gb-eng"
+    },
+    "108": {
+        "nazwa": "League One",
+        "flaga": "gb-eng"
+    },
+    "109": {
+        "nazwa": "League Two",
+        "flaga": "gb-eng"
+    },
+    "117": {
+        "nazwa": "National League",
+        "flaga": "gb-eng"
+    },
+    "8944": {
+        "nazwa": "National North & South",
+        "flaga": "gb-eng"
+    },
+    "8947": {
+        "nazwa": "Premier Division",
+        "flaga": "gb-eng"
+    },
+    "9084": {
+        "nazwa": "Premier League 2",
+        "flaga": "gb-eng"
+    },
+    "10176": {
+        "nazwa": "Premier League 2 Div 2",
+        "flaga": "gb-eng"
+    },
+    "247": {
+        "nazwa": "Community Shield",
+        "flaga": "gb-eng"
+    },
+    "132": {
+        "nazwa": "FA Cup",
+        "flaga": "gb-eng"
+    },
+    "133": {
+        "nazwa": "EFL Cup",
+        "flaga": "gb-eng"
+    },
+    "10626": {
+        "nazwa": "FA Cup Qualification",
+        "flaga": "gb-eng"
+    },
+    "142": {
+        "nazwa": "EFL Trophy",
+        "flaga": "gb-eng"
+    },
+    "9253": {
+        "nazwa": "FA Trophy",
+        "flaga": "gb-eng"
+    },
+    "10068": {
+        "nazwa": "Premier League U18",
+        "flaga": "gb-eng"
+    },
+    "9227": {
+        "nazwa": "WSL",
+        "flaga": "gb-eng"
+    },
+    "10082": {
+        "nazwa": "FA Cup (Women)",
+        "flaga": "gb-eng"
+    },
+    "9717": {
+        "nazwa": "Women's League Cup",
+        "flaga": "gb-eng"
+    },
+    "9294": {
+        "nazwa": "WSL 2",
+        "flaga": "gb-eng"
+    },
+    "10844": {
+        "nazwa": "Baller League",
+        "flaga": "gb-eng"
+    },
+    "12889": {
+        "nazwa": "EFL Cup Qualification",
+        "flaga": "gb-eng"
+    },
+    "10705": {
+        "nazwa": "National League Cup",
+        "flaga": "gb-eng"
+    },
+    "11839": {
+        "nazwa": "WSL Promotion/Relegation",
+        "flaga": "gb-eng"
+    },
+    "248": {
+        "nazwa": "Regular Season",
+        "flaga": "est"
+    },
+    "10034": {
+        "nazwa": "Meistriliiga Qualification",
+        "flaga": "est"
+    },
+    "9069": {
+        "nazwa": "Super Cup",
+        "flaga": "est"
+    },
+    "9523": {
+        "nazwa": "Løgmanssteypið",
+        "flaga": "fo"
+    },
+    "250": {
+        "nazwa": "Premier League",
+        "flaga": "fo"
+    },
+    "51": {
+        "nazwa": "Veikkausliiga",
+        "flaga": "fi"
+    },
+    "52": {
+        "nazwa": "Veikkausliiga Qualification",
+        "flaga": "fi"
+    },
+    "251": {
+        "nazwa": "Ykkosliiga",
+        "flaga": "fi"
+    },
+    "143": {
+        "nazwa": "Suomen Cup",
+        "flaga": "fi"
+    },
+    "8969": {
+        "nazwa": "Ykkonen",
+        "flaga": "fi"
+    },
+    "10174": {
+        "nazwa": "Kansallinen (Women)",
+        "flaga": "fi"
+    },
+    "10186": {
+        "nazwa": "Kansallinen Qualification (Women)",
+        "flaga": "fi"
+    },
+    "342": {
+        "nazwa": "Finland Cup",
+        "flaga": "fi"
+    },
+    "10713": {
+        "nazwa": "Ykkosliiga Qualification",
+        "flaga": "fi"
+    },
+    "53": {
+        "nazwa": "Ligue 1",
+        "flaga": "fr"
+    },
+    "110": {
+        "nazwa": "Ligue 2",
+        "flaga": "fr"
+    },
+    "8970": {
+        "nazwa": "Ligue 3",
+        "flaga": "fr"
+    },
+    "134": {
+        "nazwa": "Coupe de France",
+        "flaga": "fr"
+    },
+    "11028": {
+        "nazwa": "Coupe de France Féminine",
+        "flaga": "fr"
+    },
+    "9666": {
+        "nazwa": "Ligue 1 Qualification",
+        "flaga": "fr"
+    },
+    "9667": {
+        "nazwa": "Ligue 2 Qualification",
+        "flaga": "fr"
+    },
+    "9677": {
+        "nazwa": "Première Ligue Féminine",
+        "flaga": "fr"
+    },
+    "207": {
+        "nazwa": "Trophée des champions",
+        "flaga": "fr"
+    },
+    "439": {
+        "nazwa": "Erovnuli Liga",
+        "flaga": "geo"
+    },
+    "9310": {
+        "nazwa": "Erovnuli Qualification",
+        "flaga": "geo"
+    },
+    "54": {
+        "nazwa": "Bundesliga",
+        "flaga": "de"
+    },
+    "146": {
+        "nazwa": "2. Bundesliga",
+        "flaga": "de"
+    },
+    "208": {
+        "nazwa": "3. Liga",
+        "flaga": "de"
+    },
+    "209": {
+        "nazwa": "DFB Pokal",
+        "flaga": "de"
+    },
+    "512": {
+        "nazwa": "Regionalliga",
+        "flaga": "de"
+    },
+    "9081": {
+        "nazwa": "Bundesliga Qualification",
+        "flaga": "de"
+    },
+    "9734": {
+        "nazwa": "2. Bundesliga Qualification",
+        "flaga": "de"
+    },
+    "10022": {
+        "nazwa": "Regionalliga Qualification",
+        "flaga": "de"
+    },
+    "8924": {
+        "nazwa": "Super Cup",
+        "flaga": "de"
+    },
+    "9676": {
+        "nazwa": "Frauen Bundesliga",
+        "flaga": "de"
+    },
+    "10840": {
+        "nazwa": "Baller League",
+        "flaga": "de"
+    },
+    "10650": {
+        "nazwa": "DFB Pokal Frauen",
+        "flaga": "de"
+    },
+    "11034": {
+        "nazwa": "Supercup der Frauen",
+        "flaga": "de"
+    },
+    "522": {
+        "nazwa": "Premier League",
+        "flaga": "gh"
+    },
+    "135": {
+        "nazwa": "Super League 1",
+        "flaga": "gr"
+    },
+    "145": {
+        "nazwa": "Greece Cup",
+        "flaga": "gr"
+    },
+    "8816": {
+        "nazwa": "Super Cup",
+        "flaga": "gr"
+    },
+    "8815": {
+        "nazwa": "Super League 2",
+        "flaga": "gr"
+    },
+    "336": {
+        "nazwa": "Liga Nacional",
+        "flaga": "gt"
+    },
+    "337": {
+        "nazwa": "Liga Nacional",
+        "flaga": "hn"
+    },
+    "212": {
+        "nazwa": "Nemzeti Bajnokság I",
+        "flaga": "hu"
+    },
+    "213": {
+        "nazwa": "Magyar Kupa",
+        "flaga": "hu"
+    },
+    "9117": {
+        "nazwa": "NB II",
+        "flaga": "hu"
+    },
+    "215": {
+        "nazwa": "Besta deildin",
+        "flaga": "is"
+    },
+    "216": {
+        "nazwa": "1. Deild",
+        "flaga": "is"
+    },
+    "217": {
+        "nazwa": "Icelandic Cup",
+        "flaga": "is"
+    },
+    "10009": {
+        "nazwa": "Super Cup",
+        "flaga": "is"
+    },
+    "10226": {
+        "nazwa": "2. Deild",
+        "flaga": "is"
+    },
+    "10076": {
+        "nazwa": "League Cup",
+        "flaga": "is"
+    },
+    "9478": {
+        "nazwa": "Indian Super League",
+        "flaga": "ind"
+    },
+    "10309": {
+        "nazwa": "Durand Cup",
+        "flaga": "ind"
+    },
+    "8982": {
+        "nazwa": "Indian Football League",
+        "flaga": "ind"
+    },
+    "10366": {
+        "nazwa": "Super Cup",
+        "flaga": "ind"
+    },
+    "10059": {
+        "nazwa": "President's Cup",
+        "flaga": "id"
+    },
+    "8983": {
+        "nazwa": "Super League",
+        "flaga": "id"
+    },
+    "523": {
+        "nazwa": "Persian Gulf",
+        "flaga": "ir"
+    },
+    "9372": {
+        "nazwa": "Azadegan League",
+        "flaga": "ir"
+    },
+    "9487": {
+        "nazwa": "Hazfi cup",
+        "flaga": "ir"
+    },
+    "9409": {
+        "nazwa": "Persian Gulf Pro League Qualification",
+        "flaga": "ir"
+    },
+    "10288": {
+        "nazwa": "Super Cup",
+        "flaga": "ir"
+    },
+    "524": {
+        "nazwa": "Stars League",
+        "flaga": "iq"
+    },
+    "10310": {
+        "nazwa": "Stars League Relegation Playoff",
+        "flaga": "iq"
+    },
+    "126": {
+        "nazwa": "Premier Division",
+        "flaga": "ie"
+    },
+    "221": {
+        "nazwa": "Premier Division Qualification",
+        "flaga": "ie"
+    },
+    "218": {
+        "nazwa": "First Division",
+        "flaga": "ie"
+    },
+    "219": {
+        "nazwa": "FAI Cup",
+        "flaga": "ie"
+    },
+    "10307": {
+        "nazwa": "FAI Women's Cup (W)",
+        "flaga": "ie"
+    },
+    "9431": {
+        "nazwa": "Super Cup",
+        "flaga": "ie"
+    },
+    "10210": {
+        "nazwa": "Women's Premier Division",
+        "flaga": "ie"
+    },
+    "127": {
+        "nazwa": "Ligat ha'Al",
+        "flaga": "il"
+    },
+    "128": {
+        "nazwa": "Leumit League",
+        "flaga": "il"
+    },
+    "9735": {
+        "nazwa": "Leumit League Qualification",
+        "flaga": "il"
+    },
+    "9097": {
+        "nazwa": "State Cup",
+        "flaga": "il"
+    },
+    "9862": {
+        "nazwa": "Super Cup",
+        "flaga": "il"
+    },
+    "9098": {
+        "nazwa": "Toto Cup Leumit",
+        "flaga": "il"
+    },
+    "55": {
+        "nazwa": "Serie A",
+        "flaga": "it"
+    },
+    "86": {
+        "nazwa": "Serie B",
+        "flaga": "it"
+    },
+    "141": {
+        "nazwa": "Coppa Italia",
+        "flaga": "it"
+    },
+    "147": {
+        "nazwa": "Serie C",
+        "flaga": "it"
+    },
+    "222": {
+        "nazwa": "Supercoppa",
+        "flaga": "it"
+    },
+    "11014": {
+        "nazwa": "Coppa Italia Women",
+        "flaga": "it"
+    },
+    "10178": {
+        "nazwa": "Serie A Femminile",
+        "flaga": "it"
+    },
+    "10434": {
+        "nazwa": "Serie A Femminile Qualification",
+        "flaga": "it"
+    },
+    "11015": {
+        "nazwa": "Supercoppa Italiana",
+        "flaga": "it"
+    },
+    "223": {
+        "nazwa": "J. League",
+        "flaga": "jp"
+    },
+    "8974": {
+        "nazwa": "J. League 2",
+        "flaga": "jp"
+    },
+    "9136": {
+        "nazwa": "J. League 3",
+        "flaga": "jp"
+    },
+    "9011": {
+        "nazwa": "Emperor Cup",
+        "flaga": "jp"
+    },
+    "10716": {
+        "nazwa": "J. League 3 Qualification",
+        "flaga": "jp"
+    },
+    "224": {
+        "nazwa": "J. League Cup",
+        "flaga": "jp"
+    },
+    "11499": {
+        "nazwa": "Japan 2/3",
+        "flaga": "jp"
+    },
+    "440": {
+        "nazwa": "Super Cup",
+        "flaga": "jp"
+    },
+    "9500": {
+        "nazwa": "WE League",
+        "flaga": "jp"
+    },
+    "225": {
+        "nazwa": "Premier League",
+        "flaga": "kz"
+    },
+    "9504": {
+        "nazwa": "Super Cup",
+        "flaga": "kz"
+    },
+    "529": {
+        "nazwa": "Premier League",
+        "flaga": "kw"
+    },
+    "226": {
+        "nazwa": "Virsliga",
+        "flaga": "lv"
+    },
+    "9486": {
+        "nazwa": "Super Cup",
+        "flaga": "lv"
+    },
+    "9632": {
+        "nazwa": "A Lyga Qualification",
+        "flaga": "lt"
+    },
+    "9493": {
+        "nazwa": "Super Cup",
+        "flaga": "lt"
+    },
+    "228": {
+        "nazwa": "Toplyga",
+        "flaga": "lt"
+    },
+    "229": {
+        "nazwa": "National Division",
+        "flaga": "lu"
+    },
+    "9527": {
+        "nazwa": "Coupe de Luxembourg",
+        "flaga": "lu"
+    },
+    "9174": {
+        "nazwa": "National Division Qualification",
+        "flaga": "lu"
+    },
+    "249": {
+        "nazwa": "Prva Liga",
+        "flaga": "mk"
+    },
+    "9528": {
+        "nazwa": "Macedonian Cup",
+        "flaga": "mk"
+    },
+    "8985": {
+        "nazwa": "Liga Super",
+        "flaga": "my"
+    },
+    "230": {
+        "nazwa": "Liga MX",
+        "flaga": "mx"
+    },
+    "8976": {
+        "nazwa": "Liga de Expansión MX",
+        "flaga": "mx"
+    },
+    "11039": {
+        "nazwa": "Campeón de Campeones",
+        "flaga": "mx"
+    },
+    "9906": {
+        "nazwa": "Liga MX Femenil",
+        "flaga": "mx"
+    },
+    "231": {
+        "nazwa": "National Division",
+        "flaga": "md"
+    },
+    "9530": {
+        "nazwa": "Cupa Moldova",
+        "flaga": "md"
+    },
+    "10065": {
+        "nazwa": "National Division Qualification",
+        "flaga": "md"
+    },
+    "232": {
+        "nazwa": "1. CFL",
+        "flaga": "me"
+    },
+    "9178": {
+        "nazwa": "1. CFL Qualification",
+        "flaga": "me"
+    },
+    "530": {
+        "nazwa": "Botola Pro",
+        "flaga": "ma"
+    },
+    "10917": {
+        "nazwa": "Botola Pro Qualification",
+        "flaga": "ma"
+    },
+    "11840": {
+        "nazwa": "Throne Cup",
+        "flaga": "ma"
+    },
+    "57": {
+        "nazwa": "Eredivisie",
+        "flaga": "nl"
+    },
+    "111": {
+        "nazwa": "Eerste Divisie",
+        "flaga": "nl"
+    },
+    "9195": {
+        "nazwa": "Tweede Divisie",
+        "flaga": "nl"
+    },
+    "58": {
+        "nazwa": "Eredivisie Qualification",
+        "flaga": "nl"
+    },
+    "10289": {
+        "nazwa": "Eredivisie Vrouwen",
+        "flaga": "nl"
+    },
+    "10668": {
+        "nazwa": "KNVB Beker Women",
+        "flaga": "nl"
+    },
+    "235": {
+        "nazwa": "KNVB Cup",
+        "flaga": "nl"
+    },
+    "237": {
+        "nazwa": "Super Cup",
+        "flaga": "nl"
+    },
+    "11029": {
+        "nazwa": "Super Cup",
+        "flaga": "nl"
+    },
+    "9851": {
+        "nazwa": "Tweede Divisie Qualification",
+        "flaga": "nl"
+    },
+    "8870": {
+        "nazwa": "Championship",
+        "flaga": "nz"
+    },
+    "533": {
+        "nazwa": "Professional Football League",
+        "flaga": "ng"
+    },
+    "129": {
+        "nazwa": "Premiership",
+        "flaga": "gb-nir"
+    },
+    "9389": {
+        "nazwa": "Irish Cup",
+        "flaga": "gb-nir"
+    },
+    "8978": {
+        "nazwa": "League Cup",
+        "flaga": "gb-nir"
+    },
+    "8979": {
+        "nazwa": "Premiership Qualification",
+        "flaga": "gb-nir"
+    },
+    "59": {
+        "nazwa": "Eliteserien",
+        "flaga": "no"
+    },
+    "203": {
+        "nazwa": "OBOS-ligaen",
+        "flaga": "no"
+    },
+    "204": {
+        "nazwa": "PostNord-ligaen",
+        "flaga": "no"
+    },
+    "331": {
+        "nazwa": "Toppserien",
+        "flaga": "no"
+    },
+    "332": {
+        "nazwa": "1. Division Kvinner",
+        "flaga": "no"
+    },
+    "10714": {
+        "nazwa": "1. divisjon kvinner kvalifisering",
+        "flaga": "no"
+    },
+    "60": {
+        "nazwa": "Eliteserien Qualification",
+        "flaga": "no"
+    },
+    "206": {
+        "nazwa": "Norgesmesterskapet",
+        "flaga": "no"
+    },
+    "10628": {
+        "nazwa": "Norgesmesterskapet Kvalifisering",
+        "flaga": "no"
+    },
+    "333": {
+        "nazwa": "Norgesmesterskapet Kvinner",
+        "flaga": "no"
+    },
+    "205": {
+        "nazwa": "Norsk Tipping-ligaen",
+        "flaga": "no"
+    },
+    "9754": {
+        "nazwa": "OBOS-ligaen Qualification",
+        "flaga": "no"
+    },
+    "9382": {
+        "nazwa": "Toppserien Qualification (W)",
+        "flaga": "no"
+    },
+    "9039": {
+        "nazwa": "LPF",
+        "flaga": "pa"
+    },
+    "10230": {
+        "nazwa": "Copa Paraguay",
+        "flaga": "py"
+    },
+    "199": {
+        "nazwa": "Division Profesional",
+        "flaga": "py"
+    },
+    "10259": {
+        "nazwa": "Supercopa",
+        "flaga": "py"
+    },
+    "131": {
+        "nazwa": "Liga 1",
+        "flaga": "pe"
+    },
+    "196": {
+        "nazwa": "Ekstraklasa",
+        "flaga": "pl"
+    },
+    "197": {
+        "nazwa": "I Liga",
+        "flaga": "pl"
+    },
+    "198": {
+        "nazwa": "Puchar Polski",
+        "flaga": "pl"
+    },
+    "200": {
+        "nazwa": "Superpuchar Polski",
+        "flaga": "pl"
+    },
+    "8935": {
+        "nazwa": "II Liga",
+        "flaga": "pl"
+    },
+    "10967": {
+        "nazwa": "II Liga Qualification",
+        "flaga": "pl"
+    },
+    "61": {
+        "nazwa": "Liga Portugal",
+        "flaga": "pt"
+    },
+    "185": {
+        "nazwa": "Liga Portugal 2",
+        "flaga": "pt"
+    },
+    "187": {
+        "nazwa": "League Cup",
+        "flaga": "pt"
+    },
+    "9112": {
+        "nazwa": "Liga 3",
+        "flaga": "pt"
+    },
+    "9668": {
+        "nazwa": "Liga Portugal 2 Qualification",
+        "flaga": "pt"
+    },
+    "10215": {
+        "nazwa": "Liga Portugal Qualification",
+        "flaga": "pt"
+    },
+    "10448": {
+        "nazwa": "Liga Revelação",
+        "flaga": "pt"
+    },
+    "10449": {
+        "nazwa": "Nacional Feminino",
+        "flaga": "pt"
+    },
+    "10657": {
+        "nazwa": "Nacional Feminino Qualification",
+        "flaga": "pt"
+    },
+    "188": {
+        "nazwa": "Super Cup",
+        "flaga": "pt"
+    },
+    "186": {
+        "nazwa": "Taça de Portugal",
+        "flaga": "pt"
+    },
+    "11018": {
+        "nazwa": "Amir of Qatar Cup",
+        "flaga": "qat"
+    },
+    "11016": {
+        "nazwa": "Qatar Cup",
+        "flaga": "qat"
+    },
+    "535": {
+        "nazwa": "Qatar Stars League",
+        "flaga": "qat"
+    },
+    "11017": {
+        "nazwa": "QSL Cup",
+        "flaga": "qat"
+    },
+    "9661": {
+        "nazwa": "Qualification",
+        "flaga": "qat"
+    },
+    "11030": {
+        "nazwa": "Second Division",
+        "flaga": "qat"
+    },
+    "189": {
+        "nazwa": "Liga I",
+        "flaga": "ro"
+    },
+    "9113": {
+        "nazwa": "Liga II",
+        "flaga": "ro"
+    },
+    "190": {
+        "nazwa": "Cupa României",
+        "flaga": "ro"
+    },
+    "192": {
+        "nazwa": "Supercupa",
+        "flaga": "ro"
+    },
+    "9587": {
+        "nazwa": "Liga I Qualification",
+        "flaga": "ro"
+    },
+    "63": {
+        "nazwa": "Premier League",
+        "flaga": "ru"
+    },
+    "193": {
+        "nazwa": "Russian Cup",
+        "flaga": "ru"
+    },
+    "9333": {
+        "nazwa": "Premier League Qualification",
+        "flaga": "ru"
+    },
+    "195": {
+        "nazwa": "Super Cup",
+        "flaga": "ru"
+    },
+    "338": {
+        "nazwa": "1. Division",
+        "flaga": "ru"
+    },
+    "9123": {
+        "nazwa": "Second League",
+        "flaga": "ru"
+    },
+    "536": {
+        "nazwa": "Saudi Pro League",
+        "flaga": "ksa"
+    },
+    "9942": {
+        "nazwa": "King's Cup",
+        "flaga": "ksa"
+    },
+    "10721": {
+        "nazwa": "Saudi First Division",
+        "flaga": "ksa"
+    },
+    "10074": {
+        "nazwa": "Super Cup",
+        "flaga": "ksa"
+    },
+    "10783": {
+        "nazwa": "Women's Premier League",
+        "flaga": "ksa"
+    },
+    "64": {
+        "nazwa": "Premiership",
+        "flaga": "gb-sct"
+    },
+    "123": {
+        "nazwa": "Championship",
+        "flaga": "gb-sct"
+    },
+    "124": {
+        "nazwa": "League One",
+        "flaga": "gb-sct"
+    },
+    "125": {
+        "nazwa": "League Two",
+        "flaga": "gb-sct"
+    },
+    "181": {
+        "nazwa": "Premiership playoff",
+        "flaga": "gb-sct"
+    },
+    "179": {
+        "nazwa": "Challenge Cup",
+        "flaga": "gb-sct"
+    },
+    "9737": {
+        "nazwa": "Championship playoff",
+        "flaga": "gb-sct"
+    },
+    "9545": {
+        "nazwa": "Highland / Lowland",
+        "flaga": "gb-sct"
+    },
+    "180": {
+        "nazwa": "League Cup",
+        "flaga": "gb-sct"
+    },
+    "9738": {
+        "nazwa": "League One Playoff",
+        "flaga": "gb-sct"
+    },
+    "9739": {
+        "nazwa": "League Two Playoff",
+        "flaga": "gb-sct"
+    },
+    "137": {
+        "nazwa": "Scottish Cup",
+        "flaga": "gb-sct"
+    },
+    "11020": {
+        "nazwa": "SWF Scottish Cup",
+        "flaga": "gb-sct"
+    },
+    "10791": {
+        "nazwa": "SWPL 1",
+        "flaga": "gb-sct"
+    },
+    "11019": {
+        "nazwa": "SWPL Cup",
+        "flaga": "gb-sct"
+    },
+    "182": {
+        "nazwa": "Super Liga",
+        "flaga": "rs"
+    },
+    "183": {
+        "nazwa": "Kup Srbije",
+        "flaga": "rs"
+    },
+    "10583": {
+        "nazwa": "Super Liga Qualification",
+        "flaga": "rs"
+    },
+    "461": {
+        "nazwa": "Premier League",
+        "flaga": "sg"
+    },
+    "9143": {
+        "nazwa": "Singapore Cup",
+        "flaga": "sg"
+    },
+    "176": {
+        "nazwa": "1. liga",
+        "flaga": "sk"
+    },
+    "8973": {
+        "nazwa": "2. Liga",
+        "flaga": "sk"
+    },
+    "177": {
+        "nazwa": "FA Cup",
+        "flaga": "sk"
+    },
+    "9845": {
+        "nazwa": "Super Liga Qualification",
+        "flaga": "sk"
+    },
+    "173": {
+        "nazwa": "Prva Liga",
+        "flaga": "si"
+    },
+    "492": {
+        "nazwa": "Prva Liga Qualification",
+        "flaga": "si"
+    },
+    "174": {
+        "nazwa": "Slovenia Cup",
+        "flaga": "si"
+    },
+    "10708": {
+        "nazwa": "League Cup",
+        "flaga": "za"
+    },
+    "9473": {
+        "nazwa": "Nedbank Cup",
+        "flaga": "za"
+    },
+    "537": {
+        "nazwa": "Premier Soccer League",
+        "flaga": "za"
+    },
+    "9474": {
+        "nazwa": "South Africa 8 Cup",
+        "flaga": "za"
+    },
+    "10584": {
+        "nazwa": "South Africa League Qualification",
+        "flaga": "za"
+    },
+    "9080": {
+        "nazwa": "K League 1",
+        "flaga": "kr"
+    },
+    "9422": {
+        "nazwa": "K League Qualification",
+        "flaga": "kr"
+    },
+    "9551": {
+        "nazwa": "Cup",
+        "flaga": "kr"
+    },
+    "9116": {
+        "nazwa": "K League 2",
+        "flaga": "kr"
+    },
+    "9537": {
+        "nazwa": "K League 3",
+        "flaga": "kr"
+    },
+    "10188": {
+        "nazwa": "K League 3 Qualification",
+        "flaga": "kr"
+    },
+    "87": {
+        "nazwa": "LaLiga",
+        "flaga": "es"
+    },
+    "140": {
+        "nazwa": "LaLiga2",
+        "flaga": "es"
+    },
+    "8968": {
+        "nazwa": "Primera Federación",
+        "flaga": "es"
+    },
+    "9138": {
+        "nazwa": "Segunda Federación",
+        "flaga": "es"
+    },
+    "9907": {
+        "nazwa": "Liga F",
+        "flaga": "es"
+    },
+    "138": {
+        "nazwa": "Copa del Rey",
+        "flaga": "es"
+    },
+    "139": {
+        "nazwa": "Supercopa de España",
+        "flaga": "es"
+    },
+    "10651": {
+        "nazwa": "Copa de la Reina",
+        "flaga": "es"
+    },
+    "10776": {
+        "nazwa": "Supercopa Femenina",
+        "flaga": "es"
+    },
+    "67": {
+        "nazwa": "Allsvenskan",
+        "flaga": "se"
+    },
+    "68": {
+        "nazwa": "Allsvenskan Qualification",
+        "flaga": "se"
+    },
+    "168": {
+        "nazwa": "Superettan",
+        "flaga": "se"
+    },
+    "172": {
+        "nazwa": "Superettan Qualification",
+        "flaga": "se"
+    },
+    "9089": {
+        "nazwa": "Damallsvenskan (W)",
+        "flaga": "se"
+    },
+    "171": {
+        "nazwa": "Svenska Cupen",
+        "flaga": "se"
+    },
+    "9634": {
+        "nazwa": "1. Division Qualification",
+        "flaga": "se"
+    },
+    "10316": {
+        "nazwa": "Damallsvenskan Qualification (W)",
+        "flaga": "se"
+    },
+    "10308": {
+        "nazwa": "Eliteettan (W)",
+        "flaga": "se"
+    },
+    "169": {
+        "nazwa": "Ettan",
+        "flaga": "se"
+    },
+    "11194": {
+        "nazwa": "Women Cup",
+        "flaga": "se"
+    },
+    "69": {
+        "nazwa": "Super League",
+        "flaga": "ch"
+    },
+    "163": {
+        "nazwa": "Challenge League",
+        "flaga": "ch"
+    },
+    "10433": {
+        "nazwa": "Challenge League Qualification",
+        "flaga": "ch"
+    },
+    "70": {
+        "nazwa": "Super League Qualification",
+        "flaga": "ch"
+    },
+    "164": {
+        "nazwa": "Swiss Cup",
+        "flaga": "ch"
+    },
+    "9066": {
+        "nazwa": "Premier League",
+        "flaga": "tz"
+    },
+    "10028": {
+        "nazwa": "Premier League Qualification",
+        "flaga": "tz"
+    },
+    "11023": {
+        "nazwa": "FA Cup",
+        "flaga": "th"
+    },
+    "11024": {
+        "nazwa": "League Cup",
+        "flaga": "th"
+    },
+    "8984": {
+        "nazwa": "Thai League",
+        "flaga": "th"
+    },
+    "9498": {
+        "nazwa": "Thai League 2",
+        "flaga": "th"
+    },
+    "544": {
+        "nazwa": "Ligue I",
+        "flaga": "tn"
+    },
+    "9669": {
+        "nazwa": "Ligue I Qualification",
+        "flaga": "tn"
+    },
+    "71": {
+        "nazwa": "Süper Lig",
+        "flaga": "tr"
+    },
+    "165": {
+        "nazwa": "1. Lig",
+        "flaga": "tr"
+    },
+    "166": {
+        "nazwa": "Super Cup",
+        "flaga": "tr"
+    },
+    "151": {
+        "nazwa": "Turkish Cup",
+        "flaga": "tr"
+    },
+    "441": {
+        "nazwa": "Premier League",
+        "flaga": "ua"
+    },
+    "9829": {
+        "nazwa": "Premier League Qualification",
+        "flaga": "ua"
+    },
+    "10023": {
+        "nazwa": "1. Division Qualification",
+        "flaga": "ua"
+    },
+    "442": {
+        "nazwa": "Ukraine Cup",
+        "flaga": "ua"
+    },
+    "9943": {
+        "nazwa": "Cup",
+        "flaga": "uae"
+    },
+    "11027": {
+        "nazwa": "League Cup",
+        "flaga": "uae"
+    },
+    "538": {
+        "nazwa": "Pro League",
+        "flaga": "uae"
+    },
+    "11026": {
+        "nazwa": "Super Cup",
+        "flaga": "uae"
+    },
+    "130": {
+        "nazwa": "MLS",
+        "flaga": "us"
+    },
+    "8972": {
+        "nazwa": "USL Championship",
+        "flaga": "us"
+    },
+    "9296": {
+        "nazwa": "USL League One",
+        "flaga": "us"
+    },
+    "9441": {
+        "nazwa": "Open Cup",
+        "flaga": "us"
+    },
+    "9134": {
+        "nazwa": "NWSL",
+        "flaga": "us"
+    },
+    "11157": {
+        "nazwa": "Baller League",
+        "flaga": "us"
+    },
+    "10282": {
+        "nazwa": "MLS Next Pro",
+        "flaga": "us"
+    },
+    "10084": {
+        "nazwa": "NISA",
+        "flaga": "us"
+    },
+    "10167": {
+        "nazwa": "NWSL Challenge Cup",
+        "flaga": "us"
+    },
+    "10654": {
+        "nazwa": "USL Cup",
+        "flaga": "us"
+    },
+    "10699": {
+        "nazwa": "USL Super League Women",
+        "flaga": "us"
+    },
+    "10342": {
+        "nazwa": "Copa Uruguay",
+        "flaga": "uy"
+    },
+    "161": {
+        "nazwa": "Liga AUF Uruguaya",
+        "flaga": "uy"
+    },
+    "9122": {
+        "nazwa": "Segunda Division",
+        "flaga": "uy"
+    },
+    "10343": {
+        "nazwa": "Supercopa",
+        "flaga": "uy"
+    },
+    "540": {
+        "nazwa": "Superliga",
+        "flaga": "uz"
+    },
+    "339": {
+        "nazwa": "Primera Division",
+        "flaga": "ve"
+    },
+    "11031": {
+        "nazwa": "Supercopa",
+        "flaga": "ve"
+    },
+    "10161": {
+        "nazwa": "Cúp Quốc gia",
+        "flaga": "vn"
+    },
+    "10737": {
+        "nazwa": "Super Cup",
+        "flaga": "vn"
+    },
+    "9088": {
+        "nazwa": "V-League",
+        "flaga": "vn"
+    },
+    "9628": {
+        "nazwa": "V-League Qualification",
+        "flaga": "vn"
+    },
+    "116": {
+        "nazwa": "Cymru Premier",
+        "flaga": "gb-wls"
+    },
+    "9166": {
+        "nazwa": "Welsh Cup",
+        "flaga": "gb-wls"
+    },
+    "943229": {
+        "nazwa": "Europa League",
+        "flaga": "int"
+    },
+    "938221": {
+        "nazwa": "EFL Cup",
+        "flaga": "gb-eng"
+    },
+    "944879": {
+        "nazwa": "Cup Group Stage",
+        "flaga": "gr"
+    },
+    "942846": {
+        "nazwa": "Serie C Grp. B",
+        "flaga": "it"
+    },
+    "942844": {
+        "nazwa": "Serie C Grp. A",
+        "flaga": "it"
+    },
+    "942063": {
+        "nazwa": "Cyprus League",
+        "flaga": "cy"
+    },
+    "937276": {
+        "nazwa": "Eredivisie",
+        "flaga": "nl"
+    },
+    "916016": {
+        "nazwa": "First Division",
+        "flaga": "ie"
+    },
+    "938776": {
+        "nazwa": "Premier League",
+        "flaga": "gb-wls"
+    },
+    "940450": {
+        "nazwa": "Regionalliga West",
+        "flaga": "de"
+    },
+    "936918": {
+        "nazwa": "1. Liga",
+        "flaga": "sk"
+    },
+    "938218": {
+        "nazwa": "Championship",
+        "flaga": "gb-eng"
+    },
+    "938219": {
+        "nazwa": "League One",
+        "flaga": "gb-eng"
+    },
+    "937650": {
+        "nazwa": "Premiership",
+        "flaga": "gb-sct"
+    },
+    "941726": {
+        "nazwa": "Serie B",
+        "flaga": "it"
+    },
+    "937880": {
+        "nazwa": "Super League",
+        "flaga": "ch"
+    },
+    "938182": {
+        "nazwa": "1. Liga",
+        "flaga": "cz"
+    },
+    "937875": {
+        "nazwa": "J. League",
+        "flaga": "jp"
+    },
+    "919356": {
+        "nazwa": "K-League 1",
+        "flaga": "kr"
+    },
+    "913550": {
+        "nazwa": "Major League Soccer",
+        "flaga": "us"
+    },
+    "938366": {
+        "nazwa": "Bundesliga",
+        "flaga": "at"
+    },
+    "941071": {
+        "nazwa": "Super League",
+        "flaga": "gr"
+    },
+    "945430": {
+        "nazwa": "Super League 2",
+        "flaga": "gr"
+    },
+    "935487": {
+        "nazwa": "Superligaen",
+        "flaga": "dk"
+    },
+    "1000001597": {
+        "nazwa": "Coppa Italia Women",
+        "flaga": "it"
+    },
+    "1000001509": {
+        "nazwa": "Belgian Challenger Pro League",
+        "flaga": "be"
+    },
+    "1000001461": {
+        "nazwa": "UAE League Cup",
+        "flaga": "uae"
+    },
+    "1000001471": {
+        "nazwa": "Thai League 1",
+        "flaga": "th"
+    },
+    "1000001465": {
+        "nazwa": "English WSL 2",
+        "flaga": "gb-eng"
+    },
+    "938792": {
+        "nazwa": "Segunda Federacion - Group 2",
+        "flaga": "es"
+    },
+    "920754": {
+        "nazwa": "UEFA Nations League D Grp. 1",
+        "flaga": "int"
+    },
+    "938653": {
+        "nazwa": "LaLiga2",
+        "flaga": "es"
+    },
+    "1000001445": {
+        "nazwa": "Qatar QSL Cup",
+        "flaga": "qat"
+    },
+    "914609": {
+        "nazwa": "Friendlies",
+        "flaga": "int"
+    },
+    "943369": {
+        "nazwa": "League Cup",
+        "flaga": "jp"
+    },
+    "1000001490": {
+        "nazwa": "UEFA Women's Europa Cup",
+        "flaga": "int"
+    }
+}

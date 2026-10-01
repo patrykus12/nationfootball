@@ -1,0 +1,482 @@
+{
+    "915708": {
+        "nazwa": "Mecze Towarzyskie",
+        "flaga": "",
+        "ignoruj": true
+    },
+    "53": {
+        "nazwa": "Ligue 1",
+        "flaga": "fr",
+        "ignoruj": false
+    },
+    "232": {
+        "nazwa": "1. CFL",
+        "flaga": "me",
+        "ignoruj": false
+    },
+    "228": {
+        "nazwa": "Toplyga",
+        "flaga": "lt",
+        "ignoruj": false
+    },
+    "67": {
+        "nazwa": "Allsvenskan",
+        "flaga": "se",
+        "ignoruj": false
+    },
+    "242": {
+        "nazwa": "DBU Pokalen",
+        "flaga": "dk",
+        "ignoruj": false
+    },
+    "516": {
+        "nazwa": "Ligue 1",
+        "flaga": "alg",
+        "ignoruj": false
+    },
+    "8970": {
+        "nazwa": "Ligue 3",
+        "flaga": "fr",
+        "ignoruj": false
+    },
+    "212": {
+        "nazwa": "Nemzeti Bajnokság I",
+        "flaga": "hu",
+        "ignoruj": false
+    },
+    "118": {
+        "nazwa": "Premier League",
+        "flaga": "arm",
+        "ignoruj": false
+    },
+    "9096": {
+        "nazwa": "Second Professional League",
+        "flaga": "bg",
+        "ignoruj": false
+    },
+    "521": {
+        "nazwa": "Super Cup",
+        "flaga": "cy",
+        "ignoruj": false
+    },
+    "540": {
+        "nazwa": "Superliga",
+        "flaga": "uz",
+        "ignoruj": false
+    },
+    "8972": {
+        "nazwa": "USL Championship",
+        "flaga": "us",
+        "ignoruj": false
+    },
+    "165": {
+        "nazwa": "1. Lig",
+        "flaga": "tr",
+        "ignoruj": false
+    },
+    "9837": {
+        "nazwa": "Canadian Championship",
+        "flaga": "can",
+        "ignoruj": false
+    },
+    "9305": {
+        "nazwa": "Copa Argentina",
+        "flaga": "ar",
+        "ignoruj": false
+    },
+    "9067": {
+        "nazwa": "Copa do Brasil",
+        "flaga": "br",
+        "ignoruj": false
+    },
+    "199": {
+        "nazwa": "Division Profesional",
+        "flaga": "py",
+        "ignoruj": false
+    },
+    "127": {
+        "nazwa": "Ligat ha'Al",
+        "flaga": "il",
+        "ignoruj": false
+    },
+    "523": {
+        "nazwa": "Persian Gulf",
+        "flaga": "ir",
+        "ignoruj": false
+    },
+    "274": {
+        "nazwa": "Primera A",
+        "flaga": "co",
+        "ignoruj": false
+    },
+    "339": {
+        "nazwa": "Primera Division",
+        "flaga": "ve",
+        "ignoruj": false
+    },
+    "273": {
+        "nazwa": "Liga de Primera",
+        "flaga": "cl",
+        "ignoruj": false
+    },
+    "535": {
+        "nazwa": "Qatar Stars League",
+        "flaga": "qat",
+        "ignoruj": false
+    },
+    "536": {
+        "nazwa": "Saudi Pro League",
+        "flaga": "ksa",
+        "ignoruj": false
+    },
+    "246": {
+        "nazwa": "Serie A",
+        "flaga": "ec",
+        "ignoruj": false
+    },
+    "268": {
+        "nazwa": "Serie A",
+        "flaga": "br",
+        "ignoruj": false
+    },
+    "9464": {
+        "nazwa": "Serie D",
+        "flaga": "br",
+        "ignoruj": false
+    },
+    "9296": {
+        "nazwa": "USL League One",
+        "flaga": "us",
+        "ignoruj": false
+    },
+    "54": {
+        "nazwa": "Bundesliga",
+        "flaga": "de",
+        "ignoruj": false
+    },
+    "87": {
+        "nazwa": "LaLiga",
+        "flaga": "es",
+        "ignoruj": false
+    },
+    "55": {
+        "nazwa": "Serie A",
+        "flaga": "it",
+        "ignoruj": false
+    },
+    "146": {
+        "nazwa": "2. Bundesliga",
+        "flaga": "de",
+        "ignoruj": false
+    },
+    "208": {
+        "nazwa": "3. Liga",
+        "flaga": "de",
+        "ignoruj": false
+    },
+    "278": {
+        "nazwa": "Austrian Cup",
+        "flaga": "at",
+        "ignoruj": false
+    },
+    "111": {
+        "nazwa": "Eerste Divisie",
+        "flaga": "nl",
+        "ignoruj": false
+    },
+    "59": {
+        "nazwa": "Eliteserien",
+        "flaga": "no",
+        "ignoruj": false
+    },
+    "439": {
+        "nazwa": "Erovnuli Liga",
+        "flaga": "geo",
+        "ignoruj": false
+    },
+    "219": {
+        "nazwa": "FAI Cup",
+        "flaga": "ie",
+        "ignoruj": false
+    },
+    "252": {
+        "nazwa": "HNL",
+        "flaga": "hr",
+        "ignoruj": false
+    },
+    "197": {
+        "nazwa": "I Liga",
+        "flaga": "pl",
+        "ignoruj": false
+    },
+    "8935": {
+        "nazwa": "II Liga",
+        "flaga": "pl",
+        "ignoruj": false
+    },
+    "260": {
+        "nazwa": "Kategoria Superiore",
+        "flaga": "alb",
+        "ignoruj": false
+    },
+    "8985": {
+        "nazwa": "Liga Super",
+        "flaga": "my",
+        "ignoruj": false
+    },
+    "110": {
+        "nazwa": "Ligue 2",
+        "flaga": "fr",
+        "ignoruj": false
+    },
+    "262": {
+        "nazwa": "Premier League",
+        "flaga": "aze",
+        "ignoruj": false
+    },
+    "9066": {
+        "nazwa": "Premier League",
+        "flaga": "tz",
+        "ignoruj": false
+    },
+    "173": {
+        "nazwa": "Prva Liga",
+        "flaga": "si",
+        "ignoruj": false
+    },
+    "249": {
+        "nazwa": "Prva Liga",
+        "flaga": "mk",
+        "ignoruj": false
+    },
+    "8983": {
+        "nazwa": "Super League",
+        "flaga": "id",
+        "ignoruj": false
+    },
+    "71": {
+        "nazwa": "Süper Lig",
+        "flaga": "tr",
+        "ignoruj": false
+    },
+    "168": {
+        "nazwa": "Superettan",
+        "flaga": "se",
+        "ignoruj": false
+    },
+    "9088": {
+        "nazwa": "V-League",
+        "flaga": "vn",
+        "ignoruj": false
+    },
+    "163": {
+        "nazwa": "Challenge League",
+        "flaga": "ch",
+        "ignoruj": false
+    },
+    "264": {
+        "nazwa": "First Division B",
+        "flaga": "be",
+        "ignoruj": false
+    },
+    "253": {
+        "nazwa": "FNL",
+        "flaga": "cz",
+        "ignoruj": false
+    },
+    "9116": {
+        "nazwa": "K League 2",
+        "flaga": "kr",
+        "ignoruj": false
+    },
+    "131": {
+        "nazwa": "Liga 1",
+        "flaga": "pe",
+        "ignoruj": false
+    },
+    "537": {
+        "nazwa": "Premier Soccer League",
+        "flaga": "za",
+        "ignoruj": false
+    },
+    "9125": {
+        "nazwa": "Primera B",
+        "flaga": "co",
+        "ignoruj": false
+    },
+    "538": {
+        "nazwa": "Pro League",
+        "flaga": "uae",
+        "ignoruj": false
+    },
+    "8814": {
+        "nazwa": "Serie B",
+        "flaga": "br",
+        "ignoruj": false
+    },
+    "182": {
+        "nazwa": "Super Liga",
+        "flaga": "rs",
+        "ignoruj": false
+    },
+    "10791": {
+        "nazwa": "SWPL 1",
+        "flaga": "gb-sct",
+        "ignoruj": false
+    },
+    "8984": {
+        "nazwa": "Thai League",
+        "flaga": "th",
+        "ignoruj": false
+    },
+    "9498": {
+        "nazwa": "Thai League 2",
+        "flaga": "th",
+        "ignoruj": false
+    },
+    "251": {
+        "nazwa": "Ykkosliiga",
+        "flaga": "fi",
+        "ignoruj": false
+    },
+    "47": {
+        "nazwa": "Premier League",
+        "flaga": "gb-eng",
+        "ignoruj": false
+    },
+    "216": {
+        "nazwa": "1. Deild",
+        "flaga": "is",
+        "ignoruj": false
+    },
+    "203": {
+        "nazwa": "OBOS-ligaen",
+        "flaga": "no",
+        "ignoruj": false
+    },
+    "10226": {
+        "nazwa": "2. Deild",
+        "flaga": "is",
+        "ignoruj": false
+    },
+    "9136": {
+        "nazwa": "J. League 3",
+        "flaga": "jp",
+        "ignoruj": false
+    },
+    "61": {
+        "nazwa": "Liga Portugal",
+        "flaga": "pt",
+        "ignoruj": false
+    },
+    "185": {
+        "nazwa": "Liga Portugal 2",
+        "flaga": "pt",
+        "ignoruj": false
+    },
+    "229": {
+        "nazwa": "National Division",
+        "flaga": "lu",
+        "ignoruj": false
+    },
+    "9117": {
+        "nazwa": "NB II",
+        "flaga": "hu",
+        "ignoruj": false
+    },
+    "126": {
+        "nazwa": "Premier Division",
+        "flaga": "ie",
+        "ignoruj": false
+    },
+    "63": {
+        "nazwa": "Premier League",
+        "flaga": "ru",
+        "ignoruj": false
+    },
+    "522": {
+        "nazwa": "Premier League",
+        "flaga": "gh",
+        "ignoruj": false
+    },
+    "9195": {
+        "nazwa": "Tweede Divisie",
+        "flaga": "nl",
+        "ignoruj": false
+    },
+    "215": {
+        "nazwa": "Besta deildin",
+        "flaga": "is",
+        "ignoruj": false
+    },
+    "11646": {
+        "nazwa": "Copa Paulista",
+        "flaga": "br",
+        "ignoruj": false
+    },
+    "10668": {
+        "nazwa": "KNVB Beker Women",
+        "flaga": "nl",
+        "ignoruj": false
+    },
+    "11024": {
+        "nazwa": "League Cup",
+        "flaga": "th",
+        "ignoruj": false
+    },
+    "230": {
+        "nazwa": "Liga MX",
+        "flaga": "mx",
+        "ignoruj": false
+    },
+    "10282": {
+        "nazwa": "MLS Next Pro",
+        "flaga": "us",
+        "ignoruj": false
+    },
+    "248": {
+        "nazwa": "Regular Season",
+        "flaga": "est",
+        "ignoruj": false
+    },
+    "9126": {
+        "nazwa": "Liga de Ascenso",
+        "flaga": "cl",
+        "ignoruj": false
+    },
+    "144": {
+        "nazwa": "Primera Division",
+        "flaga": "bol",
+        "ignoruj": false
+    },
+    "226": {
+        "nazwa": "Virsliga",
+        "flaga": "lv",
+        "ignoruj": false
+    },
+    "9500": {
+        "nazwa": "WE League",
+        "flaga": "jp",
+        "ignoruj": false
+    },
+    "206": {
+        "nazwa": "Norgesmesterskapet",
+        "flaga": "no",
+        "ignoruj": false
+    },
+    "9550": {
+        "nazwa": "Chinese FA Cup",
+        "flaga": "chn",
+        "ignoruj": false
+    },
+    "177": {
+        "nazwa": "FA Cup",
+        "flaga": "sk",
+        "ignoruj": false
+    },
+    "10721": {
+        "nazwa": "Saudi First Division",
+        "flaga": "ksa",
+        "ignoruj": false
+    }
+}
