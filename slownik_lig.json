@@ -1874,5 +1874,33 @@
     "1000001490": {
         "nazwa": "UEFA Women's Europa Cup",
         "flaga": "int"
+    },
+    "943984": {
+        "nazwa": "AFC Champions League Elite East",
+        "flaga": "int"
+    },
+    "944340": {
+        "nazwa": "Cup",
+        "flaga": "cz"
+    },
+    "9469": {
+        "nazwa": "AFC Champions League Two",
+        "flaga": "int"
+    },
+    "1000001165": {
+        "nazwa": "Canadian Championship",
+        "flaga": "can"
+    },
+    "1000001460": {
+        "nazwa": "Saudi Arabian Women's Premier League",
+        "flaga": "ksa"
+    },
+    "1000001407": {
+        "nazwa": "Brazilian Serie A",
+        "flaga": "br"
+    },
+    "1000001250": {
+        "nazwa": "Ecuador Liga Pro",
+        "flaga": "ec"
     }
 }

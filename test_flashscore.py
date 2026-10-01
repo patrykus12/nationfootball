@@ -144,10 +144,6 @@ def wczytaj_ligi(): return _wczytaj_json(LIGI_PLIK)
 
 def wczytaj_nasz_slownik(): return _wczytaj_json(SLOWNIK_PLIK)
 
-def zapisz_nasz_slownik(slownik):
-    with open(SLOWNIK_PLIK, 'w', encoding='utf-8') as f:
-        json.dump(slownik, f, indent=4, ensure_ascii=False)
-
 DNI_HISTORII_MECZY = 14  # ile dni wstecz trzymamy pliki mecze_YYYYMMDD.json
 DNI_NAPRZOD_LIMIT = 14   # ile dni do przodu wolno przeglądać w GUI
 
@@ -197,15 +193,8 @@ def wyczysc_stare_pliki_meczy():
 # --- FUNKCJE LOGIKI BIZNESOWEJ ---
 # (dopasowywanie klubów/meczów do bazy Polaków jest w dopasowanie.py - wspólne z serwerem)
 
-def pobierz_lige_z_serwera(league_id, mecz_id):
-    """Douczanie brakującej ligi (serwer sam sprawdza szczegóły meczu w API i zapamiętuje wynik dla wszystkich)."""
-    try:
-        res = zapytaj_serwer(f"/liga/{league_id}", params={"mecz": mecz_id}, timeout=20)
-        return res.json() if res is not None else None
-    except Exception:
-        return None
-
 def pobierz_sklad_z_serwera(mecz_id, czy_zakonczony, uzyj_serwera=False, fetch_home=True, fetch_away=True):
+    """Składy z serwera (serwer ma je dopiero po meczu - pobiera je sam, aplikacja nie wywołuje API)."""
     plik_cache = os.path.join(CACHE_DIR, f"{mecz_id}.json")
     if os.path.exists(plik_cache):
         with open(plik_cache, "r", encoding="utf-8") as f: return json.load(f)
@@ -215,15 +204,15 @@ def pobierz_sklad_z_serwera(mecz_id, czy_zakonczony, uzyj_serwera=False, fetch_h
     for strona, potrzebna in (("home", fetch_home), ("away", fetch_away)):
         if not potrzebna: continue
         try:
-            res = zapytaj_serwer(f"/sklad/{mecz_id}/{strona}", params={"zakonczony": int(bool(czy_zakonczony))}, timeout=30)
+            res = zapytaj_serwer(f"/sklad/{mecz_id}/{strona}", timeout=30)
             sklad = res.json().get("sklad") if res is not None else None
         except Exception:
             sklad = None
         if sklad: sklady.append(sklad)
         else: kompletne = False
 
-    # Lokalnie zapamiętujemy na stałe tylko składy z zakończonych meczów - w trakcie meczu
-    # statystyki jeszcze się zmieniają (serwer i tak trzyma swój cache odświeżany co kilkanaście minut)
+    # Lokalnie zapamiętujemy na stałe tylko komplet składów z zakończonego meczu - wcześniej
+    # serwer może jeszcze ich nie mieć (pobiera je sam ~2,5 h po rozpoczęciu meczu)
     if sklady and kompletne and czy_zakonczony:
         with open(plik_cache, "w", encoding="utf-8") as f: json.dump(sklady, f)
     return sklady
@@ -299,9 +288,8 @@ def przetworz_dane(data_obliczeniowa, wymus_aktualizacje=False):
     if not polskie_kluby: return ["Brak bazy zawodników.", "Kliknij '1. Pobierz Mecze', aby pobrać dane z serwera."], False
     
     baza_lig = wczytaj_ligi()
-    nasz_slownik_lig = wczytaj_nasz_slownik() 
-    zapisano_nowy_slownik = False
-    
+    nasz_slownik_lig = wczytaj_nasz_slownik()
+
     tz_pl = pytz.timezone('Europe/Warsaw')
     now_utc = datetime.now(pytz.utc)
     
@@ -313,11 +301,13 @@ def przetworz_dane(data_obliczeniowa, wymus_aktualizacje=False):
     wszystkie_mecze = []
 
     if wymus_aktualizacje:
-        # Serwer sam decyduje, czy ma świeże dane w cache, czy musi dopytać API
+        # Serwer oddaje tylko to, co sam już pobrał według swojego harmonogramu (aplikacja nie wywołuje API)
         res = zapytaj_serwer(f"/mecze/{api_date_str}")
         if res is not None and res.content:
             zapisz_atomowo(plik_meczy, res.content)
             potrzeba_aktualizacji = True
+        elif not os.path.exists(plik_meczy):
+            return ["Serwer nie ma jeszcze danych dla tego dnia.", "Spróbuj ponownie za kilka minut."], False
 
     if os.path.exists(plik_meczy):
         with open(plik_meczy, "r", encoding="utf-8") as f: wszystkie_mecze = json.load(f)
@@ -328,18 +318,8 @@ def przetworz_dane(data_obliczeniowa, wymus_aktualizacje=False):
         dopasowany = dopasuj_mecz(mecz, polskie_kluby, nasz_slownik_lig, baza_lig)
         if not dopasowany: continue
         gosp, gosc = dopasowany['gosp'], dopasowany['gosc']
-        league_id = dopasowany['league_id']
         nazwa_ligi, flaga_ligi = dopasowany['nazwa_ligi'], dopasowany['flaga_ligi']
         polacy_gosp, polacy_gosc = dopasowany['polacy_gosp'], dopasowany['polacy_gosc']
-
-        # Jeżeli mimo skanera i bazy lig wciąż nie znamy nazwy tej ligi - doczytaj ją 1:1 ze szczegółów meczu
-        if not dopasowany['znana_liga'] and wymus_aktualizacje and league_id.isdigit():
-            info_z_serwera = pobierz_lige_z_serwera(league_id, mecz.get('id'))
-            if info_z_serwera and info_z_serwera.get("nazwa"):
-                nasz_slownik_lig[league_id] = info_z_serwera
-                zapisano_nowy_slownik = True
-                if not dopasowany['nazwa_override']: nazwa_ligi = info_z_serwera["nazwa"]
-                if not dopasowany['flaga_override']: flaga_ligi = info_z_serwera.get("flaga") or "int"
 
         dt_utc = czas_rozpoczecia_utc(mecz)
         if dt_utc is None: continue
@@ -379,10 +359,6 @@ def przetworz_dane(data_obliczeniowa, wymus_aktualizacje=False):
             'wynik': wynik_str, 'zakonczony': czy_zakonczony,
             'gracze_gosp': gracze_gosp, 'gracze_gosc': gracze_gosc,
         })
-
-    # Zapisywanie zaktualizowanego Skanerem Słownika
-    if zapisano_nowy_slownik:
-        zapisz_nasz_slownik(nasz_slownik_lig)
 
     wyniki_gui.sort(key=lambda x: x['czas_obj'])
     

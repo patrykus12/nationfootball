@@ -1,18 +1,17 @@
-name: Odswiezanie meczow Polakow
+name: Podtrzymanie serwera
 
-# Co 30 min budzi serwer (darmowy Render usypia po 15 min bez ruchu) i każe mu od razu
-# dociągnąć wyniki/składy meczów z Polakami, które zaczęły się ~2,5 h temu.
-# Uwaga: GitHub potrafi opóźniać zaplanowane uruchomienia o kilka-kilkanaście minut.
+# Darmowy Render usypia serwer po 15 min bez ruchu - a uśpienie zatrzymuje harmonogram pobierania
+# meczów i kasuje jego cache. Co 10 min "pukamy" do serwera, żeby działał bez przerwy.
+# (GitHub potrafi opóźniać zaplanowane uruchomienia - dla pewności można dodatkowo ustawić to samo
+# wywołanie w darmowym cron-job.org)
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/10 * * * *"
   workflow_dispatch:
 
 jobs:
   ping:
-    # Dopóki nie ustawiono zmiennej NF_SERWER (Settings -> Secrets and variables -> Actions -> Variables) - pomijaj
-    if: vars.NF_SERWER != ''
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 5
     steps:
-      - run: curl -fsS --max-time 300 --retry 3 --retry-delay 20 "${{ vars.NF_SERWER }}/cron"
+      - run: curl -fsS --max-time 120 --retry 3 --retry-delay 15 "${{ vars.NF_SERWER || 'https://nationfootball.onrender.com' }}/cron"

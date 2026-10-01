@@ -4,10 +4,8 @@ services:
     runtime: python
     plan: free
     buildCommand: pip install -r requirements_serwer.txt
-    # Jeden worker, wiele wątków - blokady przed dublowaniem zapytań do API działają w obrębie procesu
+    # Jeden worker, wiele wątków - harmonogram pobierania z API działa w obrębie procesu
     startCommand: gunicorn -w 1 --threads 8 --timeout 120 -b 0.0.0.0:$PORT serwer:app
     envVars:
       - key: RAPIDAPI_KEY
         sync: false
-      - key: NF_ADMIN_TOKEN
-        generateValue: true

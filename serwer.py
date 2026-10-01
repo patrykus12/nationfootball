@@ -1,32 +1,27 @@
 """
 Serwer danych dla NationFootball - pośrednik między RapidAPI a aplikacjami użytkowników.
 
-    RapidAPI  --(tylko serwer, z cache)-->  serwer.py  --(HTTP)-->  aplikacje
+    RapidAPI  --(tylko harmonogram serwera)-->  serwer.py  --(HTTP)-->  aplikacje
+
+Zapytania aplikacji NIGDY nie wywołują API - dostają wyłącznie dane, które serwer już ma.
+API odpytuje tylko harmonogram (pobieranie_danych.cykl_harmonogramu, co NF_INTERWAL_MIN minut),
+w wymaganym minimum - szczegóły w pobieranie_danych.py.
 
 Endpointy (wszystkie GET, JSON skompresowany gzipem jeśli klient to obsługuje):
-  /                                   status
-  /mecze/<YYYYMMDD>                   wszystkie mecze z danego dnia (czas polski)
-  /sklad/<mecz_id>/<home|away>?zakonczony=0|1   skład jednej drużyny
-  /liga/<league_id>?mecz=<mecz_id>    nazwa+flaga ligi (doczytywana z API, jeśli nieznana)
+  /                                   status + licznik zapytań do API od startu
+  /mecze/<YYYYMMDD>                   mecze z danego dnia (czas polski), 404 = serwer jeszcze nie ma danych
+  /sklad/<mecz_id>/<home|away>        skład jednej drużyny ({"sklad": null}, jeśli jeszcze nie ma)
   /slownik-lig                        slownik_lig.json
   /ligi                               ligi.json (ręczne nadpisania / ignorowane ligi)
   /zawodnicy                          zawodnicy.xlsx
-  /cron                               odśwież teraz mecze Polaków (patrz niżej)
-
-Automatyczne odświeżanie: ~2,5 h po rozpoczęciu każdego meczu z Polakiem serwer sam pobiera
-wynik i składy (wątek co NF_INTERWAL_MIN minut + /cron wywoływany z GitHub Actions, który
-budzi serwer na darmowym hostingu usypiającym po bezczynności).
-
-Aktualizacja bazy zawodników / ligi.json bez redeployu:
-  POST /admin/<zawodnicy|ligi>  z nagłówkiem X-Admin-Token (zmienna NF_ADMIN_TOKEN) - patrz wyslij_na_serwer.py
+  /cron                               budzi serwer i uruchamia cykl harmonogramu w tle
 
 Lokalnie:     python serwer.py
 Na hostingu:  gunicorn -w 1 --threads 8 -b 0.0.0.0:$PORT serwer:app
-              (JEDEN worker - blokady przed dublowaniem zapytań do API działają w obrębie procesu)
-Zmienne:      RAPIDAPI_KEY (wymagana), NF_ADMIN_TOKEN, NF_KATALOG_DANYCH (opcjonalnie)
+              (JEDEN worker - harmonogram działa w obrębie procesu)
+Zmienne:      RAPIDAPI_KEY (wymagana), NF_KATALOG_DANYCH, NF_INTERWAL_MIN, NF_REPO_RAW (opcjonalnie)
 """
 import gzip
-import hmac
 import json
 import os
 import shutil
@@ -40,8 +35,7 @@ import pobieranie_danych as dane
 
 DNI_HISTORII = 14
 DNI_NAPRZOD = 14
-ADMIN_TOKEN = os.environ.get("NF_ADMIN_TOKEN", "")
-INTERWAL_ODSWIEZANIA_MIN = int(os.environ.get("NF_INTERWAL_MIN", 10))
+INTERWAL_HARMONOGRAMU_MIN = int(os.environ.get("NF_INTERWAL_MIN", 10))
 
 app = Flask(__name__)
 
@@ -58,16 +52,6 @@ def _przygotuj_pliki_startowe():
             print(f"[start] pobrano {dane.pobierz_wszystkie_ligi_z_api()} lig do słownika")
         except Exception as e:
             print(f"[start] nie udało się pobrać listy lig: {e}")
-
-
-_ostatnie_sprzatanie = [0.0]
-
-
-@app.before_request
-def sprzatanie_cache():
-    if time.time() - _ostatnie_sprzatanie[0] > 3600:
-        _ostatnie_sprzatanie[0] = time.time()
-        threading.Thread(target=dane.wyczysc_stary_cache, daemon=True).start()
 
 
 def odpowiedz_json(obiekt=None, tresc=None):
@@ -87,9 +71,20 @@ def plik_json(sciezka, komunikat_404):
     with open(sciezka, "rb") as f: return odpowiedz_json(tresc=f.read())
 
 
+def _czas(ts):
+    return datetime.fromtimestamp(ts, dane.TZ_PL).strftime("%Y-%m-%d %H:%M") if ts else None
+
+
 @app.route("/")
 def status():
-    return jsonify({"status": "ok", "serwis": "NationFootball - serwer danych"})
+    s = dane.STATYSTYKI
+    return jsonify({
+        "status": "ok", "serwis": "NationFootball - serwer danych",
+        "dziala_od": _czas(s["start"]), "zapytania_api_od_startu": s["zapytania_api"],
+        "pozostalo_w_limicie_api": s["pozostalo_w_limicie"],
+        "ostatni_cykl_harmonogramu": _czas(s["ostatni_cykl"]),
+        "ostatnia_synchronizacja_z_repo": _czas(s["ostatnia_synchronizacja_repo"]),
+    })
 
 
 @app.route("/mecze/<data_str>")
@@ -103,22 +98,15 @@ def mecze(data_str):
     if not (dzisiaj - timedelta(days=DNI_HISTORII) <= data_obj <= dzisiaj + timedelta(days=DNI_NAPRZOD)):
         abort(404, f"Data poza obsługiwanym zakresem ({DNI_HISTORII} dni wstecz / {DNI_NAPRZOD} dni w przód)")
 
-    return odpowiedz_json(dane.mecze_dnia(data_obj))
+    lista = dane.mecze_dnia_z_cache(data_obj)
+    if lista is None: abort(404, "Serwer nie ma jeszcze danych dla tego dnia")
+    return odpowiedz_json(lista)
 
 
 @app.route("/sklad/<int:mecz_id>/<strona>")
 def sklad(mecz_id, strona):
     if strona not in ("home", "away"): abort(400, "strona = home albo away")
-    zakonczony = request.args.get("zakonczony") == "1"
-    return odpowiedz_json({"sklad": dane.sklad_druzyny(mecz_id, strona, zakonczony)})
-
-
-@app.route("/liga/<int:league_id>")
-def liga(league_id):
-    mecz_id = request.args.get("mecz", type=int)
-    info = dane.liga_dla_meczu(str(league_id), mecz_id)
-    if not info: abort(404, "Nieznana liga")
-    return odpowiedz_json(info)
+    return odpowiedz_json({"sklad": dane.sklad_z_cache(mecz_id, strona)})
 
 
 @app.route("/slownik-lig")
@@ -135,47 +123,35 @@ def ligi():
 def zawodnicy():
     if not os.path.exists(dane.EXCEL_PLIK): abort(404, "Brak pliku zawodnicy.xlsx na serwerze")
     # Wczytujemy do pamięci zamiast send_file, żeby nie trzymać otwartego pliku w trakcie
-    # wysyłania (na Windowsie blokowałoby to jego podmianę przez /admin/zawodnicy)
+    # wysyłania (na Windowsie blokowałoby to jego podmianę przy synchronizacji)
     with open(dane.EXCEL_PLIK, "rb") as f: tresc = f.read()
     return Response(tresc, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 
+def _uruchom_cykl():
+    try:
+        for wpis in dane.cykl_harmonogramu(): print(f"[harmonogram] {wpis}")
+    except Exception as e:
+        print(f"[harmonogram] błąd: {e}")
+
+
 @app.route("/cron")
 def cron():
-    """Wywoływane z zewnątrz co ~30 min (GitHub Actions) - budzi uśpiony serwer i od razu
-    odświeża mecze Polaków. Bezpieczne do wywoływania dowolnie często: API odpytywane jest
-    tylko dla meczów, których dane faktycznie trzeba dociągnąć."""
-    return jsonify({"odswiezone": dane.odswiez_mecze_polakow()})
+    """Wywoływane z zewnątrz co ~10 min (GitHub Actions) - nie pozwala darmowemu hostingowi uśpić
+    serwera (uśpienie = utrata cache i przerwa w harmonogramie). Cykl rusza w tle; wywołanie
+    jest bezpieczne dowolnie często - API i tak odpytywane jest tylko wtedy, gdy trzeba."""
+    threading.Thread(target=_uruchom_cykl, daemon=True).start()
+    return jsonify({"status": "ok", "ostatni_cykl": _czas(dane.STATYSTYKI["ostatni_cykl"])})
 
 
-def watek_odswiezania():
+def watek_harmonogramu():
     while True:
-        try:
-            for wpis in dane.odswiez_mecze_polakow(): print(f"[auto] {wpis}")
-        except Exception as e:
-            print(f"[auto] błąd odświeżania: {e}")
-        time.sleep(INTERWAL_ODSWIEZANIA_MIN * 60)
-
-
-@app.route("/admin/<nazwa>", methods=["POST"])
-def admin_wyslij(nazwa):
-    if not ADMIN_TOKEN or not hmac.compare_digest(request.headers.get("X-Admin-Token", ""), ADMIN_TOKEN):
-        abort(403)
-    cele = {"zawodnicy": dane.EXCEL_PLIK, "ligi": dane.LIGI_PLIK}
-    if nazwa not in cele: abort(404)
-    tresc = request.get_data()
-    if not tresc: abort(400, "Pusty plik")
-    if nazwa == "ligi":
-        try: json.loads(tresc)
-        except ValueError: abort(400, "ligi.json nie jest poprawnym JSON-em")
-    tymczasowy = cele[nazwa] + ".tmp"
-    with open(tymczasowy, "wb") as f: f.write(tresc)
-    os.replace(tymczasowy, cele[nazwa])
-    return jsonify({"status": "ok", "plik": os.path.basename(cele[nazwa]), "bajty": len(tresc)})
+        _uruchom_cykl()
+        time.sleep(INTERWAL_HARMONOGRAMU_MIN * 60)
 
 
 _przygotuj_pliki_startowe()
-threading.Thread(target=watek_odswiezania, daemon=True).start()
+threading.Thread(target=watek_harmonogramu, daemon=True).start()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
