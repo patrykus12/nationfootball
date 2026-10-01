@@ -82,7 +82,8 @@ _blokada_harmonogramu = threading.Lock()
 
 # Licznik zapytań do API od startu serwera (podgląd na stronie głównej serwera)
 STATYSTYKI = {"start": time.time(), "zapytania_api": 0, "pozostalo_w_limicie": None,
-              "ostatni_cykl": None, "ostatnia_synchronizacja_repo": None}
+              "ostatni_cykl": None, "ostatnia_synchronizacja_repo": None,
+              "etap": "oczekiwanie", "ostatni_blad": None}
 
 
 def zapisz_json_atomowo(sciezka, dane, wciecia=None):
@@ -417,11 +418,19 @@ def cykl_harmonogramu():
         raport = []
         ostatnia = STATYSTYKI["ostatnia_synchronizacja_repo"]
         if REPO_RAW and (ostatnia is None or time.time() - ostatnia > SYNC_REPO_H * 3600):
+            STATYSTYKI["etap"] = "synchronizacja z repozytorium"
             for plik in synchronizuj_z_repo(): raport.append(f"z repozytorium: {plik}")
+        STATYSTYKI["etap"] = "terminarze"
         _odswiez_terminarze(raport)
+        STATYSTYKI["etap"] = "mecze Polaków"
         _odswiez_mecze_polakow(raport)
         _wyczysc_stary_cache()
         STATYSTYKI["ostatni_cykl"] = time.time()
         return raport
+    except Exception:
+        import traceback
+        STATYSTYKI["ostatni_blad"] = traceback.format_exc()[-1500:]
+        raise
     finally:
+        STATYSTYKI["etap"] = "oczekiwanie"
         _blokada_harmonogramu.release()

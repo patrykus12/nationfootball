@@ -84,6 +84,8 @@ def status():
         "pozostalo_w_limicie_api": s["pozostalo_w_limicie"],
         "ostatni_cykl_harmonogramu": _czas(s["ostatni_cykl"]),
         "ostatnia_synchronizacja_z_repo": _czas(s["ostatnia_synchronizacja_repo"]),
+        "harmonogram": {"watek_dziala": _watek.is_alive(), "etap": s["etap"], "pid": os.getpid(),
+                        "ostatni_blad": s["ostatni_blad"]},
     })
 
 
@@ -130,9 +132,9 @@ def zawodnicy():
 
 def _uruchom_cykl():
     try:
-        for wpis in dane.cykl_harmonogramu(): print(f"[harmonogram] {wpis}")
+        for wpis in dane.cykl_harmonogramu(): print(f"[harmonogram] {wpis}", flush=True)
     except Exception as e:
-        print(f"[harmonogram] błąd: {e}")
+        print(f"[harmonogram] błąd: {e}", flush=True)
 
 
 @app.route("/cron")
@@ -145,13 +147,15 @@ def cron():
 
 
 def watek_harmonogramu():
+    _przygotuj_pliki_startowe()
     while True:
         _uruchom_cykl()
         time.sleep(INTERWAL_HARMONOGRAMU_MIN * 60)
 
 
-_przygotuj_pliki_startowe()
-threading.Thread(target=watek_harmonogramu, daemon=True).start()
+# Wszystko, co może dotykać sieci, startuje w wątku - import modułu (start gunicorna) jest natychmiastowy
+_watek = threading.Thread(target=watek_harmonogramu, daemon=True)
+_watek.start()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
