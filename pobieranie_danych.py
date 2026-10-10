@@ -339,7 +339,9 @@ def _odswiez_mecze_polakow(raport):
             _cache_dopasowan[klucz] = dopasuj_mecz(mecz, kluby, slownik, ligi)
         return _cache_dopasowan[klucz]
 
-    for offset in range(-OKNO_DNI - 1, 2):
+    # Od najnowszych dni: po restarcie (utrata cache) zaległe składy idą porcjami po
+    # LIMIT_SKLADOW_NA_CYKL - dzisiejsze mecze nie mogą czekać, aż serwer nadrobi stare dni
+    for offset in range(1, -OKNO_DNI - 2, -1):
         data_api = dzis + timedelta(days=offset)
         cache = surowe_z_cache(data_api)
         if not cache: continue
