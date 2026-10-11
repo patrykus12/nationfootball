@@ -59,6 +59,10 @@ DNI_PRZECHOWYWANIA_SKLADOW = 17
 # darmowym Renderze). Na Renderze włączone domyślnie, lokalnie wyłączone (nie nadpisuje plików).
 REPO_RAW = os.environ.get("NF_REPO_RAW", "https://raw.githubusercontent.com/patrykus12/nationfootball/main"
                           if os.environ.get("RENDER") else "").rstrip("/")
+# raw.githubusercontent.com bywa do ~5 min za repozytorium (CDN) - tuż po wdrożeniu serwer nadpisałby
+# nowe pliki starymi i trzymał je do następnej synchronizacji. API GitHuba zwraca aktualną wersję.
+REPO_API = os.environ.get("NF_REPO_API", "https://api.github.com/repos/patrykus12/nationfootball/contents"
+                          if REPO_RAW else "").rstrip("/")
 SYNC_REPO_H = 6
 
 CCODE_DO_ALPHA2 = {
@@ -262,6 +266,16 @@ def _pobierz_sklad_z_api(mecz_id, strona):
 
 
 # --- SYNCHRONIZACJA BAZ Z REPOZYTORIUM ---
+def _pobierz_z_repo(nazwa):
+    if REPO_API:
+        try:
+            res = requests.get(f"{REPO_API}/{nazwa}", headers={"Accept": "application/vnd.github.raw"}, timeout=30)
+            if res.status_code == 200: return res
+        except requests.RequestException:
+            pass  # np. limit 60 zapytań/h na IP - wtedy kopia z raw.githubusercontent.com
+    return requests.get(f"{REPO_RAW}/{nazwa}", timeout=30)
+
+
 def synchronizuj_z_repo():
     """Dociąga z GitHuba zawodnicy.xlsx i ligi.json (podmienia, jeśli się zmieniły) oraz dopisuje
     do słownika ligi z repozytorium, których serwer nie zna. Zwraca listę zmienionych plików."""
@@ -269,7 +283,7 @@ def synchronizuj_z_repo():
     from dopasowanie import wczytaj_kluby
     zmienione = []
     try:
-        res = requests.get(f"{REPO_RAW}/zawodnicy.xlsx", timeout=30)
+        res = _pobierz_z_repo("zawodnicy.xlsx")
         if res.status_code == 200 and res.content:
             obecny = open(EXCEL_PLIK, "rb").read() if os.path.exists(EXCEL_PLIK) else b""
             if res.content != obecny:
@@ -281,7 +295,7 @@ def synchronizuj_z_repo():
                 else:
                     os.remove(tymczasowy)
 
-        res = requests.get(f"{REPO_RAW}/ligi.json", timeout=30)
+        res = _pobierz_z_repo("ligi.json")
         if res.status_code == 200 and isinstance(res.json(), dict):
             obecny = open(LIGI_PLIK, "rb").read() if os.path.exists(LIGI_PLIK) else b""
             if res.content != obecny:
@@ -289,7 +303,7 @@ def synchronizuj_z_repo():
                 os.replace(LIGI_PLIK + ".tmp", LIGI_PLIK)
                 zmienione.append("ligi.json")
 
-        res = requests.get(f"{REPO_RAW}/slownik_lig.json", timeout=30)
+        res = _pobierz_z_repo("slownik_lig.json")
         if res.status_code == 200 and isinstance(res.json(), dict):
             znane = wczytaj_nasz_slownik()
             nowe = {k: v for k, v in res.json().items() if k not in znane}
