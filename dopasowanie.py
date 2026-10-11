@@ -48,6 +48,7 @@ def czy_to_niechciana_druzyna(nazwa):
     n = nazwa.lower().strip()
     if "(w)" in n or " (w) " in n or n.endswith(" (w)") or n.endswith(" w") or "women" in n or "kobiety" in n: return True
     if "willem ii" in n: return False
+    if n.endswith(" akatemia"): return True  # fińskie rezerwy, np. "KuPS Akatemia"
     return bool(re.search(r'\b(b|ii|2)\b$', n) or " u2" in n or " u1" in n)
 
 def wczytaj_kluby(excel_plik):

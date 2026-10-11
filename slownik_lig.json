@@ -1902,5 +1902,9 @@
     "1000001250": {
         "nazwa": "Ecuador Liga Pro",
         "flaga": "ec"
+    },
+    "1000001801": {
+        "nazwa": "Championship",
+        "flaga": "gb-eng"
     }
 }

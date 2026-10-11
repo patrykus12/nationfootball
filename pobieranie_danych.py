@@ -353,15 +353,16 @@ def _odswiez_mecze_polakow(raport):
             start = czas_rozpoczecia_utc(mecz)
             if start is None: continue
             wiek_min = (teraz - start.timestamp()) / 60
-            if wiek_min < OPOZNIENIE_MIN: continue
 
             dop = dopasuj(mecz)
             if dop and not dop['znana_liga'] and dop['league_id'].isdigit():
-                # Bez nazwy ligi nie wiemy, czy to np. liga kobieca (odfiltrowywana) - ustal ją przed składami
+                # Nazwę nieznanej ligi ustalamy od razu (1 zapytanie na ligę, na stałe), żeby aplikacja
+                # pokazywała ją już przed meczem; bez niej nie wiemy też, czy to np. liga kobieca
                 info = _pobierz_lige_z_api(dop['league_id'], mecz_id)
                 if info:
                     slownik[dop['league_id']] = info
                     dop = dopasuj(mecz)
+            if wiek_min < OPOZNIENIE_MIN: continue
             if not dop:
                 _gotowe_mecze.add(mecz_id)
                 continue

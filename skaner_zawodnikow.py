@@ -24,6 +24,23 @@ LIMIT_SZCZEBLI_DLA_KRAJU = {
 # Kraj spoza powyższej listy (rzadki legionista) - bezpieczny, najczęściej spotykany próg.
 DOMYSLNY_LIMIT_SZCZEBLA = 2
 
+# Transfermarkt.pl podaje polskie/pełne nazwy klubów, a API meczów - angielskie/skrócone.
+# Gdy różnią się za bardzo, by dopasowało je porównywanie nazw (dopasowanie.py), zapisujemy
+# do zawodnicy.xlsx od razu nazwę z API. Dopisuj tu kluby, których mecze nie pojawiają się w aplikacji.
+NAZWY_KLUBOW_JAK_W_API = {
+    "Oud-Heverlee Leuven": "OH Leuven",
+    "Benfika Lizbona": "Benfica",
+    "SK Slavia Praga": "Slavia Prague",
+    "FK Dukla Praga": "Dukla Praha",
+    "Dynamo Kijów": "Dynamo Kyiv",
+    "Omonia Nikozja": "Omonia Nicosia",
+    "Stade Rennais FC": "Rennes",
+    "Kuopion Palloseura": "KuPS",
+    "FC Milsami Orgiejów": "FC Milsami Orhei",
+    "Rot-Weiss Essen": "RW Essen",
+    "Igdir FK": "Iğdır FK",
+}
+
 # Nazwy rozgrywek, które ZAWSZE liczą się jako niecentralne, niezależnie od tego, co wyjdzie
 # z parsowania kodu ligi (np. niemiecka "Regionalliga West" ma kod "RLW3" - regex niżej
 # wyłapałby z niego cyfrę "3" i błędnie zaliczył ją do 3. poziomu, mimo że to realnie 4. liga)
@@ -165,7 +182,7 @@ def pobierz_zawodnikow():
                     max_poziom = LIMIT_SZCZEBLI_DLA_KRAJU.get(kraj_nazwa, DOMYSLNY_LIMIT_SZCZEBLA)
                     
                     if poziom_ligi <= max_poziom:
-                        wszyscy_zawodnicy[pelne_imie] = f"[{kraj_nazwa}] {klub}"
+                        wszyscy_zawodnicy[pelne_imie] = f"[{kraj_nazwa}] {NAZWY_KLUBOW_JAK_W_API.get(klub, klub)}"
                         dodani_na_stronie += 1
                         znaleziono_w_kraju += 1
                         suma_wszystkich += 1
