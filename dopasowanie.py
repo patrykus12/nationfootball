@@ -48,7 +48,7 @@ def czy_to_niechciana_druzyna(nazwa):
     n = nazwa.lower().strip()
     if "(w)" in n or " (w) " in n or n.endswith(" (w)") or n.endswith(" w") or "women" in n or "kobiety" in n: return True
     if "willem ii" in n: return False
-    if n.endswith(" akatemia"): return True  # fińskie rezerwy, np. "KuPS Akatemia"
+    if n.endswith(" akatemia") or n.startswith("jong "): return True  # rezerwy: "KuPS Akatemia", "Jong Sparta Rotterdam"
     return bool(re.search(r'\b(b|ii|2)\b$', n) or " u2" in n or " u1" in n)
 
 def wczytaj_kluby(excel_plik):
@@ -77,6 +77,9 @@ def wczytaj_kluby(excel_plik):
                 kraj = match.group(1).strip()
                 k_raw = k_raw.replace(f"[{match.group(1)}]", "").strip()
 
+            # Zawodnik rezerw (np. "Ajax Amsterdam U21", "VfB Stuttgart II") - mecze rezerw są
+            # odfiltrowywane, a wpis łapałby przez dopasowanie nazw mecze pierwszej drużyny
+            if czy_to_niechciana_druzyna(k_raw): continue
             k_czysty = wyczysc_nazwe_klubu(k_raw)
             if k_czysty not in baza: baza[k_czysty] = {'gracze': [], 'kraj': kraj}
             if pelne_imie not in baza[k_czysty]['gracze']:
@@ -99,8 +102,15 @@ def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
     if norm_klub_api in baza_klubow:
         if weryfikuj_kraj(baza_klubow[norm_klub_api]): return norm_klub_api, baza_klubow[norm_klub_api]
 
+    # Nazwa z API zawarta w dłuższej nazwie z bazy ("Juventus" -> "Juventus Turyn"), ale tylko jako
+    # całe słowa ("Russia" to nie "Borussia ...") i bez obcinania "1. FC" ("1. FC Köln" to nie
+    # "SC Fortuna Köln"). W drugą stronę nie: "Clube Futebol Benfica" to nie "Benfica".
+    norm_do_zawierania = norm_klub_api
+    if re.match(r'1\. ?fc ', normalizuj_tekst(nazwa_klubu_z_api)): norm_do_zawierania = normalizuj_tekst(nazwa_klubu_z_api)
+    wzorzec = re.compile(rf'(?<![\w.]){re.escape(norm_do_zawierania)}(?!\w)')
     for k_baza, info in baza_klubow.items():
-        if len(k_baza) >= 4 and len(norm_klub_api) >= 4 and (k_baza in norm_klub_api or norm_klub_api in k_baza):
+        if norm_klub_api == normalizuj_tekst(info.get('kraj', '')): continue  # reprezentacja "Gibraltar" to nie "Lions Gibraltar"
+        if len(norm_klub_api) >= 4 and wzorzec.search(k_baza):
             if weryfikuj_kraj(info): return k_baza, info
 
     best_match, best_ratio = None, 0

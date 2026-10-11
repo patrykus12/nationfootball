@@ -226,6 +226,12 @@ def wyodrebnij_wystepy_polakow(sklady_api, lista_polakow, oczekiwano_danych=Fals
             return [{'nazwa': p, 'gole': 0, 'asysty': 0, 'minuty_tekst': 'brak danych', 'ocena': None, 'aktywny': False} for p in lista_polakow]
         return [{'nazwa': p, 'gole': 0, 'asysty': 0, 'minuty_tekst': '', 'ocena': None, 'aktywny': None} for p in lista_polakow]
 
+    # Dla części lig (np. K-League) API podaje gole/asysty, ale żadnych zmian ani ocen -
+    # wtedy rezerwowy bez zdarzenia "subIn" mógł wejść na boisko, więc nie piszemy "nie grał"
+    api_podaje_zmiany = any(
+        z.get('performance', {}).get('substitutionEvents')
+        for zespol in sklady_api for z in zespol.get('starters', []) + zespol.get('subs', []))
+
     wyniki = []
     for p_org in lista_polakow:
         p_norm = normalizuj_tekst(p_org)
@@ -242,8 +248,11 @@ def wyodrebnij_wystepy_polakow(sklady_api, lista_polakow, oczekiwano_danych=Fals
                     sub_out = next((e.get('time') for e in perf.get('substitutionEvents', []) if e.get('type') == 'subOut'), None)
 
                     if z in zespol.get('starters', []):
-                        minuty_tekst = f"do {sub_out}'" if sub_out else "90'"
+                        minuty_tekst = f"do {sub_out}'" if sub_out else ("90'" if api_podaje_zmiany else "w podstawie")
                         aktywny = True
+                    elif z in zespol.get('subs', []) and not api_podaje_zmiany:
+                        minuty_tekst = "rezerwowy, brak danych o zmianach"
+                        aktywny = None
                     elif z in zespol.get('subs', []):
                         if sub_in:
                             minuty_tekst = f"od {sub_in}' do {sub_out}'" if sub_out else f"od {sub_in}'"
@@ -269,7 +278,7 @@ def wyodrebnij_wystepy_polakow(sklady_api, lista_polakow, oczekiwano_danych=Fals
 
 def _tekst_wystepu(d):
     """Zamienia jeden wpis z wyodrebnij_wystepy_polakow na tekst w formacie archiwum.txt."""
-    if d['aktywny'] is None: return d['nazwa']
+    if d['aktywny'] is None and not d['minuty_tekst']: return d['nazwa']
     tekst = d['nazwa']
     if d['gole'] > 0: tekst += f" {d['gole']}x⚽" if d['gole'] > 1 else " ⚽"
     if d['asysty'] > 0: tekst += f" {d['asysty']}x🅰️" if d['asysty'] > 1 else " 🅰️"
