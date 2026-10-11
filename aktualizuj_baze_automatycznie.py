@@ -9,6 +9,7 @@ Cotygodniowa aktualizacja bazy zawodników - uruchamiana automatycznie przez Git
 3. Opcjonalnie (gdy ustawiona zmienna NF_SERWER) pobiera z serwera słownik lig, żeby nazwy lig,
    których serwer nauczył się w ciągu tygodnia, trafiły na stałe do repozytorium.
 """
+import json
 import os
 import shutil
 import sys
@@ -50,19 +51,26 @@ def aktualizuj_zawodnikow():
 
 
 def pobierz_slownik_lig():
+    """Dopisuje do repozytorium nazwy lig, których serwer nauczył się od ostatniego razu (nic nie usuwa
+    i nie zmienia - po restarcie serwer może jeszcze nie znać części lig)."""
     serwer = os.environ.get("NF_SERWER", "").rstrip("/")
     if not serwer: return
+    plik = os.path.join(KATALOG, "slownik_lig.json")
     try:
         res = requests.get(f"{serwer}/slownik-lig", timeout=180)
         res.raise_for_status()
-        nowy = res.json()
-        if len(nowy) >= 100:  # zabezpieczenie przed pustą odpowiedzią
-            with open(os.path.join(KATALOG, "slownik_lig.json"), "wb") as f: f.write(res.content)
-            print(f"Słownik lig z serwera: {len(nowy)} lig.")
+        z_serwera = res.json()
+        with open(plik, encoding="utf-8") as f: nasz = json.load(f)
+        nowe = {k: v for k, v in z_serwera.items() if k not in nasz and v.get("nazwa")}
+        if nowe:
+            nasz.update(nowe)
+            with open(plik, "w", encoding="utf-8") as f: json.dump(nasz, f, ensure_ascii=False, indent=4)
+        print(f"Słownik lig z serwera: +{len(nowe)} lig ({', '.join(v['nazwa'] for v in nowe.values())}).")
     except Exception as e:
         print(f"Nie udało się pobrać słownika lig z serwera (nieistotne): {e}")
 
 
 if __name__ == "__main__":
     pobierz_slownik_lig()
+    if "--tylko-slownik" in sys.argv: sys.exit(0)
     sys.exit(0 if aktualizuj_zawodnikow() else 1)

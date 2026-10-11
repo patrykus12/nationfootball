@@ -1906,5 +1906,29 @@
     "1000001801": {
         "nazwa": "Championship",
         "flaga": "gb-eng"
+    },
+    "937988": {
+        "nazwa": "Belgian Pro League",
+        "flaga": "be"
+    },
+    "940431": {
+        "nazwa": "Premier League",
+        "flaga": "ua"
+    },
+    "936986": {
+        "nazwa": "Super Liga",
+        "flaga": "md"
+    },
+    "945694": {
+        "nazwa": "Veikkausliiga Championship Group",
+        "flaga": "fi"
+    },
+    "1000001750": {
+        "nazwa": "Turkish 1. Lig",
+        "flaga": "int"
+    },
+    "1000001787": {
+        "nazwa": "Saudi Arabian League",
+        "flaga": "ksa"
     }
 }

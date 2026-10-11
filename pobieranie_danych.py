@@ -353,6 +353,19 @@ def _odswiez_mecze_polakow(raport):
             _cache_dopasowan[klucz] = dopasuj_mecz(mecz, kluby, slownik, ligi)
         return _cache_dopasowan[klucz]
 
+    # Najpierw nazwy nieznanych lig meczów z Polakami w całym oknie (także przyszłe dni), zanim
+    # limit składów na cykl przerwie pętlę niżej - 1 zapytanie na ligę, potem na stałe w słowniku.
+    # Bez nazwy aplikacja pokazuje "Rozgrywki (ID: ...)" i nie wiemy, czy to np. liga kobieca.
+    for offset in range(OKNO_DNI + 1, -OKNO_DNI - 2, -1):
+        cache = surowe_z_cache(dzis + timedelta(days=offset))
+        for mecz in (cache or {}).get("mecze", []):
+            dop = dopasuj(mecz)
+            if dop and not dop['znana_liga'] and dop['league_id'].isdigit() and dop['league_id'] not in slownik:
+                info = _pobierz_lige_z_api(dop['league_id'], mecz.get('id'))
+                if info:
+                    slownik[dop['league_id']] = info
+                    raport.append(f"nazwa ligi {dop['league_id']}: {info['nazwa']}")
+
     # Od najnowszych dni: po restarcie (utrata cache) zaległe składy idą porcjami po
     # LIMIT_SKLADOW_NA_CYKL - dzisiejsze mecze nie mogą czekać, aż serwer nadrobi stare dni
     for offset in range(1, -OKNO_DNI - 2, -1):
@@ -369,13 +382,6 @@ def _odswiez_mecze_polakow(raport):
             wiek_min = (teraz - start.timestamp()) / 60
 
             dop = dopasuj(mecz)
-            if dop and not dop['znana_liga'] and dop['league_id'].isdigit():
-                # Nazwę nieznanej ligi ustalamy od razu (1 zapytanie na ligę, na stałe), żeby aplikacja
-                # pokazywała ją już przed meczem; bez niej nie wiemy też, czy to np. liga kobieca
-                info = _pobierz_lige_z_api(dop['league_id'], mecz_id)
-                if info:
-                    slownik[dop['league_id']] = info
-                    dop = dopasuj(mecz)
             if wiek_min < OPOZNIENIE_MIN: continue
             if not dop:
                 _gotowe_mecze.add(mecz_id)
