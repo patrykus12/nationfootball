@@ -207,6 +207,25 @@ $("instaluj").addEventListener("click", async () => {
 });
 window.addEventListener("appinstalled", () => { $("instaluj").hidden = true; });
 
+// iPhone/iPad: Safari nie ma przycisku instalacji - pokazujemy, jak dodać aplikację do ekranu
+// początkowego. Tylko poza zainstalowaną aplikacją; po zamknięciu wraca najwcześniej po 14 dniach.
+(function () {
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);  // iPadOS udaje Maca
+  const zainstalowana = navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches;
+  if (!ios || zainstalowana) return;
+  let zamknieto = 0;
+  try { zamknieto = +localStorage.getItem("nf-wskazowka-ios") || 0; } catch (e) {}
+  if (Date.now() - zamknieto < 14 * 86400000) return;
+  $("wskazowka-ios").hidden = false;
+  document.body.classList.add("z-wskazowka");
+  $("zamknij-wskazowke").addEventListener("click", () => {
+    $("wskazowka-ios").hidden = true;
+    document.body.classList.remove("z-wskazowka");
+    try { localStorage.setItem("nf-wskazowka-ios", String(Date.now())); } catch (e) {}
+  });
+})();
+
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 
 wybrany = ostatniDzien;
