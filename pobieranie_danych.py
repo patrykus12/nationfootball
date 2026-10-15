@@ -5,13 +5,16 @@ Zasada: zapytania użytkowników NIGDY nie wywołują API. Adresy dla aplikacji 
 gotowe dane z dysku serwera (funkcje *_z_cache). API odpytuje wyłącznie harmonogram
 (cykl_harmonogramu, uruchamiany co kilka minut), i to w wymaganym minimum:
   - terminarz dnia (lista meczów): każdy dzień z okna -15..+15 dni raz; dziś i dni przyszłe
-    ponownie raz na dobę (zmiany godzin), dni przeszłe już nigdy,
+    ponownie raz na dobę, zaraz po północy czasu polskiego (zmiany godzin), dni przeszłe już nigdy,
   - mecz z Polakiem: ~2,5 h po rozpoczęciu (gdy już się skończył) jeden raz świeży wynik
     i składy drużyn z Polakami - potem dane są ostateczne i nie są już pobierane,
   - nazwa ligi: raz, tylko dla nieznanej ligi meczu z Polakiem.
 """
+import io
 import os
 import json
+import re
+import tarfile
 import time
 import threading
 import requests
@@ -47,7 +50,6 @@ API_KEY = _wczytaj_klucz_api()
 API_HOST = "free-api-live-football-data.p.rapidapi.com"
 
 OKNO_DNI = 15                                                     # zakres terminarza: dziś -/+ tyle dni
-ODSWIEZANIE_TERMINARZA_H = 24                                     # dziś/przyszłe dni: raz na dobę
 OPOZNIENIE_MIN = int(os.environ.get("NF_OPOZNIENIE_MIN", 150))    # pobierz mecz Polaka 2,5 h po rozpoczęciu
 OKNO_MIN = int(os.environ.get("NF_OKNO_MIN", 360))                # mecz wciąż "trwa" - czekaj max do 6 h
 PONOW_TRWAJACY_MIN = 20                                           # co ile sprawdzać mecz, który się przedłuża
@@ -64,6 +66,12 @@ REPO_RAW = os.environ.get("NF_REPO_RAW", "https://raw.githubusercontent.com/patr
 REPO_API = os.environ.get("NF_REPO_API", "https://api.github.com/repos/patrykus12/nationfootball/contents"
                           if REPO_RAW else "").rstrip("/")
 SYNC_REPO_H = 6
+
+# Kopia zapasowa cache (terminarze, składy, słownik lig) na osobnej gałęzi repozytorium. Darmowy
+# Render kasuje dysk przy każdym restarcie/uśpieniu - po starcie serwer odtwarza dane z kopii
+# zamiast pobierać wszystko od nowa z API. Kopię co godzinę zapisuje workflow kopia_danych.yml.
+GALAZ_KOPII = "kopia-danych"
+PLIK_KOPII = "kopia.tar.gz"
 
 CCODE_DO_ALPHA2 = {
     "eng": "gb-eng", "esp": "es", "ita": "it", "ger": "de", "fra": "fr", "pol": "pl",
@@ -87,7 +95,10 @@ _blokada_harmonogramu = threading.Lock()
 # Licznik zapytań do API od startu serwera (podgląd na stronie głównej serwera)
 STATYSTYKI = {"start": time.time(), "zapytania_api": 0, "pozostalo_w_limicie": None,
               "ostatni_cykl": None, "ostatnia_synchronizacja_repo": None,
-              "etap": "oczekiwanie", "ostatni_blad": None}
+              "etap": "oczekiwanie", "ostatni_blad": None, "kopia": None}
+
+# Ustawiane po próbie odtworzenia kopii - do tego czasu /mecze czeka (zamiast oddać "brak danych")
+kopia_gotowa = threading.Event()
 
 
 def zapisz_json_atomowo(sciezka, dane, wciecia=None):
@@ -317,6 +328,71 @@ def synchronizuj_z_repo():
     return zmienione
 
 
+# --- KOPIA ZAPASOWA CACHE ---
+_WZORZEC_KOPII = re.compile(r"^(surowe/\d{8}\.json|sklady/\d+_(home|away)\.json|slownik_lig\.json)$")
+
+
+def eksportuj_kopie():
+    """Cały cache serwera jako tar.gz (bajty)."""
+    bufor = io.BytesIO()
+    with tarfile.open(fileobj=bufor, mode="w:gz") as tar:
+        for podkatalog, katalog in (("surowe", KATALOG_SUROWYCH), ("sklady", KATALOG_SKLADOW)):
+            for nazwa in sorted(os.listdir(katalog)):
+                if _WZORZEC_KOPII.match(f"{podkatalog}/{nazwa}"):
+                    tar.add(os.path.join(katalog, nazwa), arcname=f"{podkatalog}/{nazwa}")
+        if os.path.exists(SLOWNIK_PLIK): tar.add(SLOWNIK_PLIK, arcname="slownik_lig.json")
+    return bufor.getvalue()
+
+
+def _pobierz_kopie_z_repo():
+    if REPO_API:
+        try:
+            res = requests.get(f"{REPO_API}/{PLIK_KOPII}", params={"ref": GALAZ_KOPII},
+                               headers={"Accept": "application/vnd.github.raw"}, timeout=60)
+            if res.status_code == 200: return res.content
+        except requests.RequestException:
+            pass
+    baza_raw = REPO_RAW.rsplit("/", 1)[0]  # .../nationfootball/main -> .../nationfootball
+    res = requests.get(f"{baza_raw}/{GALAZ_KOPII}/{PLIK_KOPII}", timeout=60)
+    return res.content if res.status_code == 200 else None
+
+
+def przywroc_kopie():
+    """Po starcie: odtwarza z kopii pliki cache, których serwer nie ma (nic nie nadpisuje)."""
+    try:
+        if not REPO_RAW: return
+        tresc = _pobierz_kopie_z_repo()
+        if not tresc:
+            STATYSTYKI["kopia"] = "brak kopii w repozytorium"
+            return
+        odtworzone = 0
+        granica_dnia = (datetime.now(TZ_PL).date() - timedelta(days=OKNO_DNI + 2)).strftime("%Y%m%d")
+        with tarfile.open(fileobj=io.BytesIO(tresc), mode="r:gz") as tar:
+            for czlon in tar.getmembers():
+                # Tylko znane nazwy plików, zapisywane przez nas - żadnych ścieżek z archiwum
+                if not czlon.isfile() or not _WZORZEC_KOPII.match(czlon.name): continue
+                dane_pliku = tar.extractfile(czlon).read()
+                if czlon.name == "slownik_lig.json":
+                    znane = wczytaj_nasz_slownik()
+                    dopisz_do_slownika({k: v for k, v in json.loads(dane_pliku).items() if k not in znane})
+                    continue
+                podkatalog, nazwa = czlon.name.split("/")
+                if podkatalog == "surowe" and nazwa[:8] < granica_dnia: continue
+                cel = os.path.join(KATALOG_SUROWYCH if podkatalog == "surowe" else KATALOG_SKLADOW, nazwa)
+                if os.path.exists(cel): continue
+                with open(cel + ".tmp", "wb") as f: f.write(dane_pliku)
+                os.replace(cel + ".tmp", cel)
+                os.utime(cel, (czlon.mtime, czlon.mtime))  # sprzątanie starych składów liczy wiek pliku
+                odtworzone += 1
+        STATYSTYKI["kopia"] = f"odtworzono {odtworzone} plików"
+        print(f"[kopia] odtworzono {odtworzone} plików", flush=True)
+    except Exception as e:
+        STATYSTYKI["kopia"] = f"błąd odtwarzania: {e}"
+        print(f"[kopia] blad odtwarzania: {e}", flush=True)
+    finally:
+        kopia_gotowa.set()
+
+
 # --- HARMONOGRAM ---
 _gotowe_mecze = set()      # id meczów już załatwionych (bez Polaków albo z ostatecznymi składami)
 _cache_dopasowan = {}      # (mecz_id, czy_liga_znana, wersja_bazy) -> wynik dopasuj_mecz
@@ -324,13 +400,14 @@ _cache_dopasowan = {}      # (mecz_id, czy_liga_znana, wersja_bazy) -> wynik dop
 
 def _odswiez_terminarze(raport):
     dzis = datetime.now(TZ_PL).date()
+    polnoc = TZ_PL.localize(datetime.combine(dzis, datetime.min.time())).timestamp()
     for offset in range(-OKNO_DNI - 1, OKNO_DNI + 2):
         data_api = dzis + timedelta(days=offset)
         cache = surowe_z_cache(data_api)
         if cache is None:
             powod = "brak"
-        elif data_api >= dzis and time.time() - cache["pobrano"] > ODSWIEZANIE_TERMINARZA_H * 3600:
-            powod = "aktualizacja"
+        elif data_api >= dzis and cache["pobrano"] < polnoc:
+            powod = "aktualizacja po północy"
         else:
             continue
         if _pobierz_dzien_z_api(data_api) is not None:
@@ -437,21 +514,25 @@ def po_starcie_procesu():
     """Świeże blokady w nowym procesie. Gunicorn potrafi wczytać kod w procesie głównym i dopiero
     potem go sklonować - klon dostaje kopię pamięci (np. blokadę zajętą przez wątek, który w klonie
     nie istnieje), a wątki nie przechodzą do klonu."""
-    global _blokada_harmonogramu, _blokada_slownika
+    global _blokada_harmonogramu, _blokada_slownika, kopia_gotowa
     _blokada_harmonogramu = threading.Lock()
     _blokada_slownika = threading.Lock()
+    kopia_gotowa = threading.Event()
     STATYSTYKI.update({"start": time.time(), "zapytania_api": 0, "etap": "oczekiwanie", "ostatni_blad": None,
-                       "ostatni_cykl": None, "ostatnia_synchronizacja_repo": None})
+                       "ostatni_cykl": None, "ostatnia_synchronizacja_repo": None, "kopia": None})
 
 
-def cykl_harmonogramu():
-    """Jeden przebieg harmonogramu. Zwraca listę opisów tego, co pobrano z API."""
+def cykl_harmonogramu(wymus_repo=False):
+    """Jeden przebieg harmonogramu. Zwraca listę opisów tego, co pobrano z API.
+    wymus_repo - pobierz bazy z repozytorium od razu (po ręcznej aktualizacji przez administratora)."""
+    if not kopia_gotowa.is_set():
+        return ["(trwa odtwarzanie kopii)"]
     if not _blokada_harmonogramu.acquire(blocking=False):
         return ["(cykl już trwa)"]
     try:
         raport = []
         ostatnia = STATYSTYKI["ostatnia_synchronizacja_repo"]
-        if REPO_RAW and (ostatnia is None or time.time() - ostatnia > SYNC_REPO_H * 3600):
+        if REPO_RAW and (wymus_repo or ostatnia is None or time.time() - ostatnia > SYNC_REPO_H * 3600):
             STATYSTYKI["etap"] = "synchronizacja z repozytorium"
             for plik in synchronizuj_z_repo(): raport.append(f"z repozytorium: {plik}")
         STATYSTYKI["etap"] = "terminarze"

@@ -26,6 +26,7 @@ import json
 import re
 import requests
 import time
+import threading
 from datetime import datetime, timedelta
 import pytz
 import tkinter as tk
@@ -146,6 +147,7 @@ def wczytaj_nasz_slownik(): return _wczytaj_json(SLOWNIK_PLIK)
 
 DNI_HISTORII_MECZY = 14  # ile dni wstecz trzymamy pliki mecze_YYYYMMDD.json
 DNI_NAPRZOD_LIMIT = 14   # ile dni do przodu wolno przeglądać w GUI
+KOMUNIKAT_POBIERANIA = "Pobieranie danych z serwera..."
 
 def wyczysc_stare_pliki_meczy():
     """Usuwa pliki mecze_YYYYMMDD.json i archiwum_YYYY-MM-DD.txt starsze niż
@@ -291,10 +293,10 @@ def przeanalizuj_wystepy_polakow(sklady_api, lista_polakow, oczekiwano_danych=Fa
     return ", ".join(_tekst_wystepu(d) for d in dane)
 
 def przetworz_dane(data_obliczeniowa, wymus_aktualizacje=False):
-    if wymus_aktualizacje:
-        synchronizuj_bazy_z_serwera()
     polskie_kluby = wczytaj_kluby(EXCEL_PLIK)
-    if not polskie_kluby: return ["Brak bazy zawodników.", "Kliknij '1. Pobierz Mecze', aby pobrać dane z serwera."], False
+    if not polskie_kluby:
+        if wymus_aktualizacje: return ["Brak bazy zawodników.", "Serwer jej nie oddał - kliknij 'Odśwież dane' za chwilę."], False
+        return [KOMUNIKAT_POBIERANIA], False
     
     baza_lig = wczytaj_ligi()
     nasz_slownik_lig = wczytaj_nasz_slownik()
@@ -405,6 +407,12 @@ class AplikacjaFootball:
         self.ostatnie_wyniki = []
         self.pokazuj_wyniki = False
         self.flag_photo_cache = {}
+        # Dane z serwera pobierają się same, w tle: przy starcie bazy + bieżący dzień, potem każdy
+        # oglądany dzień raz na sesję. Przycisk "Odśwież dane" robi to samo na żądanie.
+        self._pobrane_dni = set()
+        self._bazy_zsynchronizowane = False
+        self._pobieranie_trwa = False
+        self._napis_przycisku = "Odśwież dane"
         self.badge_font = tkFont.Font(family="Segoe UI", size=8)
 
         # --- TABELA WYNIKÓW (zawartość odtwarzana przy każdym odświeżeniu) ---
@@ -451,36 +459,71 @@ class AplikacjaFootball:
         self.zmien_dzien()
         
     def zmien_dzien(self):
+        # Od razu to, co jest na dysku, a w tle świeże dane z serwera
         dane_gui, _ = przetworz_dane(self.current_date, wymus_aktualizacje=False)
-        if dane_gui is None: self.ostatnie_wyniki = ["Brak lokalnej bazy danych dla tego dnia.", "Kliknij '1. Pobierz Mecze', aby pobrać dane z serwera."]
+        plik_dnia = os.path.join(KATALOG_PROJEKTU, f"mecze_{self.current_date.strftime('%Y%m%d')}.json")
+        if dane_gui is None and not os.path.exists(plik_dnia): self.ostatnie_wyniki = [KOMUNIKAT_POBIERANIA]
+        elif dane_gui is None: self.ostatnie_wyniki = [f"Brak meczów Polaków z dnia {self.current_date.strftime('%d.%m.%Y')}."]
         else: self.ostatnie_wyniki = dane_gui
         self.pokazuj_wyniki = True
         self.canvas.yview_moveto(0)
         self.odswiez_widok()
+        if self.current_date not in self._pobrane_dni:
+            self.pobierz_z_serwera(self.current_date)
 
-    def kliknij_pobierz_slownik(self):
-        self.canvas.itemconfig("btn_dict_text", text="Łączenie z serwerem...")
-        self.root.update()
-        try:
-            ile = synchronizuj_bazy_z_serwera()
-            messagebox.showinfo("Gotowe", f"Pobrano z serwera aktualne bazy ({ile} pliki): zawodnicy, słownik lig, ustawienia lig.")
-            self.zmien_dzien()
-        except BladSerwera as e:
-            messagebox.showerror("Błąd", f"Nie udało się pobrać baz z serwera.\n{e}")
-        self.canvas.itemconfig("btn_dict_text", text="2. Odśwież Bazy")
+    def _ustaw_napis_przycisku(self, tekst):
+        self._napis_przycisku = tekst
+        self.canvas.itemconfig("btn_text", text=tekst)
 
-    def kliknij_generuj(self):
-        self.canvas.itemconfig("btn_text", text="Łączenie z serwerem...")
-        self.root.update()
-        try:
-            dane_gui, _ = przetworz_dane(self.current_date, wymus_aktualizacje=True)
-            self.ostatnie_wyniki = dane_gui if dane_gui else [f"Brak meczów Polaków z dnia {self.current_date.strftime('%d.%m.%Y')}."]
-            self.pokazuj_wyniki = True
-            self.canvas.yview_moveto(0)
-            self.odswiez_widok()
-        except BladSerwera as e: messagebox.showerror("Serwer niedostępny", str(e))
-        except Exception as e: messagebox.showerror("Błąd", str(e))
-        self.canvas.itemconfig("btn_text", text="1. Pobierz Mecze")
+    def pobierz_z_serwera(self, data, recznie=False):
+        """Dane dnia z serwera w osobnym wątku - pierwsze zapytanie może budzić serwer (do ~1 min),
+        okno w tym czasie normalnie działa. Bazy zawodników i lig: raz na sesję albo na żądanie."""
+        if self._pobieranie_trwa: return
+        self._pobieranie_trwa = True
+        self._ustaw_napis_przycisku("Łączenie z serwerem...")
+        synchronizuj_bazy = recznie or not self._bazy_zsynchronizowane
+        wynik = {}
+
+        def praca():
+            try:
+                if synchronizuj_bazy: synchronizuj_bazy_z_serwera()
+                wynik['dane'], _ = przetworz_dane(data, wymus_aktualizacje=True)
+            except Exception as e:
+                wynik['blad'] = e
+
+        watek = threading.Thread(target=praca, daemon=True)
+        watek.start()
+
+        def sprawdz():
+            if watek.is_alive():
+                self.root.after(200, sprawdz)
+                return
+            self._pobieranie_trwa = False
+            self._ustaw_napis_przycisku("Odśwież dane")
+            if 'blad' in wynik:
+                if recznie:
+                    tytul = "Serwer niedostępny" if isinstance(wynik['blad'], BladSerwera) else "Błąd"
+                    messagebox.showerror(tytul, str(wynik['blad']))
+                elif data == self.current_date and self.ostatnie_wyniki == [KOMUNIKAT_POBIERANIA]:
+                    self.ostatnie_wyniki = ["Nie udało się połączyć z serwerem danych.", "Kliknij 'Odśwież dane', aby spróbować ponownie."]
+                    self.odswiez_widok()
+            else:
+                if synchronizuj_bazy: self._bazy_zsynchronizowane = True
+                # Serwer nie miał jeszcze tego dnia - przy następnym wejściu na dzień spróbujemy znowu
+                if os.path.exists(os.path.join(KATALOG_PROJEKTU, f"mecze_{data.strftime('%Y%m%d')}.json")):
+                    self._pobrane_dni.add(data)
+                if data == self.current_date:
+                    self.ostatnie_wyniki = wynik['dane'] or [f"Brak meczów Polaków z dnia {data.strftime('%d.%m.%Y')}."]
+                    self.pokazuj_wyniki = True
+                    self.odswiez_widok()
+            # W trakcie pobierania przełączono dzień - pobierz też ten
+            if self.current_date != data and self.current_date not in self._pobrane_dni:
+                self.pobierz_z_serwera(self.current_date)
+
+        self.root.after(200, sprawdz)
+
+    def kliknij_odswiez(self):
+        self.pobierz_z_serwera(self.current_date, recznie=True)
 
     def _skrot_klubu(self, nazwa):
         if not nazwa: return ""
@@ -686,19 +729,13 @@ class AplikacjaFootball:
         self.canvas.create_rectangle(w//2 + 200, btn_y - 12, w//2 + 240, btn_y + 12, fill=("#4a4a4a" if czy_limit_dalej else "#34495e"), outline="#2c3e50")
         self.canvas.create_text(w//2 + 220, btn_y, text="►", font=("Arial", 12, "bold"), fill=("#8a8a8a" if czy_limit_dalej else "white"), tags="btn_next")
 
-        self.canvas.create_rectangle(w//2 - 270, 115, w//2 - 5, 145, fill="#c0392b", outline="#e74c3c", tags="btn_gen_bg")
-        self.canvas.create_text(w//2 - 137, 130, text="1. Pobierz Mecze", font=("Arial", 9, "bold"), fill="white", tags="btn_text")
-
-        self.canvas.create_rectangle(w//2 + 5, 115, w//2 + 270, 145, fill="#2980b9", outline="#3498db", tags="btn_dict_bg")
-        self.canvas.create_text(w//2 + 137, 130, text="2. Odśwież Bazy", font=("Arial", 9, "bold"), fill="white", tags="btn_dict_text")
+        self.canvas.create_rectangle(w//2 - 135, 115, w//2 + 135, 145, fill="#c0392b", outline="#e74c3c", tags="btn_gen_bg")
+        self.canvas.create_text(w//2, 130, text=self._napis_przycisku, font=("Arial", 9, "bold"), fill="white", tags="btn_text")
 
         self.canvas.tag_bind("btn_prev", "<Button-1>", lambda e: self.dzien_tyl())
         self.canvas.tag_bind("btn_next", "<Button-1>", lambda e: self.dzien_przod())
-        self.canvas.tag_bind("btn_gen_bg", "<Button-1>", lambda e: self.kliknij_generuj())
-        self.canvas.tag_bind("btn_text", "<Button-1>", lambda e: self.kliknij_generuj())
-
-        self.canvas.tag_bind("btn_dict_bg", "<Button-1>", lambda e: self.kliknij_pobierz_slownik())
-        self.canvas.tag_bind("btn_dict_text", "<Button-1>", lambda e: self.kliknij_pobierz_slownik())
+        self.canvas.tag_bind("btn_gen_bg", "<Button-1>", lambda e: self.kliknij_odswiez())
+        self.canvas.tag_bind("btn_text", "<Button-1>", lambda e: self.kliknij_odswiez())
 
         if self.pokazuj_wyniki:
             self.canvas.create_window(w // 2, y_tabeli, window=self.tabela_frame, anchor="n", width=self._szer_tabeli)

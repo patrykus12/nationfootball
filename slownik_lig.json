@@ -1930,5 +1930,65 @@
     "1000001787": {
         "nazwa": "Saudi Arabian League",
         "flaga": "ksa"
+    },
+    "949117": {
+        "nazwa": "Australian Championship Grp. D",
+        "flaga": "au"
+    },
+    "942484": {
+        "nazwa": "League Cup",
+        "flaga": "pt"
+    },
+    "1000001738": {
+        "nazwa": "UAE Pro League",
+        "flaga": "uae"
+    },
+    "936417": {
+        "nazwa": "DFB Pokal",
+        "flaga": "de"
+    },
+    "1000001491": {
+        "nazwa": "UEFA Women's Europa Cup",
+        "flaga": "int"
+    },
+    "951326": {
+        "nazwa": "Cup Qualification",
+        "flaga": "tr"
+    },
+    "1000001746": {
+        "nazwa": "Qatar Stars League",
+        "flaga": "qat"
+    },
+    "943231": {
+        "nazwa": "Conference League",
+        "flaga": "int"
+    },
+    "949788": {
+        "nazwa": "Indian Super League",
+        "flaga": "ind"
+    },
+    "1000001573": {
+        "nazwa": "FNL",
+        "flaga": "cz"
+    },
+    "943230": {
+        "nazwa": "Champions League",
+        "flaga": "int"
+    },
+    "1000001162": {
+        "nazwa": "Canadian Championship",
+        "flaga": "can"
+    },
+    "1000001501": {
+        "nazwa": "Dutch KNVB Cup Women",
+        "flaga": "nl"
+    },
+    "938239": {
+        "nazwa": "EFL Trophy Southern Grp. A",
+        "flaga": "gb-eng"
+    },
+    "938240": {
+        "nazwa": "EFL Trophy Southern Grp. B",
+        "flaga": "gb-eng"
     }
 }

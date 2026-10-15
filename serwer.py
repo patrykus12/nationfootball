@@ -15,6 +15,8 @@ Endpointy (wszystkie GET, JSON skompresowany gzipem jeśli klient to obsługuje)
   /ligi                               ligi.json (ręczne nadpisania / ignorowane ligi)
   /zawodnicy                          zawodnicy.xlsx
   /cron                               budzi serwer i uruchamia cykl harmonogramu w tle
+                                      (?repo=1 - od razu pobierz bazy z repozytorium, np. po aktualizacji)
+  /eksport                            kopia cache (tar.gz) - zapisywana co godzinę w repozytorium
 
 Lokalnie:     python serwer.py
 Na hostingu:  gunicorn -w 1 --threads 8 -b 0.0.0.0:$PORT serwer:app
@@ -36,6 +38,11 @@ import pobieranie_danych as dane
 DNI_HISTORII = 14
 DNI_NAPRZOD = 14
 INTERWAL_HARMONOGRAMU_MIN = int(os.environ.get("NF_INTERWAL_MIN", 10))
+# Darmowy Render usypia serwer po 15 min bez zapytań z zewnątrz (a uśpienie kasuje dysk). Zaplanowane
+# workflowy GitHuba odpalają się w praktyce co kilka godzin, więc serwer sam odpytuje swój publiczny
+# adres (zapytanie przechodzi przez Render jak każde inne). Render ustawia RENDER_EXTERNAL_URL.
+ADRES_PUBLICZNY = os.environ.get("RENDER_EXTERNAL_URL", "").rstrip("/")
+PODTRZYMANIE_MIN = 5
 
 app = Flask(__name__)
 
@@ -86,6 +93,7 @@ def status():
         "ostatnia_synchronizacja_z_repo": _czas(s["ostatnia_synchronizacja_repo"]),
         "harmonogram": {"watek_dziala": bool(_watek and _watek.is_alive()), "etap": s["etap"], "pid": os.getpid(),
                         "ostatni_blad": s["ostatni_blad"]},
+        "kopia_zapasowa": s["kopia"],
     })
 
 
@@ -100,6 +108,7 @@ def mecze(data_str):
     if not (dzisiaj - timedelta(days=DNI_HISTORII) <= data_obj <= dzisiaj + timedelta(days=DNI_NAPRZOD)):
         abort(404, f"Data poza obsługiwanym zakresem ({DNI_HISTORII} dni wstecz / {DNI_NAPRZOD} dni w przód)")
 
+    dane.kopia_gotowa.wait(timeout=60)  # tuż po starcie serwer odtwarza dane z kopii (kilka sekund)
     lista = dane.mecze_dnia_z_cache(data_obj)
     if lista is None: abort(404, "Serwer nie ma jeszcze danych dla tego dnia")
     return odpowiedz_json(lista)
@@ -108,6 +117,7 @@ def mecze(data_str):
 @app.route("/sklad/<int:mecz_id>/<strona>")
 def sklad(mecz_id, strona):
     if strona not in ("home", "away"): abort(400, "strona = home albo away")
+    dane.kopia_gotowa.wait(timeout=60)
     return odpowiedz_json({"sklad": dane.sklad_z_cache(mecz_id, strona)})
 
 
@@ -130,9 +140,17 @@ def zawodnicy():
     return Response(tresc, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 
-def _uruchom_cykl():
+@app.route("/eksport")
+def eksport():
+    # Dopiero po pełnym cyklu - kopia z serwera tuż po starcie (np. gdy odtworzenie się nie udało)
+    # nadpisałaby w repozytorium dobrą kopię prawie pustą
+    if dane.STATYSTYKI["ostatni_cykl"] is None: abort(503, "Serwer dopiero startuje - kopia po pierwszym cyklu")
+    return Response(dane.eksportuj_kopie(), mimetype="application/gzip")
+
+
+def _uruchom_cykl(wymus_repo=False):
     try:
-        for wpis in dane.cykl_harmonogramu(): print(f"[harmonogram] {wpis}", flush=True)
+        for wpis in dane.cykl_harmonogramu(wymus_repo): print(f"[harmonogram] {wpis}", flush=True)
     except Exception as e:
         print(f"[harmonogram] błąd: {e}", flush=True)
 
@@ -142,15 +160,25 @@ def cron():
     """Wywoływane z zewnątrz co ~10 min (GitHub Actions) - nie pozwala darmowemu hostingowi uśpić
     serwera (uśpienie = utrata cache i przerwa w harmonogramie). Cykl rusza w tle; wywołanie
     jest bezpieczne dowolnie często - API i tak odpytywane jest tylko wtedy, gdy trzeba."""
-    threading.Thread(target=_uruchom_cykl, daemon=True).start()
+    threading.Thread(target=_uruchom_cykl, args=(request.args.get("repo") == "1",), daemon=True).start()
     return jsonify({"status": "ok", "ostatni_cykl": _czas(dane.STATYSTYKI["ostatni_cykl"])})
 
 
 def watek_harmonogramu():
-    _przygotuj_pliki_startowe()
+    try: _przygotuj_pliki_startowe()
+    except Exception as e: print(f"[start] {e}", flush=True)
+    dane.przywroc_kopie()
     while True:
         _uruchom_cykl()
         time.sleep(INTERWAL_HARMONOGRAMU_MIN * 60)
+
+
+def watek_podtrzymania():
+    import requests
+    while True:
+        time.sleep(PODTRZYMANIE_MIN * 60)
+        try: requests.get(f"{ADRES_PUBLICZNY}/", timeout=60)
+        except Exception as e: print(f"[podtrzymanie] {e}", flush=True)
 
 
 # Harmonogram startuje dopiero w procesie, który faktycznie obsługuje zapytania (przy pierwszym
@@ -170,6 +198,7 @@ def _upewnij_sie_ze_harmonogram_dziala():
         _watek_pid = os.getpid()
         _watek = threading.Thread(target=watek_harmonogramu, daemon=True)
         _watek.start()
+        if ADRES_PUBLICZNY: threading.Thread(target=watek_podtrzymania, daemon=True).start()
 
 
 @app.before_request

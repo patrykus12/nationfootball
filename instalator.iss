@@ -1,10 +1,10 @@
-; Instalator NationFootball (Inno Setup 6) - budowany automatycznie przez build.py
-; Instaluje dla bieżącego użytkownika, bez uprawnień administratora.
+﻿; Instalator NationFootball (Inno Setup 6) - budowany automatycznie przez build.py
+; Instaluje dla bieĹĽÄ…cego uĹĽytkownika, bez uprawnieĹ„ administratora.
 
-#define Wersja "1.0"
+#define Wersja "1.1"
 
 [Setup]
-; AppId nie może się zmieniać między wersjami - po nim Windows rozpoznaje aktualizację
+; AppId nie moĹĽe siÄ™ zmieniaÄ‡ miÄ™dzy wersjami - po nim Windows rozpoznaje aktualizacjÄ™
 AppId={{27C07EC7-5E49-4119-B2ED-D620FA8BEDBA}
 AppName=NationFootball
 AppVersion={#Wersja}
@@ -25,7 +25,7 @@ WizardStyle=modern
 Name: "polish"; MessagesFile: "compiler:Languages\Polish.isl"
 
 [Tasks]
-Name: "skrot_pulpit"; Description: "Utwórz skrót na pulpicie"; GroupDescription: "Skróty:"
+Name: "skrot_pulpit"; Description: "UtwĂłrz skrĂłt na pulpicie"; GroupDescription: "SkrĂłty:"
 
 [Files]
 Source: "dist\NationFootball.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -39,5 +39,5 @@ Name: "{userdesktop}\NationFootball"; Filename: "{app}\NationFootball.exe"; Task
 Filename: "{app}\NationFootball.exe"; Description: "Uruchom NationFootball"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
-; dane pobrane przez aplikację (mecze, składy, flagi) - patrz KATALOG_PROJEKTU w test_flashscore.py
+; dane pobrane przez aplikacjÄ™ (mecze, skĹ‚ady, flagi) - patrz KATALOG_PROJEKTU w test_flashscore.py
 Type: filesandordirs; Name: "{localappdata}\NationFootball"

@@ -1,0 +1,35 @@
+name: Kopia danych serwera
+
+# Darmowy Render kasuje dysk przy każdym restarcie. Co godzinę zapisujemy cały cache serwera
+# (terminarze, składy, nazwy lig) na osobnej gałęzi "kopia-danych" - po starcie serwer odtwarza
+# go stąd w kilka sekund, zamiast pobierać wszystko od nowa z API. Gałąź ma zawsze jeden commit
+# (nadpisywany), więc repozytorium nie puchnie.
+on:
+  schedule:
+    - cron: "15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  kopia:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Pobierz kopię z serwera
+        run: |
+          curl -fsS --max-time 300 --retry 3 --retry-delay 30 "${{ vars.NF_SERWER || 'https://nationfootball.onrender.com' }}/eksport" -o kopia.tar.gz
+          dni=$(tar tzf kopia.tar.gz | grep -c '^surowe/')
+          echo "Dni terminarza w kopii: $dni"
+          # Zabezpieczenie: nie nadpisuj dobrej kopii prawie pustą
+          test "$dni" -ge 20
+      - name: Zapisz na gałęzi kopia-danych
+        run: |
+          mkdir repo && mv kopia.tar.gz repo/ && cd repo
+          git init -q -b kopia-danych
+          git config user.name "nationfootball-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add kopia.tar.gz
+          git commit -qm "Kopia danych serwera $(date -u +%F\ %H:%M) [skip render]"
+          git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" kopia-danych
