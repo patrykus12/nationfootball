@@ -34,7 +34,7 @@ from tkinter import messagebox
 import tkinter.font as tkFont
 from PIL import Image, ImageTk, ImageDraw
 
-from dopasowanie import normalizuj_tekst, podobienstwo, wczytaj_kluby, dopasuj_mecz, czas_rozpoczecia_utc
+from dopasowanie import wczytaj_kluby, dopasuj_mecz, czas_rozpoczecia_utc, wyodrebnij_wystepy_polakow
 
 # --- KONFIGURACJA ---
 # Aplikacja nie łączy się z RapidAPI - wszystkie dane bierze z serwera NationFootball (serwer.py).
@@ -219,65 +219,6 @@ def pobierz_sklad_z_serwera(mecz_id, czy_zakonczony, uzyj_serwera=False, fetch_h
         with open(plik_cache, "w", encoding="utf-8") as f: json.dump(sklady, f)
     return sklady
 
-def wyodrebnij_wystepy_polakow(sklady_api, lista_polakow, oczekiwano_danych=False):
-    """Jak przeanalizuj_wystepy_polakow, ale zwraca dane w formie ustrukturyzowanej
-    (do tabeli w GUI), zamiast gotowego tekstu (który dalej powstaje z tych danych
-    dla pliku archiwum.txt - patrz _tekst_wystepu)."""
-    if not sklady_api:
-        if oczekiwano_danych:
-            return [{'nazwa': p, 'gole': 0, 'asysty': 0, 'minuty_tekst': 'brak danych', 'ocena': None, 'aktywny': False} for p in lista_polakow]
-        return [{'nazwa': p, 'gole': 0, 'asysty': 0, 'minuty_tekst': '', 'ocena': None, 'aktywny': None} for p in lista_polakow]
-
-    # Dla części lig (np. K-League) API podaje gole/asysty, ale żadnych zmian ani ocen -
-    # wtedy rezerwowy bez zdarzenia "subIn" mógł wejść na boisko, więc nie piszemy "nie grał"
-    api_podaje_zmiany = any(
-        z.get('performance', {}).get('substitutionEvents')
-        for zespol in sklady_api for z in zespol.get('starters', []) + zespol.get('subs', []))
-
-    wyniki = []
-    for p_org in lista_polakow:
-        p_norm = normalizuj_tekst(p_org)
-        znaleziono = False
-        for zespol in sklady_api:
-            for z in zespol.get('starters', []) + zespol.get('subs', []) + zespol.get('unavailable', []):
-                if normalizuj_tekst(f"{z.get('firstName', '')} {z.get('lastName', '')}") == p_norm or podobienstwo(normalizuj_tekst(f"{z.get('firstName', '')} {z.get('lastName', '')}"), p_norm) > 0.8:
-                    znaleziono = True
-                    perf = z.get('performance', {})
-                    events = perf.get('events', [])
-                    g, a = sum(1 for e in events if e.get('type') == 'goal'), sum(1 for e in events if e.get('type') == 'assist')
-
-                    sub_in = next((e.get('time') for e in perf.get('substitutionEvents', []) if e.get('type') == 'subIn'), None)
-                    sub_out = next((e.get('time') for e in perf.get('substitutionEvents', []) if e.get('type') == 'subOut'), None)
-
-                    if z in zespol.get('starters', []):
-                        minuty_tekst = f"do {sub_out}'" if sub_out else ("90'" if api_podaje_zmiany else "w podstawie")
-                        aktywny = True
-                    elif z in zespol.get('subs', []) and not api_podaje_zmiany:
-                        minuty_tekst = "rezerwowy, brak danych o zmianach"
-                        aktywny = None
-                    elif z in zespol.get('subs', []):
-                        if sub_in:
-                            minuty_tekst = f"od {sub_in}' do {sub_out}'" if sub_out else f"od {sub_in}'"
-                            aktywny = True
-                        else:
-                            minuty_tekst = "nie grał"
-                            aktywny = False
-                    else:
-                        minuty_tekst = "nie grał"
-                        aktywny = False
-
-                    wyniki.append({
-                        'nazwa': p_org, 'gole': g, 'asysty': a, 'minuty_tekst': minuty_tekst,
-                        'ocena': perf.get('rating'), 'aktywny': aktywny
-                    })
-                    break
-            if znaleziono: break
-
-        if not znaleziono:
-            wyniki.append({'nazwa': p_org, 'gole': 0, 'asysty': 0, 'minuty_tekst': 'nie grał', 'ocena': None, 'aktywny': False})
-
-    return wyniki
-
 def _tekst_wystepu(d):
     """Zamienia jeden wpis z wyodrebnij_wystepy_polakow na tekst w formacie archiwum.txt."""
     if d['aktywny'] is None and not d['minuty_tekst']: return d['nazwa']
@@ -287,10 +228,6 @@ def _tekst_wystepu(d):
     if d['minuty_tekst']: tekst += f" ({d['minuty_tekst']})"
     if d['ocena'] is not None: tekst += f" [ocena: {d['ocena']}]"
     return tekst
-
-def przeanalizuj_wystepy_polakow(sklady_api, lista_polakow, oczekiwano_danych=False):
-    dane = wyodrebnij_wystepy_polakow(sklady_api, lista_polakow, oczekiwano_danych)
-    return ", ".join(_tekst_wystepu(d) for d in dane)
 
 def przetworz_dane(data_obliczeniowa, wymus_aktualizacje=False):
     polskie_kluby = wczytaj_kluby(EXCEL_PLIK)

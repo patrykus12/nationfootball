@@ -14,6 +14,8 @@ Endpointy (wszystkie GET, JSON skompresowany gzipem jeśli klient to obsługuje)
   /slownik-lig                        slownik_lig.json
   /ligi                               ligi.json (ręczne nadpisania / ignorowane ligi)
   /zawodnicy                          zawodnicy.xlsx
+  /api/dzien/<YYYYMMDD>               gotowe mecze Polaków z występami (aplikacja na telefon)
+  /app/                               aplikacja na telefon (PWA, pliki z katalogu web/)
   /cron                               budzi serwer i uruchamia cykl harmonogramu w tle
                                       (?repo=1 - od razu pobierz bazy z repozytorium, np. po aktualizacji)
   /eksport                            kopia cache (tar.gz) - zapisywana co godzinę w repozytorium
@@ -31,10 +33,11 @@ import threading
 import time
 from datetime import datetime, timedelta
 
-from flask import Flask, Response, abort, jsonify, request
+from flask import Flask, Response, abort, jsonify, redirect, request, send_from_directory
 
 import pobieranie_danych as dane
 
+KATALOG_WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
 DNI_HISTORII = 14
 DNI_NAPRZOD = 14
 INTERWAL_HARMONOGRAMU_MIN = int(os.environ.get("NF_INTERWAL_MIN", 10))
@@ -97,8 +100,7 @@ def status():
     })
 
 
-@app.route("/mecze/<data_str>")
-def mecze(data_str):
+def _dzien_z_adresu(data_str):
     try:
         data_obj = datetime.strptime(data_str, "%Y%m%d").date()
     except ValueError:
@@ -107,11 +109,36 @@ def mecze(data_str):
     dzisiaj = datetime.now(dane.TZ_PL).date()
     if not (dzisiaj - timedelta(days=DNI_HISTORII) <= data_obj <= dzisiaj + timedelta(days=DNI_NAPRZOD)):
         abort(404, f"Data poza obsługiwanym zakresem ({DNI_HISTORII} dni wstecz / {DNI_NAPRZOD} dni w przód)")
-
     dane.kopia_gotowa.wait(timeout=60)  # tuż po starcie serwer odtwarza dane z kopii (kilka sekund)
-    lista = dane.mecze_dnia_z_cache(data_obj)
+    return data_obj
+
+
+@app.route("/mecze/<data_str>")
+def mecze(data_str):
+    lista = dane.mecze_dnia_z_cache(_dzien_z_adresu(data_str))
     if lista is None: abort(404, "Serwer nie ma jeszcze danych dla tego dnia")
     return odpowiedz_json(lista)
+
+
+@app.route("/api/dzien/<data_str>")
+def dzien_polakow(data_str):
+    lista = dane.mecze_polakow_dnia(_dzien_z_adresu(data_str))
+    if lista is None: abort(404, "Serwer nie ma jeszcze danych dla tego dnia")
+    return odpowiedz_json({"dzien": data_str, "stan_na": _czas(time.time()), "mecze": lista})
+
+
+@app.route("/app")
+def aplikacja_bez_ukosnika():
+    return redirect("/app/")
+
+
+@app.route("/app/")
+@app.route("/app/<path:plik>")
+def aplikacja(plik="index.html"):
+    # max_age=0 - telefony zawsze sprawdzają, czy jest nowa wersja (offline działa service worker)
+    odp = send_from_directory(KATALOG_WEB, plik, max_age=0)
+    if plik == "sw.js": odp.headers["Service-Worker-Allowed"] = "/app/"
+    return odp
 
 
 @app.route("/sklad/<int:mecz_id>/<strona>")

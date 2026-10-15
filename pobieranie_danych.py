@@ -393,9 +393,75 @@ def przywroc_kopie():
         kopia_gotowa.set()
 
 
+# --- GOTOWE MECZE POLAKÓW (aplikacja na telefon) ---
+def mecze_polakow_dnia(data_pl):
+    """Mecze z udziałem Polaków z danego dnia (czas polski) z ich występami - to samo, co liczy
+    aplikacja na komputer, ale po stronie serwera. None, gdy serwer nie ma jeszcze tego dnia."""
+    from dopasowanie import czas_rozpoczecia_utc, wyodrebnij_wystepy_polakow
+    wszystkie = mecze_dnia_z_cache(data_pl)
+    if wszystkie is None: return None
+    kluby = _kluby_z_bazy()
+    if not kluby: return None
+    wersja_baz = _wersja_baz()
+    slownik, ligi = wczytaj_nasz_slownik(), wczytaj_json(LIGI_PLIK, {}) or {}
+    teraz = datetime.now(pytz.utc)
+
+    wyniki = []
+    for mecz in wszystkie:
+        dop = _dopasuj(mecz, kluby, slownik, ligi, wersja_baz)
+        if not dop: continue
+        start = czas_rozpoczecia_utc(mecz)
+        if start is None: continue
+        start_pl = start.astimezone(TZ_PL)
+        if start_pl.date() != data_pl: continue
+
+        status = mecz.get('status', {})
+        zakonczony = bool(status.get('finished'))
+        oczekiwano_danych = zakonczony or (teraz - start) > timedelta(hours=2)
+        sklady = []
+        if oczekiwano_danych:
+            for strona, polacy in (("home", dop['polacy_gosp']), ("away", dop['polacy_gosc'])):
+                sklad = sklad_z_cache(mecz.get('id'), strona) if polacy else None
+                if sklad: sklady.append(sklad)
+
+        wyniki.append({
+            'id': mecz.get('id'), 'godzina': start_pl.strftime("%H:%M"), 'start': start.isoformat(),
+            'liga': dop['nazwa_ligi'], 'flaga': dop['flaga_ligi'].lower(),
+            'gosp': dop['gosp'], 'gosc': dop['gosc'],
+            'wynik': status.get('scoreStr', "").replace(" - ", ":") if zakonczony else None,
+            'zakonczony': zakonczony, 'rozpoczety': teraz >= start, 'odwolany': bool(status.get('cancelled')),
+            'gracze_gosp': wyodrebnij_wystepy_polakow(sklady, dop['polacy_gosp'], oczekiwano_danych) if dop['polacy_gosp'] else [],
+            'gracze_gosc': wyodrebnij_wystepy_polakow(sklady, dop['polacy_gosc'], oczekiwano_danych) if dop['polacy_gosc'] else [],
+        })
+    wyniki.sort(key=lambda m: m['start'])
+    return wyniki
+
+
 # --- HARMONOGRAM ---
 _gotowe_mecze = set()      # id meczów już załatwionych (bez Polaków albo z ostatecznymi składami)
-_cache_dopasowan = {}      # (mecz_id, czy_liga_znana, wersja_bazy) -> wynik dopasuj_mecz
+_cache_dopasowan = {}      # (mecz_id, czy_liga_znana, wersja_baz) -> wynik dopasuj_mecz
+_cache_klubow = {"wersja": None, "kluby": {}}
+
+
+def _wersja_baz():
+    """Zmienia się, gdy podmieniono bazę zawodników albo ligi.json - wtedy dopasowania liczymy od nowa."""
+    return tuple(os.path.getmtime(p) if os.path.exists(p) else 0 for p in (EXCEL_PLIK, LIGI_PLIK))
+
+
+def _kluby_z_bazy():
+    from dopasowanie import wczytaj_kluby
+    wersja = _wersja_baz()
+    if _cache_klubow["wersja"] != wersja:
+        _cache_klubow.update(wersja=wersja, kluby=wczytaj_kluby(EXCEL_PLIK))
+    return _cache_klubow["kluby"]
+
+
+def _dopasuj(mecz, kluby, slownik, ligi, wersja):
+    from dopasowanie import dopasuj_mecz
+    klucz = (mecz.get('id'), str(mecz.get('leagueId', '')) in slownik, wersja)
+    if klucz not in _cache_dopasowan:
+        _cache_dopasowan[klucz] = dopasuj_mecz(mecz, kluby, slownik, ligi)
+    return _cache_dopasowan[klucz]
 
 
 def _odswiez_terminarze(raport):
@@ -415,20 +481,17 @@ def _odswiez_terminarze(raport):
 
 
 def _odswiez_mecze_polakow(raport):
-    from dopasowanie import wczytaj_kluby, dopasuj_mecz, czas_rozpoczecia_utc
-    kluby = wczytaj_kluby(EXCEL_PLIK)
+    from dopasowanie import czas_rozpoczecia_utc
+    kluby = _kluby_z_bazy()
     if not kluby: return
-    wersja_bazy = os.path.getmtime(EXCEL_PLIK)
+    wersja_baz = _wersja_baz()
     slownik, ligi = wczytaj_nasz_slownik(), wczytaj_json(LIGI_PLIK, {}) or {}
     teraz = time.time()
     dzis = datetime.now(TZ_PL).date()
     pobrane_sklady = 0
 
     def dopasuj(mecz):
-        klucz = (mecz.get('id'), str(mecz.get('leagueId', '')) in slownik, wersja_bazy)
-        if klucz not in _cache_dopasowan:
-            _cache_dopasowan[klucz] = dopasuj_mecz(mecz, kluby, slownik, ligi)
-        return _cache_dopasowan[klucz]
+        return _dopasuj(mecz, kluby, slownik, ligi, wersja_baz)
 
     # Najpierw nazwy nieznanych lig meczów z Polakami w całym oknie (także przyszłe dni), zanim
     # limit składów na cykl przerwie pętlę niżej - 1 zapytanie na ligę, potem na stałe w słowniku.

@@ -165,3 +165,61 @@ def czas_rozpoczecia_utc(mecz):
         return pytz.utc.localize(datetime.strptime(mecz.get('status', {}).get('utcTime', '')[:19], "%Y-%m-%dT%H:%M:%S"))
     except Exception:
         return None
+
+def wyodrebnij_wystepy_polakow(sklady_api, lista_polakow, oczekiwano_danych=False):
+    """Występy Polaków w meczu na podstawie składów z API: dla każdego gracza słownik z kluczami
+    nazwa, gole, asysty, minuty_tekst, ocena, aktywny (True grał / False nie grał / None nie wiadomo)."""
+    if not sklady_api:
+        if oczekiwano_danych:
+            return [{'nazwa': p, 'gole': 0, 'asysty': 0, 'minuty_tekst': 'brak danych', 'ocena': None, 'aktywny': False} for p in lista_polakow]
+        return [{'nazwa': p, 'gole': 0, 'asysty': 0, 'minuty_tekst': '', 'ocena': None, 'aktywny': None} for p in lista_polakow]
+
+    # Dla części lig (np. K-League) API podaje gole/asysty, ale żadnych zmian ani ocen -
+    # wtedy rezerwowy bez zdarzenia "subIn" mógł wejść na boisko, więc nie piszemy "nie grał"
+    api_podaje_zmiany = any(
+        z.get('performance', {}).get('substitutionEvents')
+        for zespol in sklady_api for z in zespol.get('starters', []) + zespol.get('subs', []))
+
+    wyniki = []
+    for p_org in lista_polakow:
+        p_norm = normalizuj_tekst(p_org)
+        znaleziono = False
+        for zespol in sklady_api:
+            for z in zespol.get('starters', []) + zespol.get('subs', []) + zespol.get('unavailable', []):
+                if normalizuj_tekst(f"{z.get('firstName', '')} {z.get('lastName', '')}") == p_norm or podobienstwo(normalizuj_tekst(f"{z.get('firstName', '')} {z.get('lastName', '')}"), p_norm) > 0.8:
+                    znaleziono = True
+                    perf = z.get('performance', {})
+                    events = perf.get('events', [])
+                    g, a = sum(1 for e in events if e.get('type') == 'goal'), sum(1 for e in events if e.get('type') == 'assist')
+
+                    sub_in = next((e.get('time') for e in perf.get('substitutionEvents', []) if e.get('type') == 'subIn'), None)
+                    sub_out = next((e.get('time') for e in perf.get('substitutionEvents', []) if e.get('type') == 'subOut'), None)
+
+                    if z in zespol.get('starters', []):
+                        minuty_tekst = f"do {sub_out}'" if sub_out else ("90'" if api_podaje_zmiany else "w podstawie")
+                        aktywny = True
+                    elif z in zespol.get('subs', []) and not api_podaje_zmiany:
+                        minuty_tekst = "rezerwowy, brak danych o zmianach"
+                        aktywny = None
+                    elif z in zespol.get('subs', []):
+                        if sub_in:
+                            minuty_tekst = f"od {sub_in}' do {sub_out}'" if sub_out else f"od {sub_in}'"
+                            aktywny = True
+                        else:
+                            minuty_tekst = "nie grał"
+                            aktywny = False
+                    else:
+                        minuty_tekst = "nie grał"
+                        aktywny = False
+
+                    wyniki.append({
+                        'nazwa': p_org, 'gole': g, 'asysty': a, 'minuty_tekst': minuty_tekst,
+                        'ocena': perf.get('rating'), 'aktywny': aktywny
+                    })
+                    break
+            if znaleziono: break
+
+        if not znaleziono:
+            wyniki.append({'nazwa': p_org, 'gole': 0, 'asysty': 0, 'minuty_tekst': 'nie grał', 'ocena': None, 'aktywny': False})
+
+    return wyniki
