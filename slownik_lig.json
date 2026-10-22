@@ -1994,5 +1994,9 @@
     "1000001810": {
         "nazwa": "Indian Super League",
         "flaga": "ind"
+    },
+    "42": {
+        "nazwa": "UEFA Champions League",
+        "flaga": "int"
     }
 }
