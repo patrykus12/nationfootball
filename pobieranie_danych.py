@@ -35,6 +35,7 @@ os.makedirs(KATALOG_SKLADOW, exist_ok=True)
 EXCEL_PLIK = os.path.join(KATALOG_DANYCH, NACJE["pl"]["plik"])  # Polacy - także dla aplikacji na komputer
 LIGI_PLIK = os.path.join(KATALOG_DANYCH, "ligi.json")
 SLOWNIK_PLIK = os.path.join(KATALOG_DANYCH, "slownik_lig.json")
+ZNANI_PLIK = os.path.join(KATALOG_DANYCH, "serwer_cache", "znani_zawodnicy.json")
 
 TZ_PL = pytz.timezone("Europe/Warsaw")
 
@@ -368,7 +369,7 @@ def synchronizuj_z_repo():
 
 
 # --- KOPIA ZAPASOWA CACHE ---
-_WZORZEC_KOPII = re.compile(r"^(surowe/\d{8}\.json|sklady/\d+_(home|away)\.json|slownik_lig\.json)$")
+_WZORZEC_KOPII = re.compile(r"^(surowe/\d{8}\.json|sklady/\d+_(home|away)\.json|slownik_lig\.json|znani_zawodnicy\.json)$")
 
 
 def eksportuj_kopie():
@@ -380,6 +381,7 @@ def eksportuj_kopie():
                 if _WZORZEC_KOPII.match(f"{podkatalog}/{nazwa}"):
                     tar.add(os.path.join(katalog, nazwa), arcname=f"{podkatalog}/{nazwa}")
         if os.path.exists(SLOWNIK_PLIK): tar.add(SLOWNIK_PLIK, arcname="slownik_lig.json")
+        if os.path.exists(ZNANI_PLIK): tar.add(ZNANI_PLIK, arcname="znani_zawodnicy.json")
     return bufor.getvalue()
 
 
@@ -411,6 +413,10 @@ def przywroc_kopie():
                 # Tylko znane nazwy plików, zapisywane przez nas - żadnych ścieżek z archiwum
                 if not czlon.isfile() or not _WZORZEC_KOPII.match(czlon.name): continue
                 dane_pliku = tar.extractfile(czlon).read()
+                if czlon.name == "znani_zawodnicy.json":
+                    if not os.path.exists(ZNANI_PLIK):
+                        with open(ZNANI_PLIK, "wb") as f: f.write(dane_pliku)
+                    continue
                 if czlon.name == "slownik_lig.json":
                     znane = wczytaj_nasz_slownik()
                     dopisz_do_slownika({k: v for k, v in json.loads(dane_pliku).items() if k not in znane})
@@ -449,6 +455,7 @@ def mecze_polakow_dnia(data_pl, nacja="pl"):
     wyniki = []
     for mecz in wszystkie:
         dop = _dopasuj(mecz, nacja, kluby, slownik, ligi, wersja_baz)
+        if dop: dop = _bez_dopisanych_pozniej(dop, nacja, mecz)
         if not dop: continue
         start = czas_rozpoczecia_utc(mecz)
         if start is None: continue
@@ -498,6 +505,43 @@ def _kluby_z_bazy(nacja):
     return cache["kluby"]
 
 
+_znani = {"wersja": None, "od": {}}
+
+
+def _znani_od():
+    """{"nacja|klub|zawodnik": od kiedy jest w bazie}. Zawodnik dopisany później (cotygodniowa
+    aktualizacja, transfer, nowa nacja) nie "gra" w meczach sprzed dopisania - serwer nie dociąga
+    dla nich składów wstecz (oszczędność limitu API), a widok nie pokazuje go w meczach nowego
+    klubu sprzed transferu. Pierwszy raz (brak pliku) - wszyscy obecni są w bazie od zawsze."""
+    wersja = _wersja_baz()
+    if _znani["wersja"] == wersja: return _znani["od"]
+    zapisane = wczytaj_json(ZNANI_PLIK)
+    od_teraz = time.time() if zapisane is not None else 0
+    zapisane = zapisane or {}
+    od = {}
+    for nacja in NACJE:
+        for klub, info in _kluby_z_bazy(nacja).items():
+            for gracz in info['gracze']:
+                klucz = f"{nacja}|{klub}|{gracz}"
+                od[klucz] = zapisane.get(klucz, od_teraz)
+    if od != zapisane or not os.path.exists(ZNANI_PLIK): zapisz_json_atomowo(ZNANI_PLIK, od)
+    _znani.update(wersja=wersja, od=od)
+    return od
+
+
+def _bez_dopisanych_pozniej(dop, nacja, mecz):
+    """Dopasowanie bez zawodników dopisanych do bazy po rozpoczęciu meczu (None, gdy nikt nie zostaje)."""
+    from dopasowanie import czas_rozpoczecia_utc
+    start = czas_rozpoczecia_utc(mecz)
+    if start is None: return dop
+    znani, ts = _znani_od(), start.timestamp()
+    gosp = [g for g in dop['polacy_gosp'] if znani.get(f"{nacja}|{dop['klub_gosp']}|{g}", 0) <= ts]
+    gosc = [g for g in dop['polacy_gosc'] if znani.get(f"{nacja}|{dop['klub_gosc']}|{g}", 0) <= ts]
+    if not (gosp or gosc): return None
+    if gosp == dop['polacy_gosp'] and gosc == dop['polacy_gosc']: return dop
+    return dict(dop, polacy_gosp=gosp, polacy_gosc=gosc)
+
+
 def _dopasuj(mecz, nacja, kluby, slownik, ligi, wersja):
     from dopasowanie import dopasuj_mecz
     klucz = (mecz.get('id'), nacja, str(mecz.get('leagueId', '')) in slownik, wersja)
@@ -536,6 +580,7 @@ def _odswiez_mecze_polakow(raport):
     def dopasuj(mecz):
         """{nacja: dopasowanie} - tylko nacje, których zawodnicy grają w tym meczu."""
         dopasowania = {nacja: _dopasuj(mecz, nacja, k, slownik, ligi, wersja_baz) for nacja, k in kluby.items()}
+        dopasowania = {nacja: _bez_dopisanych_pozniej(dop, nacja, mecz) for nacja, dop in dopasowania.items() if dop}
         return {nacja: dop for nacja, dop in dopasowania.items() if dop}
 
     # Najpierw nazwy nieznanych lig meczów z Polakami w całym oknie (także przyszłe dni), zanim

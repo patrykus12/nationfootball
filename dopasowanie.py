@@ -176,8 +176,8 @@ def dopasuj_mecz(mecz, polskie_kluby, nasz_slownik_lig, baza_lig):
     nazwa_ligi = nazwa_override or prawdziwa_nazwa
     if czy_liga_kobieca(nazwa_ligi): return None
 
-    _, info_gosp = dopasuj_klub_do_bazy(gosp, flaga_ligi, polskie_kluby)
-    _, info_gosc = dopasuj_klub_do_bazy(gosc, flaga_ligi, polskie_kluby)
+    klub_gosp, info_gosp = dopasuj_klub_do_bazy(gosp, flaga_ligi, polskie_kluby)
+    klub_gosc, info_gosc = dopasuj_klub_do_bazy(gosc, flaga_ligi, polskie_kluby)
     if not (info_gosp or info_gosc): return None
 
     return {
@@ -186,6 +186,7 @@ def dopasuj_mecz(mecz, polskie_kluby, nasz_slownik_lig, baza_lig):
         'nazwa_override': nazwa_override, 'flaga_override': flaga_override,
         'polacy_gosp': info_gosp['gracze'] if info_gosp else [],
         'polacy_gosc': info_gosc['gracze'] if info_gosc else [],
+        'klub_gosp': klub_gosp if info_gosp else None, 'klub_gosc': klub_gosc if info_gosc else None,
     }
 
 def czas_rozpoczecia_utc(mecz):
