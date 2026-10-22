@@ -50,6 +50,7 @@ button { font: inherit; color: inherit; }
 .ikona-btn:active { background: var(--karta-2); }
 .ikona-btn.kreci svg { animation: obrot .9s linear infinite; }
 @keyframes obrot { to { transform: rotate(360deg); } }
+.nacja-btn .flaga { width: 22px; height: 16px; border-radius: 3px; }
 .instaluj {
   height: 32px; padding: 0 12px; border-radius: 16px; cursor: pointer;
   border: 1px solid var(--zloto); background: transparent; color: var(--zloto);
@@ -111,10 +112,10 @@ main { padding: 0 16px calc(24px + env(safe-area-inset-bottom)); max-width: 720p
   padding: 4px 0; font-size: 15.5px;
 }
 .druzyna .nazwa { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.druzyna.polska .nazwa { font-weight: 700; }
-.druzyna.polska .nazwa::after {
-  content: ""; display: inline-block; width: 12px; height: 8px; margin-left: 7px; vertical-align: 1px;
-  background: linear-gradient(#fff 50%, #dc143c 50%); border-radius: 1.5px; box-shadow: 0 0 0 1px rgba(255,255,255,.15);
+.druzyna.nasza .nazwa { font-weight: 700; }
+.druzyna.nasza .flaga {
+  width: 14px; height: 10px; margin-left: 7px; vertical-align: 0; border-radius: 1.5px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.15);
 }
 .druzyna .gole {
   flex: 0 0 auto; min-width: 24px; text-align: right;
@@ -181,3 +182,36 @@ main { padding: 0 16px calc(24px + env(safe-area-inset-bottom)); max-width: 720p
   border: 0; background: rgba(255, 255, 255, .08); color: var(--tekst-2); font-size: 14px;
 }
 body.z-wskazowka main { padding-bottom: calc(150px + env(safe-area-inset-bottom)); }
+
+/* --- WYBÓR NACJI --- */
+.wybor-nacji {
+  position: fixed; inset: 0; z-index: 30;
+  display: flex; align-items: center; justify-content: center;
+  padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  background: rgba(5, 12, 20, .82); backdrop-filter: blur(6px);
+}
+.wybor-nacji[hidden] { display: none; }
+.wybor-okno {
+  position: relative; width: 100%; max-width: 400px;
+  padding: 24px 18px 18px; border-radius: 18px; text-align: center;
+  background: var(--karta); border: 1px solid var(--ramka);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .5);
+  animation: wjazd .3s ease-out;
+}
+.wybor-okno .zamknij { position: absolute; top: 12px; right: 12px; }
+.wybor-okno .zamknij[hidden] { display: none; }
+.wybor-logo { width: 56px; height: 56px; border-radius: 13px; }
+.wybor-okno h2 { margin: 10px 0 6px; font-size: 20px; font-weight: 800; }
+.wybor-okno p { margin: 0 0 16px; color: var(--tekst-2); font-size: 13.5px; line-height: 1.45; }
+.nacje { display: flex; flex-direction: column; gap: 8px; }
+.nacja {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 12px 14px; border-radius: 12px; cursor: pointer; text-align: left;
+  border: 1px solid var(--ramka); background: var(--karta-2);
+}
+.nacja:active { background: var(--ramka); }
+.nacja.obecna { border-color: var(--zloto); box-shadow: inset 0 0 0 1px var(--zloto); }
+.nacja .flaga { width: 32px; height: 24px; border-radius: 3px; }
+.nacja span { display: flex; flex-direction: column; }
+.nacja b { font-size: 16px; }
+.nacja small { color: var(--wyciszony); font-size: 12px; margin-top: 1px; }

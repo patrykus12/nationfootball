@@ -14,7 +14,7 @@ Endpointy (wszystkie GET, JSON skompresowany gzipem jeśli klient to obsługuje)
   /slownik-lig                        slownik_lig.json
   /ligi                               ligi.json (ręczne nadpisania / ignorowane ligi)
   /zawodnicy                          zawodnicy.xlsx
-  /api/dzien/<YYYYMMDD>               gotowe mecze Polaków z występami (aplikacja na telefon)
+  /api/dzien/<YYYYMMDD>[?nacja=tr]    gotowe mecze Polaków (albo innej nacji) z występami (aplikacja na telefon)
   /app/                               aplikacja na telefon (PWA, pliki z katalogu web/)
   /cron                               budzi serwer i uruchamia cykl harmonogramu w tle
                                       (?repo=1 - od razu pobierz bazy z repozytorium, np. po aktualizacji)
@@ -52,7 +52,7 @@ app = Flask(__name__)
 
 def _przygotuj_pliki_startowe():
     """Gdy dane trzymamy na osobnym wolumenie - skopiuj tam pliki z repozytorium przy pierwszym starcie."""
-    for nazwa in ("zawodnicy.xlsx", "ligi.json", "slownik_lig.json"):
+    for nazwa in [n["plik"] for n in dane.NACJE.values()] + ["ligi.json", "slownik_lig.json"]:
         cel = os.path.join(dane.KATALOG_DANYCH, nazwa)
         zrodlo = os.path.join(dane.KATALOG_PROJEKTU, nazwa)
         if not os.path.exists(cel) and os.path.exists(zrodlo) and cel != zrodlo:
@@ -122,7 +122,9 @@ def mecze(data_str):
 
 @app.route("/api/dzien/<data_str>")
 def dzien_polakow(data_str):
-    lista = dane.mecze_polakow_dnia(_dzien_z_adresu(data_str))
+    nacja = request.args.get("nacja", "pl")
+    if nacja not in dane.NACJE: abort(400, f"Nieznana nacja - dostępne: {', '.join(dane.NACJE)}")
+    lista = dane.mecze_polakow_dnia(_dzien_z_adresu(data_str), nacja)
     if lista is None: abort(404, "Serwer nie ma jeszcze danych dla tego dnia")
     return odpowiedz_json({"dzien": data_str, "stan_na": _czas(time.time()), "mecze": lista})
 

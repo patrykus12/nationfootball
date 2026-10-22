@@ -26,6 +26,13 @@ KODY_KRAJOW_RECZNE = {
     'włochy': 'it', 'zjednoczone emiraty arabskie': 'ae', 'polska': 'pl'
 }
 
+# Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
+# zawodników. Polska zostaje w zawodnicy.xlsx - z tego pliku korzysta też aplikacja na komputer.
+NACJE = {
+    "pl": {"nazwa": "Polska", "land_id": 135, "plik": "zawodnicy.xlsx"},
+    "tr": {"nazwa": "Turcja", "land_id": 174, "plik": "zawodnicy_tr.xlsx"},
+}
+
 SLOWA_KLUCZOWE_LIGI_KOBIECE = ("women", "female", "ladies", "kobiet", "femin", "frauen", "wsl")
 
 
@@ -49,7 +56,7 @@ def czy_to_niechciana_druzyna(nazwa):
     if "(w)" in n or " (w) " in n or n.endswith(" (w)") or n.endswith(" w") or "women" in n or "kobiety" in n: return True
     if "willem ii" in n: return False
     if n.endswith(" akatemia") or n.startswith("jong "): return True  # rezerwy: "KuPS Akatemia", "Jong Sparta Rotterdam"
-    return bool(re.search(r'\b(b|ii|2)\b$', n) or " u2" in n or " u1" in n)
+    return bool(re.search(r'\b(b|c|ii|2)\b$', n) or " u2" in n or " u1" in n)
 
 def wczytaj_kluby(excel_plik):
     """{oczyszczona_nazwa_klubu: {'gracze': [...], 'kraj': '...'}} z zawodnicy.xlsx (kolumny Imię, Nazwisko, Klub)."""

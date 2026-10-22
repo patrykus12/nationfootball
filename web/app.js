@@ -8,9 +8,17 @@ const DNI_TYG_PELNE = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwart
 const MIESIACE = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia",
                   "września", "października", "listopada", "grudnia"];
 
+// Śledzone nacje (te same kody co dopasowanie.NACJE na serwerze); formy: 1 / 2-4 / 5+
+const NACJE = {
+  pl: { nazwa: "Polacy", kraj: "Polska", flaga: "pl", formy: ["Polak", "Polaków", "Polaków"], dopelniacz: "Polaków" },
+  tr: { nazwa: "Turcy", kraj: "Turcja", flaga: "tr", formy: ["Turek", "Turków", "Turków"], dopelniacz: "Turków" },
+};
+const KLUCZ_NACJI = "nf-nacja";
+
 const $ = (id) => document.getElementById(id);
-const pamiec = {};          // "YYYYMMDD" -> odpowiedź serwera
+const pamiec = {};          // "nacja:YYYYMMDD" -> odpowiedź serwera
 let wybrany = null;          // "YYYYMMDD"
+let nacja = null;            // klucz z NACJE
 let zapytanie = 0;           // chroni przed nadpisaniem widoku starszą odpowiedzią
 
 // --- DATY (zawsze czas polski, niezależnie od strefy telefonu) ---
@@ -57,16 +65,17 @@ function wybierzDzien(k, plynnie = true) {
   wybrany = k;
   zaznaczDzien(plynnie);
   $("tytul-dnia").textContent = tytulDnia(k);
-  if (pamiec[k]) pokaz(pamiec[k]); else pokazSzkielet();
+  const zapamietane = pamiec[`${nacja}:${k}`];
+  if (zapamietane) pokaz(zapamietane); else pokazSzkielet();
   pobierz(k);
 }
 
 // --- POBIERANIE ---
 async function pobierz(k) {
-  const nr = ++zapytanie;
+  const nr = ++zapytanie, n = nacja, klucz = `${n}:${k}`;
   $("odswiez").classList.add("kreci");
   try {
-    const res = await fetch(`/api/dzien/${k}`, { cache: "no-store" });
+    const res = await fetch(`/api/dzien/${k}?nacja=${n}`, { cache: "no-store" });
     if (res.status === 404) {
       if (nr === zapytanie) pokazKomunikat("⏳", "Serwer nie ma jeszcze danych dla tego dnia", "Spróbuj ponownie za kilka minut.");
       return;
@@ -74,10 +83,10 @@ async function pobierz(k) {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const dane = await res.json();
     dane.offline = res.headers.get("X-Z-Pamieci") === "1";
-    pamiec[k] = dane;
-    if (nr === zapytanie && k === wybrany) pokaz(dane);
+    pamiec[klucz] = dane;
+    if (nr === zapytanie && k === wybrany && n === nacja) pokaz(dane);
   } catch (e) {
-    if (nr === zapytanie && !pamiec[k]) pokazKomunikat("📡", "Brak połączenia z serwerem", "Sprawdź internet i dotknij przycisku odświeżania.");
+    if (nr === zapytanie && !pamiec[klucz]) pokazKomunikat("📡", "Brak połączenia z serwerem", "Sprawdź internet i dotknij przycisku odświeżania.");
   } finally {
     if (nr === zapytanie) $("odswiez").classList.remove("kreci");
   }
@@ -85,6 +94,8 @@ async function pobierz(k) {
 
 // --- WIDOK ---
 const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+const flagaNacji = (n) => `<img class="flaga" src="https://flagcdn.com/w40/${NACJE[n].flaga}.png" alt="">`;
 
 function flagaHTML(kod) {
   kod = (kod || "").toLowerCase();
@@ -122,8 +133,8 @@ function kartaHTML(m) {
 
   const [gg, gs] = (m.wynik || "").split(":").map((x) => x.trim());
   const maWynik = m.zakonczony && gg !== undefined && gs !== undefined && gg !== "";
-  const druzyna = (nazwa, gole, rywal, polska) =>
-    `<div class="druzyna${polska ? " polska" : ""}"><span class="nazwa">${esc(nazwa)}</span>` +
+  const druzyna = (nazwa, gole, rywal, nasza) =>
+    `<div class="druzyna${nasza ? " nasza" : ""}"><span class="nazwa">${esc(nazwa)}${nasza ? flagaNacji(nacja) : ""}</span>` +
     `<span class="gole${maWynik && +gole > +rywal ? " wygrana" : ""}">${maWynik ? esc(gole) : ""}</span></div>`;
 
   const gracze = m.gracze_gosp.map((g) => graczHTML(m.gosp, g)).concat(m.gracze_gosc.map((g) => graczHTML(m.gosc, g)));
@@ -137,15 +148,15 @@ function kartaHTML(m) {
 
 function pokaz(dane) {
   const mecze = dane.mecze || [];
-  const polacy = mecze.reduce((s, m) => s + m.gracze_gosp.length + m.gracze_gosc.length, 0);
+  const gracze = mecze.reduce((s, m) => s + m.gracze_gosp.length + m.gracze_gosc.length, 0), formy = NACJE[nacja].formy;
   const odmiana = (n, a, b, c) => n === 1 ? a : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? b : c;
   const stan = dane.stan_na ? ` · stan z ${dane.stan_na.slice(11)}` : "";
   $("podsumowanie").innerHTML = mecze.length
-    ? `${mecze.length} ${odmiana(mecze.length, "mecz", "mecze", "meczów")} · ${polacy} ${odmiana(polacy, "Polak", "Polaków", "Polaków")}${stan}` +
+    ? `${mecze.length} ${odmiana(mecze.length, "mecz", "mecze", "meczów")} · ${gracze} ${odmiana(gracze, ...formy)}${stan}` +
       (dane.offline ? ` <span class="offline">· bez internetu</span>` : "")
     : "";
   $("lista").innerHTML = mecze.length ? mecze.map(kartaHTML).join("")
-    : `<div class="komunikat"><div class="duza">🏟️</div><b>Brak meczów Polaków</b>Tego dnia żaden z naszych nie gra.</div>`;
+    : `<div class="komunikat"><div class="duza">🏟️</div><b>Brak meczów ${NACJE[nacja].dopelniacz}</b>Tego dnia żaden z nich nie gra.</div>`;
 }
 
 function pokazSzkielet() {
@@ -174,17 +185,50 @@ function pokazKomunikat(ikona, tytul, tekst) {
   }, { passive: true });
 })();
 
+// --- WYBÓR NACJI: przy pierwszym uruchomieniu, potem przyciskiem z flagą ---
+function wczytajNacje() {
+  try { const n = localStorage.getItem(KLUCZ_NACJI); return NACJE[n] ? n : null; } catch (e) { return null; }
+}
+
+function ustawNacje(n) {
+  const zmiana = n !== nacja;
+  nacja = n;
+  try { localStorage.setItem(KLUCZ_NACJI, n); } catch (e) {}
+  const b = $("zmien-nacje");
+  b.innerHTML = flagaNacji(n);
+  b.setAttribute("aria-label", `Zmień nację (teraz: ${NACJE[n].nazwa})`);
+  b.hidden = false;
+  zamknijWyborNacji();
+  if (zmiana) wybierzDzien(wybrany, false);
+}
+
+function otworzWyborNacji() {
+  $("nacje").innerHTML = Object.entries(NACJE).map(([k, n]) =>
+    `<button class="nacja${k === nacja ? " obecna" : ""}" data-n="${k}">${flagaNacji(k)}` +
+    `<span><b>${esc(n.nazwa)}</b><small>piłkarze z kraju: ${esc(n.kraj)}</small></span></button>`).join("");
+  $("nacje").querySelectorAll(".nacja").forEach((b) => b.addEventListener("click", () => ustawNacje(b.dataset.n)));
+  $("zamknij-wybor").hidden = !nacja;     // przy pierwszym uruchomieniu wybór jest obowiązkowy
+  $("wybor-nacji").hidden = false;
+}
+
+function zamknijWyborNacji() { $("wybor-nacji").hidden = true; }
+
+$("zmien-nacje").addEventListener("click", otworzWyborNacji);
+$("zamknij-wybor").addEventListener("click", zamknijWyborNacji);
+$("wybor-nacji").addEventListener("click", (e) => { if (e.target === e.currentTarget && nacja) zamknijWyborNacji(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && nacja) zamknijWyborNacji(); });
+
 // --- START ---
-$("odswiez").addEventListener("click", () => pobierz(wybrany));
+$("odswiez").addEventListener("click", () => { if (nacja) pobierz(wybrany); });
 
 function czyAktualnyDzien() {
   const roznica = Math.round((zKlucza(wybrany) - dzisPL()) / 86400000);
   return roznica === 0 || roznica === -1;
 }
-setInterval(() => { if (document.visibilityState === "visible" && czyAktualnyDzien()) pobierz(wybrany); }, ODSWIEZANIE_MS);
+setInterval(() => { if (nacja && document.visibilityState === "visible" && czyAktualnyDzien()) pobierz(wybrany); }, ODSWIEZANIE_MS);
 let ostatniDzien = klucz(dzisPL());
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState !== "visible") return;
+  if (document.visibilityState !== "visible" || !nacja) return;
   const teraz = klucz(dzisPL());
   if (teraz !== ostatniDzien) {          // aplikacja wisiała w tle przez północ
     ostatniDzien = teraz;
@@ -230,4 +274,7 @@ if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catc
 
 wybrany = ostatniDzien;
 zbudujDni();
-wybierzDzien(wybrany, false);
+zaznaczDzien(false);
+$("tytul-dnia").textContent = tytulDnia(wybrany);
+const zapisana = wczytajNacje();
+if (zapisana) ustawNacje(zapisana); else { pokazSzkielet(); otworzWyborNacji(); }

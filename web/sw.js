@@ -1,6 +1,6 @@
 // Service worker: aplikacja otwiera się także bez internetu (ostatnio oglądane dni z pamięci).
 // Zawsze najpierw sieć - nowa wersja strony i świeże wyniki trafiają do telefonu od razu.
-const PAMIEC = "nationfootball-v2";
+const PAMIEC = "nationfootball-v3";
 const POWLOKA = ["./", "index.html", "styl.css", "app.js", "manifest.webmanifest", "favicon.png", "ikona-192.png"];
 
 self.addEventListener("install", (e) => {
@@ -35,7 +35,8 @@ self.addEventListener("fetch", (e) => {
       caches.open(PAMIEC).then((c) => c.put(req, kopia));
     }
     return res;
-  }).catch(() => caches.match(req, { ignoreSearch: true }).then((z) => {
+  // Dni z /api/ różnią się nacją (?nacja=tr) - tam adres musi pasować w całości
+  }).catch(() => caches.match(req, { ignoreSearch: !url.pathname.startsWith("/api/") }).then((z) => {
     if (!z) return Response.error();
     if (!url.pathname.startsWith("/api/")) return z;
     // Dane z pamięci - strona pokaże "bez internetu"

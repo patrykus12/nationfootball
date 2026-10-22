@@ -5,6 +5,8 @@ import time
 import os
 import re
 
+from dopasowanie import NACJE
+
 KATALOG = os.path.dirname(os.path.abspath(__file__))
 
 # --- INTELIGENTNY FILTR LIG CENTRALNYCH ---
@@ -39,6 +41,12 @@ NAZWY_KLUBOW_JAK_W_API = {
     "FC Milsami Orgiejów": "FC Milsami Orhei",
     "Rot-Weiss Essen": "RW Essen",
     "Igdir FK": "Iğdır FK",
+    "Real Madryt": "Real Madrid",
+    "SK Rapid Wiedeń": "Rapid Wien",
+    "Olympiakos Pireus": "Olympiacos",
+    "Celta de Vigo": "Celta Vigo",
+    "Al-Hilal SFC": "Al Hilal",
+    "Sönderjyske Fodbold": "Sønderjyske",
 }
 
 # Nazwy rozgrywek, które ZAWSZE liczą się jako niecentralne, niezależnie od tego, co wyjdzie
@@ -51,14 +59,15 @@ SLOWA_KLUCZOWE_NIECENTRALNE = [
     "women", "frauen", "femenina", "feminine", "kobiet",
 ]
 
-def pobierz_zawodnikow():
+def pobierz_zawodnikow(nacja="pl"):
+    land_id, nazwa_kraju, nazwa_pliku = NACJE[nacja]["land_id"], NACJE[nacja]["nazwa"], NACJE[nacja]["plik"]
     print("=== URUCHAMIAM SKANER TRANSFERMARKT (W pełni Dynamiczny) ===")
     print("KROK 1: Otwieram listę państw (odrzucam kwoty i liczby)... \n")
 
     scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True})
 
     # --- KROK 1: POBRANIE KRAJÓW Z GŁÓWNEJ LISTY ---
-    url_kraje = "https://www.transfermarkt.pl/spieler-statistik/legionaere/statistik/stat/land_id/135/plus/0?land=0"
+    url_kraje = f"https://www.transfermarkt.pl/spieler-statistik/legionaere/statistik/stat/land_id/{land_id}/plus/0?land=0"
 
     try:
         res_kraje = scraper.get(url_kraje, timeout=15)
@@ -86,7 +95,7 @@ def pobierz_zawodnikow():
         for opt in select_kraj.find_all('option'):
             wartosc = (opt.get('value') or '').strip()
             nazwa = opt.text.strip()
-            if wartosc and wartosc != '0' and len(nazwa) > 2 and nazwa.lower() != "polska":
+            if wartosc and wartosc != '0' and len(nazwa) > 2 and nazwa.lower() != nazwa_kraju.lower():
                 kraje_docelowe[nazwa] = int(wartosc)
 
     if not kraje_docelowe:
@@ -112,7 +121,7 @@ def pobierz_zawodnikow():
         
         while True:
             print(".", end="", flush=True)
-            url = f"https://www.transfermarkt.pl/spieler-statistik/legionaere/statistik/stat/land_id/135/land/{kraj_id}?page={strona}"
+            url = f"https://www.transfermarkt.pl/spieler-statistik/legionaere/statistik/stat/land_id/{land_id}/land/{kraj_id}?page={strona}"
             
             try:
                 res = scraper.get(url, timeout=(5, 15))
@@ -217,17 +226,18 @@ def pobierz_zawodnikow():
         df = pd.DataFrame(dane_excel)
         df = df.sort_values(by=["Nazwisko", "Imię"])
         
-        sciezka_excel = os.path.join(KATALOG, "zawodnicy.xlsx")
+        sciezka_excel = os.path.join(KATALOG, nazwa_pliku)
         
         if os.path.exists(sciezka_excel):
-            stary_plik = os.path.join(KATALOG, "zawodnicy_kopia_zapasowa.xlsx")
+            stary_plik = os.path.join(KATALOG, nazwa_pliku.replace(".xlsx", "_kopia_zapasowa.xlsx"))
             try: os.replace(sciezka_excel, stary_plik)
             except: pass
             
         df.to_excel(sciezka_excel, index=False)
-        print(f"GOTOWE! Zapisano {suma_wszystkich} perfekcyjnie wyselekcjonowanych graczy do zawodnicy.xlsx!")
+        print(f"GOTOWE! Zapisano {suma_wszystkich} perfekcyjnie wyselekcjonowanych graczy do {nazwa_pliku}!")
     else:
         print("Nie udało się pobrać zawodników.")
 
 if __name__ == "__main__":
-    pobierz_zawodnikow()
+    import sys
+    pobierz_zawodnikow(sys.argv[1] if len(sys.argv) > 1 else "pl")

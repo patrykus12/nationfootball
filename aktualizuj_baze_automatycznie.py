@@ -2,7 +2,7 @@
 Cotygodniowa aktualizacja bazy zawodników - uruchamiana automatycznie przez GitHub Actions
 (.github/workflows/baza_zawodnikow.yml), ale da się też odpalić ręcznie.
 
-1. Skanuje Transfermarkt (skaner_zawodnikow.py).
+1. Skanuje Transfermarkt (skaner_zawodnikow.py) - osobno dla każdej nacji z dopasowanie.NACJE.
 2. Sprawdza, czy wynik wygląda sensownie - jeśli skan się wysypał albo zwrócił podejrzanie mało
    zawodników (np. blokada Cloudflare w połowie), PRZYWRACA starą bazę i kończy się błędem
    (GitHub wyśle wtedy maila), żeby aplikacja nigdy nie dostała okrojonej listy.
@@ -16,10 +16,9 @@ import sys
 
 import requests
 
-from dopasowanie import wczytaj_kluby
+from dopasowanie import NACJE, wczytaj_kluby
 
 KATALOG = os.path.dirname(os.path.abspath(__file__))
-EXCEL = os.path.join(KATALOG, "zawodnicy.xlsx")
 MIN_UDZIAL_STAREJ_BAZY = 0.6  # nowa baza musi mieć co najmniej 60% zawodników starej
 
 
@@ -27,14 +26,15 @@ def policz_zawodnikow(plik):
     return sum(len(info["gracze"]) for info in wczytaj_kluby(plik).values())
 
 
-def aktualizuj_zawodnikow():
+def aktualizuj_zawodnikow(nacja):
+    EXCEL = os.path.join(KATALOG, NACJE[nacja]["plik"])
     kopia = EXCEL + ".przed_skanem"
     stara_liczba = policz_zawodnikow(EXCEL) if os.path.exists(EXCEL) else 0
     if os.path.exists(EXCEL): shutil.copy2(EXCEL, kopia)
 
     try:
         import skaner_zawodnikow
-        skaner_zawodnikow.pobierz_zawodnikow()
+        skaner_zawodnikow.pobierz_zawodnikow(nacja)
         nowa_liczba = policz_zawodnikow(EXCEL)
     except Exception as e:
         print(f"Skan nie powiódł się: {e}")
@@ -42,11 +42,11 @@ def aktualizuj_zawodnikow():
 
     if nowa_liczba == 0 or nowa_liczba < stara_liczba * MIN_UDZIAL_STAREJ_BAZY:
         if os.path.exists(kopia): shutil.move(kopia, EXCEL)
-        print(f"ODRZUCONO nową bazę: {nowa_liczba} zawodników (było {stara_liczba}). Zostaje stara baza.")
+        print(f"[{nacja}] ODRZUCONO nową bazę: {nowa_liczba} zawodników (było {stara_liczba}). Zostaje stara baza.")
         return False
 
     if os.path.exists(kopia): os.remove(kopia)
-    print(f"OK: {nowa_liczba} zawodników (było {stara_liczba}).")
+    print(f"[{nacja}] OK: {nowa_liczba} zawodników (było {stara_liczba}).")
     return True
 
 
@@ -73,4 +73,6 @@ def pobierz_slownik_lig():
 if __name__ == "__main__":
     pobierz_slownik_lig()
     if "--tylko-slownik" in sys.argv: sys.exit(0)
-    sys.exit(0 if aktualizuj_zawodnikow() else 1)
+    # Każda nacja osobno - nieudany skan jednej nie blokuje aktualizacji pozostałych
+    wyniki = [aktualizuj_zawodnikow(nacja) for nacja in NACJE]
+    sys.exit(0 if all(wyniki) else 1)

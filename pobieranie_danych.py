@@ -6,7 +6,7 @@ gotowe dane z dysku serwera (funkcje *_z_cache). API odpytuje wyłącznie harmon
 (cykl_harmonogramu, uruchamiany co kilka minut), i to w wymaganym minimum:
   - terminarz dnia (lista meczów): każdy dzień z okna -15..+15 dni raz; dziś i dni przyszłe
     ponownie raz na dobę, zaraz po północy czasu polskiego (zmiany godzin), dni przeszłe już nigdy,
-  - mecz z Polakiem: ~2,5 h po rozpoczęciu (gdy już się skończył) jeden raz świeży wynik
+  - mecz z Polakiem (albo zawodnikiem innej nacji z dopasowanie.NACJE): ~2,5 h po rozpoczęciu (gdy już się skończył) jeden raz świeży wynik
     i składy drużyn z Polakami - potem dane są ostateczne i nie są już pobierane,
   - nazwa ligi: raz, tylko dla nieznanej ligi meczu z Polakiem.
 """
@@ -22,6 +22,8 @@ from datetime import datetime, timedelta
 
 import pytz
 
+from dopasowanie import NACJE
+
 KATALOG_PROJEKTU = os.path.dirname(os.path.abspath(__file__))
 # Na hostingu z trwałym dyskiem ustaw NF_KATALOG_DANYCH na zamontowany wolumen.
 KATALOG_DANYCH = os.environ.get("NF_KATALOG_DANYCH", KATALOG_PROJEKTU)
@@ -30,11 +32,15 @@ KATALOG_SKLADOW = os.path.join(KATALOG_DANYCH, "serwer_cache", "sklady")
 os.makedirs(KATALOG_SUROWYCH, exist_ok=True)
 os.makedirs(KATALOG_SKLADOW, exist_ok=True)
 
-EXCEL_PLIK = os.path.join(KATALOG_DANYCH, "zawodnicy.xlsx")
+EXCEL_PLIK = os.path.join(KATALOG_DANYCH, NACJE["pl"]["plik"])  # Polacy - także dla aplikacji na komputer
 LIGI_PLIK = os.path.join(KATALOG_DANYCH, "ligi.json")
 SLOWNIK_PLIK = os.path.join(KATALOG_DANYCH, "slownik_lig.json")
 
 TZ_PL = pytz.timezone("Europe/Warsaw")
+
+
+def plik_bazy(nacja):
+    return os.path.join(KATALOG_DANYCH, NACJE[nacja]["plik"])
 
 
 def _wczytaj_klucz_api():
@@ -288,23 +294,25 @@ def _pobierz_z_repo(nazwa):
 
 
 def synchronizuj_z_repo():
-    """Dociąga z GitHuba zawodnicy.xlsx i ligi.json (podmienia, jeśli się zmieniły) oraz dopisuje
+    """Dociąga z GitHuba bazy zawodników wszystkich nacji i ligi.json (podmienia, jeśli się zmieniły) oraz dopisuje
     do słownika ligi z repozytorium, których serwer nie zna. Zwraca listę zmienionych plików."""
     if not REPO_RAW: return []
     from dopasowanie import wczytaj_kluby
     zmienione = []
     try:
-        res = _pobierz_z_repo("zawodnicy.xlsx")
-        if res.status_code == 200 and res.content:
-            obecny = open(EXCEL_PLIK, "rb").read() if os.path.exists(EXCEL_PLIK) else b""
-            if res.content != obecny:
-                tymczasowy = EXCEL_PLIK + ".nowy.xlsx"
-                with open(tymczasowy, "wb") as f: f.write(res.content)
-                if wczytaj_kluby(tymczasowy):
-                    os.replace(tymczasowy, EXCEL_PLIK)
-                    zmienione.append("zawodnicy.xlsx")
-                else:
-                    os.remove(tymczasowy)
+        for nacja, info in NACJE.items():
+            res = _pobierz_z_repo(info["plik"])
+            if res.status_code == 200 and res.content:
+                sciezka = plik_bazy(nacja)
+                obecny = open(sciezka, "rb").read() if os.path.exists(sciezka) else b""
+                if res.content != obecny:
+                    tymczasowy = sciezka + ".nowy.xlsx"
+                    with open(tymczasowy, "wb") as f: f.write(res.content)
+                    if wczytaj_kluby(tymczasowy):
+                        os.replace(tymczasowy, sciezka)
+                        zmienione.append(info["plik"])
+                    else:
+                        os.remove(tymczasowy)
 
         res = _pobierz_z_repo("ligi.json")
         if res.status_code == 200 and isinstance(res.json(), dict):
@@ -394,13 +402,14 @@ def przywroc_kopie():
 
 
 # --- GOTOWE MECZE POLAKÓW (aplikacja na telefon) ---
-def mecze_polakow_dnia(data_pl):
-    """Mecze z udziałem Polaków z danego dnia (czas polski) z ich występami - to samo, co liczy
-    aplikacja na komputer, ale po stronie serwera. None, gdy serwer nie ma jeszcze tego dnia."""
+def mecze_polakow_dnia(data_pl, nacja="pl"):
+    """Mecze z udziałem zawodników danej nacji (domyślnie Polaków) z danego dnia (czas polski) z ich
+    występami - to samo, co liczy aplikacja na komputer, ale po stronie serwera. None, gdy serwer
+    nie ma jeszcze tego dnia."""
     from dopasowanie import czas_rozpoczecia_utc, wyodrebnij_wystepy_polakow
     wszystkie = mecze_dnia_z_cache(data_pl)
     if wszystkie is None: return None
-    kluby = _kluby_z_bazy()
+    kluby = _kluby_z_bazy(nacja)
     if not kluby: return None
     wersja_baz = _wersja_baz()
     slownik, ligi = wczytaj_nasz_slownik(), wczytaj_json(LIGI_PLIK, {}) or {}
@@ -408,7 +417,7 @@ def mecze_polakow_dnia(data_pl):
 
     wyniki = []
     for mecz in wszystkie:
-        dop = _dopasuj(mecz, kluby, slownik, ligi, wersja_baz)
+        dop = _dopasuj(mecz, nacja, kluby, slownik, ligi, wersja_baz)
         if not dop: continue
         start = czas_rozpoczecia_utc(mecz)
         if start is None: continue
@@ -438,27 +447,29 @@ def mecze_polakow_dnia(data_pl):
 
 
 # --- HARMONOGRAM ---
-_gotowe_mecze = set()      # id meczów już załatwionych (bez Polaków albo z ostatecznymi składami)
-_cache_dopasowan = {}      # (mecz_id, czy_liga_znana, wersja_baz) -> wynik dopasuj_mecz
-_cache_klubow = {"wersja": None, "kluby": {}}
+_gotowe_mecze = set()      # id meczów już załatwionych (bez naszych zawodników albo z ostatecznymi składami)
+_cache_dopasowan = {}      # (mecz_id, nacja, czy_liga_znana, wersja_baz) -> wynik dopasuj_mecz
+_cache_klubow = {}         # nacja -> {"wersja": ..., "kluby": {...}}
 
 
 def _wersja_baz():
-    """Zmienia się, gdy podmieniono bazę zawodników albo ligi.json - wtedy dopasowania liczymy od nowa."""
-    return tuple(os.path.getmtime(p) if os.path.exists(p) else 0 for p in (EXCEL_PLIK, LIGI_PLIK))
+    """Zmienia się, gdy podmieniono którąś bazę zawodników albo ligi.json - wtedy dopasowania liczymy od nowa."""
+    pliki = [plik_bazy(n) for n in NACJE] + [LIGI_PLIK]
+    return tuple(os.path.getmtime(p) if os.path.exists(p) else 0 for p in pliki)
 
 
-def _kluby_z_bazy():
+def _kluby_z_bazy(nacja):
     from dopasowanie import wczytaj_kluby
     wersja = _wersja_baz()
-    if _cache_klubow["wersja"] != wersja:
-        _cache_klubow.update(wersja=wersja, kluby=wczytaj_kluby(EXCEL_PLIK))
-    return _cache_klubow["kluby"]
+    cache = _cache_klubow.get(nacja)
+    if not cache or cache["wersja"] != wersja:
+        cache = _cache_klubow[nacja] = {"wersja": wersja, "kluby": wczytaj_kluby(plik_bazy(nacja))}
+    return cache["kluby"]
 
 
-def _dopasuj(mecz, kluby, slownik, ligi, wersja):
+def _dopasuj(mecz, nacja, kluby, slownik, ligi, wersja):
     from dopasowanie import dopasuj_mecz
-    klucz = (mecz.get('id'), str(mecz.get('leagueId', '')) in slownik, wersja)
+    klucz = (mecz.get('id'), nacja, str(mecz.get('leagueId', '')) in slownik, wersja)
     if klucz not in _cache_dopasowan:
         _cache_dopasowan[klucz] = dopasuj_mecz(mecz, kluby, slownik, ligi)
     return _cache_dopasowan[klucz]
@@ -482,7 +493,8 @@ def _odswiez_terminarze(raport):
 
 def _odswiez_mecze_polakow(raport):
     from dopasowanie import czas_rozpoczecia_utc
-    kluby = _kluby_z_bazy()
+    kluby = {nacja: _kluby_z_bazy(nacja) for nacja in NACJE}
+    kluby = {nacja: k for nacja, k in kluby.items() if k}
     if not kluby: return
     wersja_baz = _wersja_baz()
     slownik, ligi = wczytaj_nasz_slownik(), wczytaj_json(LIGI_PLIK, {}) or {}
@@ -491,7 +503,9 @@ def _odswiez_mecze_polakow(raport):
     pobrane_sklady = 0
 
     def dopasuj(mecz):
-        return _dopasuj(mecz, kluby, slownik, ligi, wersja_baz)
+        """{nacja: dopasowanie} - tylko nacje, których zawodnicy grają w tym meczu."""
+        dopasowania = {nacja: _dopasuj(mecz, nacja, k, slownik, ligi, wersja_baz) for nacja, k in kluby.items()}
+        return {nacja: dop for nacja, dop in dopasowania.items() if dop}
 
     # Najpierw nazwy nieznanych lig meczów z Polakami w całym oknie (także przyszłe dni), zanim
     # limit składów na cykl przerwie pętlę niżej - 1 zapytanie na ligę, potem na stałe w słowniku.
@@ -499,7 +513,7 @@ def _odswiez_mecze_polakow(raport):
     for offset in range(OKNO_DNI + 1, -OKNO_DNI - 2, -1):
         cache = surowe_z_cache(dzis + timedelta(days=offset))
         for mecz in (cache or {}).get("mecze", []):
-            dop = dopasuj(mecz)
+            dop = next(iter(dopasuj(mecz).values()), None)  # liga ta sama dla każdej nacji
             if dop and not dop['znana_liga'] and dop['league_id'].isdigit() and dop['league_id'] not in slownik:
                 info = _pobierz_lige_z_api(dop['league_id'], mecz.get('id'))
                 if info:
@@ -521,12 +535,15 @@ def _odswiez_mecze_polakow(raport):
             if start is None: continue
             wiek_min = (teraz - start.timestamp()) / 60
 
-            dop = dopasuj(mecz)
+            dopasowania = dopasuj(mecz)
             if wiek_min < OPOZNIENIE_MIN: continue
-            if not dop:
+            if not dopasowania:
                 _gotowe_mecze.add(mecz_id)
                 continue
-            strony = [s for s, polacy in (("home", dop['polacy_gosp']), ("away", dop['polacy_gosc'])) if polacy]
+            # Składy drużyn, w których gra ktokolwiek z naszych - z dowolnej nacji
+            strony = [s for s, klucz in (("home", 'polacy_gosp'), ("away", 'polacy_gosc'))
+                      if any(d[klucz] for d in dopasowania.values())]
+            dop = next(iter(dopasowania.values()))
             if all(sklad_ostateczny(mecz_id, s) for s in strony):
                 _gotowe_mecze.add(mecz_id)
                 continue
