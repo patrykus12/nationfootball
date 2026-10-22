@@ -486,8 +486,7 @@ def mecze_polakow_dnia(data_pl, nacja="pl"):
 
 # --- HARMONOGRAM ---
 _gotowe_mecze = set()      # id meczów już załatwionych (bez naszych zawodników albo z ostatecznymi składami)
-_cache_dopasowan = {}      # (mecz_id, nacja, czy_liga_znana, wersja_baz) -> wynik dopasuj_mecz
-_cache_klubow = {}         # nacja -> {"wersja": ..., "kluby": {...}}
+_cache_klubow = {}         # nacja -> {"wersja": ..., "kluby": {...}, "druzyny": {(nazwa, flaga): dopasowany klub}}
 
 
 def _wersja_baz():
@@ -501,7 +500,7 @@ def _kluby_z_bazy(nacja):
     wersja = _wersja_baz()
     cache = _cache_klubow.get(nacja)
     if not cache or cache["wersja"] != wersja:
-        cache = _cache_klubow[nacja] = {"wersja": wersja, "kluby": wczytaj_kluby(plik_bazy(nacja))}
+        cache = _cache_klubow[nacja] = {"wersja": wersja, "kluby": wczytaj_kluby(plik_bazy(nacja)), "druzyny": {}}
     return cache["kluby"]
 
 
@@ -519,11 +518,12 @@ def _znani_od():
     od_teraz = time.time() if zapisane is not None else 0
     zapisane = {_klucz_znanego(k): v for k, v in (zapisane or {}).items()}
     od = {}
-    for nacja in NACJE:
+    for nacja, info_nacji in NACJE.items():
+        od_nacji = TZ_PL.localize(datetime.strptime(info_nacji["od"], "%Y-%m-%d %H:%M")).timestamp() if "od" in info_nacji else 0
         for klub, info in _kluby_z_bazy(nacja).items():
             for gracz in info['gracze']:
                 klucz = _klucz_znanego(f"{nacja}|{klub}|{gracz}")
-                od[klucz] = zapisane.get(klucz, od_teraz)
+                od[klucz] = max(zapisane.get(klucz, od_teraz), od_nacji)
     if od != zapisane or not os.path.exists(ZNANI_PLIK): zapisz_json_atomowo(ZNANI_PLIK, od)
     _znani.update(wersja=wersja, od=od)
     return od
@@ -554,11 +554,12 @@ def _bez_dopisanych_pozniej(dop, nacja, mecz):
 
 
 def _dopasuj(mecz, nacja, kluby, slownik, ligi, wersja):
+    """Dopasowanie meczu do bazy nacji. Zapamiętywane są wyniki dla drużyn (nie meczów) - drużyn jest
+    kilkanaście razy mniej niż meczów w oknie terminarza, a każdy mecz liczy się wtedy w mikrosekundy."""
     from dopasowanie import dopasuj_mecz
-    klucz = (mecz.get('id'), nacja, str(mecz.get('leagueId', '')) in slownik, wersja)
-    if klucz not in _cache_dopasowan:
-        _cache_dopasowan[klucz] = dopasuj_mecz(mecz, kluby, slownik, ligi)
-    return _cache_dopasowan[klucz]
+    cache = _cache_klubow.get(nacja)
+    pamiec = cache["druzyny"] if cache and cache["kluby"] is kluby else None  # baza podmieniona w trakcie
+    return dopasuj_mecz(mecz, kluby, slownik, ligi, pamiec)
 
 
 def _odswiez_terminarze(raport):
@@ -674,7 +675,8 @@ def _wyczysc_stary_cache():
         try:
             if os.path.getmtime(sciezka) < granica: os.remove(sciezka)
         except Exception: pass
-    if len(_cache_dopasowan) > 100000: _cache_dopasowan.clear()
+    for cache in _cache_klubow.values():
+        if len(cache["druzyny"]) > 100000: cache["druzyny"].clear()
     if len(_gotowe_mecze) > 100000: _gotowe_mecze.clear()
 
 

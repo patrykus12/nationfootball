@@ -6,6 +6,7 @@ i przez serwer (serwer.py, automatyczne odświeżanie meczów Polaków). Bez pan
 import os
 import re
 import difflib
+import functools
 import unicodedata
 from datetime import datetime
 
@@ -31,6 +32,8 @@ KODY_KRAJOW_RECZNE = {
 # Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
 # zawodników. Polska zostaje w zawodnicy.xlsx - z tego pliku korzysta też aplikacja na komputer.
 # pomin_kraje - kraje, w których gra się w tych samych rozgrywkach co u siebie (to nie "za granicą").
+# od - kiedy nację dodano: jej zawodnicy nie liczą się w meczach sprzed tej chwili (bez dociągania
+# składów wstecz), nawet gdy serwer straci zapis dat dopisania zawodników.
 NACJE = {
     "pl": {"nazwa": "Polska", "land_id": 135, "plik": "zawodnicy.xlsx"},
     "tr": {"nazwa": "Turcja", "land_id": 174, "plik": "zawodnicy_tr.xlsx"},
@@ -40,8 +43,8 @@ NACJE = {
            "pomin_kraje": ["Kanada"]},  # kanadyjskie kluby grają w MLS
     "cz": {"nazwa": "Czechy", "land_id": 172, "plik": "zawodnicy_cz.xlsx"},
     "id": {"nazwa": "Indonezja", "land_id": 68, "plik": "zawodnicy_id.xlsx"},
-    "pk": {"nazwa": "Pakistan", "land_id": 128, "plik": "zawodnicy_pk.xlsx"},
-    "ng": {"nazwa": "Nigeria", "land_id": 124, "plik": "zawodnicy_ng.xlsx"},
+    "pk": {"nazwa": "Pakistan", "land_id": 128, "plik": "zawodnicy_pk.xlsx", "od": "2026-10-22 16:30"},
+    "ng": {"nazwa": "Nigeria", "land_id": 124, "plik": "zawodnicy_ng.xlsx", "od": "2026-10-22 16:45"},
 }
 
 # Kody krajów z API, których nie ma w CCODE_DO_ALPHA2 serwera (słownik lig ma je zapisane np. jako "ksa") -
@@ -63,6 +66,7 @@ SLOWA_KLUCZOWE_LIGI_KOBIECE = ("women", "female", "ladies", "kobiet", "femin", "
 
 def normalizuj_tekst(tekst): return unicodedata.normalize('NFKD', str(tekst)).encode('ASCII', 'ignore').decode('utf-8').lower().strip()
 
+@functools.lru_cache(maxsize=200000)  # te same nazwy czyszczone tysiące razy przy dopasowaniu
 def wyczysc_nazwe_klubu(nazwa):
     n = normalizuj_tekst(nazwa)
     for fraza in ["1. fc ", "1.fc ", " fc", " sc", " fk", " afc"]:
@@ -146,17 +150,27 @@ def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
         if len(norm_klub_api) >= 4 and wzorzec.search(k_baza):
             if weryfikuj_kraj(info): return k_baza, info
 
+    # To samo co podobienstwo(k_baza, norm_klub_api) dla każdego klubu, ale szybciej: tanie górne
+    # oszacowania (real_quick_ratio, quick_ratio >= ratio) odsiewają kluby, które i tak nie przebiją
+    # najlepszego wyniku ani progu 0.89 - wynik identyczny
+    porownanie = difflib.SequenceMatcher(None)
+    porownanie.set_seq2(wyczysc_nazwe_klubu(norm_klub_api))
     best_match, best_ratio = None, 0
     for k_baza, info in baza_klubow.items():
         if not weryfikuj_kraj(info): continue
-        r = podobienstwo(k_baza, norm_klub_api)
+        porownanie.set_seq1(wyczysc_nazwe_klubu(k_baza))
+        prog = max(best_ratio, 0.89)
+        if porownanie.real_quick_ratio() <= prog or porownanie.quick_ratio() <= prog: continue
+        r = porownanie.ratio()
         if r > best_ratio: best_ratio, best_match = r, (k_baza, info)
     if best_ratio > 0.89: return best_match
     return None, None
 
-def dopasuj_mecz(mecz, polskie_kluby, nasz_slownik_lig, baza_lig):
+def dopasuj_mecz(mecz, polskie_kluby, nasz_slownik_lig, baza_lig, pamiec_druzyn=None):
     """Zwraca słownik z ligą i dopasowanymi klubami, jeśli mecz jest z udziałem Polaków
-    (i nie jest odfiltrowany: drużyny rezerw/kobiece, ligi ignorowane), w przeciwnym razie None."""
+    (i nie jest odfiltrowany: drużyny rezerw/kobiece, ligi ignorowane), w przeciwnym razie None.
+    pamiec_druzyn - słownik na wyniki dopasowania drużyn (ta sama drużyna gra w wielu meczach,
+    a porównywanie nazwy z każdym klubem bazy jest kosztowne); czyścić po zmianie bazy."""
     gosp, gosc = mecz.get('home', {}).get('name', ''), mecz.get('away', {}).get('name', '')
     if czy_to_niechciana_druzyna(gosp) or czy_to_niechciana_druzyna(gosc): return None
 
@@ -181,8 +195,14 @@ def dopasuj_mecz(mecz, polskie_kluby, nasz_slownik_lig, baza_lig):
     nazwa_ligi = nazwa_override or prawdziwa_nazwa
     if czy_liga_kobieca(nazwa_ligi): return None
 
-    klub_gosp, info_gosp = dopasuj_klub_do_bazy(gosp, flaga_ligi, polskie_kluby)
-    klub_gosc, info_gosc = dopasuj_klub_do_bazy(gosc, flaga_ligi, polskie_kluby)
+    def klub(nazwa):
+        if pamiec_druzyn is None: return dopasuj_klub_do_bazy(nazwa, flaga_ligi, polskie_kluby)
+        klucz = (nazwa, flaga_ligi)
+        if klucz not in pamiec_druzyn: pamiec_druzyn[klucz] = dopasuj_klub_do_bazy(nazwa, flaga_ligi, polskie_kluby)
+        return pamiec_druzyn[klucz]
+
+    klub_gosp, info_gosp = klub(gosp)
+    klub_gosc, info_gosc = klub(gosc)
     if not (info_gosp or info_gosc): return None
 
     return {
