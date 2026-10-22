@@ -41,6 +41,7 @@ NACJE = {
     "cz": {"nazwa": "Czechy", "land_id": 172, "plik": "zawodnicy_cz.xlsx"},
     "id": {"nazwa": "Indonezja", "land_id": 68, "plik": "zawodnicy_id.xlsx"},
     "pk": {"nazwa": "Pakistan", "land_id": 128, "plik": "zawodnicy_pk.xlsx"},
+    "ng": {"nazwa": "Nigeria", "land_id": 124, "plik": "zawodnicy_ng.xlsx"},
 }
 
 # Kody krajów z API, których nie ma w CCODE_DO_ALPHA2 serwera (słownik lig ma je zapisane np. jako "ksa") -

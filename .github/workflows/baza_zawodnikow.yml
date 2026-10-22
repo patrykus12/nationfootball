@@ -11,7 +11,7 @@ permissions:
 jobs:
   aktualizacja:
     runs-on: ubuntu-latest
-    timeout-minutes: 60   # skan wszystkich nacji trwa kilkanaście minut (8 nacji: ~13 min)
+    timeout-minutes: 60   # skan wszystkich nacji trwa kilkanaście minut (9 nacji: ~20 min)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -29,5 +29,5 @@ jobs:
         run: |
           git config user.name "nationfootball-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add zawodnicy.xlsx zawodnicy_tr.xlsx zawodnicy_in.xlsx zawodnicy_cn.xlsx zawodnicy_us.xlsx zawodnicy_cz.xlsx zawodnicy_id.xlsx zawodnicy_pk.xlsx slownik_lig.json
+          git add zawodnicy.xlsx zawodnicy_tr.xlsx zawodnicy_in.xlsx zawodnicy_cn.xlsx zawodnicy_us.xlsx zawodnicy_cz.xlsx zawodnicy_id.xlsx zawodnicy_pk.xlsx zawodnicy_ng.xlsx slownik_lig.json
           git diff --cached --quiet || (git commit -m "Automatyczna aktualizacja bazy zawodnikow i lig [skip render]" && git push)
