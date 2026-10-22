@@ -99,6 +99,7 @@ def status():
         "kopia_zapasowa": s["kopia"],
         "awaria_api": f"tak - kolejna próba po {_czas(s['awaria_api_do'])[11:]}" if dane.awaria_api() else "nie",
         "ostatni_blad_api": s["ostatni_blad_api"],
+        "zuzycie_api": dane.podsumowanie_licznika(),
     })
 
 

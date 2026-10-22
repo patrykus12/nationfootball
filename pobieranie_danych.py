@@ -36,6 +36,7 @@ EXCEL_PLIK = os.path.join(KATALOG_DANYCH, NACJE["pl"]["plik"])  # Polacy - takż
 LIGI_PLIK = os.path.join(KATALOG_DANYCH, "ligi.json")
 SLOWNIK_PLIK = os.path.join(KATALOG_DANYCH, "slownik_lig.json")
 ZNANI_PLIK = os.path.join(KATALOG_DANYCH, "serwer_cache", "znani_zawodnicy.json")
+LICZNIK_PLIK = os.path.join(KATALOG_DANYCH, "serwer_cache", "licznik_api.json")
 
 TZ_PL = pytz.timezone("Europe/Warsaw")
 
@@ -135,6 +136,44 @@ def awaria_api():
     return bool(STATYSTYKI["awaria_api_do"] and time.time() < STATYSTYKI["awaria_api_do"])
 
 
+# --- DZIENNY LICZNIK ZAPYTAŃ (ile aplikacja naprawdę zużywa limitu) ---
+_RODZAJE_ZAPYTAN = {"football-get-matches-by-date": "terminarze", "football-get-hometeam-lineup": "sklady",
+                    "football-get-awayteam-lineup": "sklady", "football-get-match-detail": "ligi"}
+_licznik = {"dni": None}
+
+
+def _licznik_dni():
+    if _licznik["dni"] is None: _licznik["dni"] = wczytaj_json(LICZNIK_PLIK, {}) or {}
+    return _licznik["dni"]
+
+
+def _policz_zapytanie(endpoint):
+    dzien = _licznik_dni().setdefault(datetime.now(TZ_PL).strftime("%Y-%m-%d"), {})
+    for rodzaj in ("razem", _RODZAJE_ZAPYTAN.get(endpoint, "inne")):
+        dzien[rodzaj] = dzien.get(rodzaj, 0) + 1
+
+
+def zapisz_licznik():
+    """Na dysk (i stamtąd do godzinnej kopii zapasowej) - restart serwera nie kasuje licznika."""
+    dni = _licznik_dni()
+    granica = (datetime.now(TZ_PL).date() - timedelta(days=60)).strftime("%Y-%m-%d")
+    for d in [d for d in dni if d < granica]: del dni[d]
+    zapisz_json_atomowo(LICZNIK_PLIK, dict(dni))
+
+
+def podsumowanie_licznika():
+    """Ostatnie 14 dni + suma i średnia z 7 pełnych dni (bez dzisiejszego) - do strony statusu."""
+    dni = _licznik_dni()
+    dzis = datetime.now(TZ_PL).date()
+    ostatnie = {d: dni[d] for d in sorted(dni, reverse=True)[:14]}
+    pelne = [dni[(dzis - timedelta(days=i)).strftime("%Y-%m-%d")] for i in range(1, 8)
+             if (dzis - timedelta(days=i)).strftime("%Y-%m-%d") in dni]
+    suma = sum(d.get("razem", 0) for d in pelne)
+    return {"dni": ostatnie, "pelnych_dni_w_tygodniu": len(pelne), "suma_7_dni": suma,
+            "srednio_dziennie": round(suma / len(pelne)) if pelne else None,
+            "szacunek_na_30_dni": round(suma / len(pelne) * 30) if pelne else None}
+
+
 def _api_get(endpoint, params, timeout=20):
     """JEDYNE miejsce wywołujące RapidAPI. Używane tylko przez harmonogram.
     Po BLEDY_DO_AWARII nieudanych zapytaniach z rzędu (np. awaria dostawcy API) przez
@@ -142,6 +181,7 @@ def _api_get(endpoint, params, timeout=20):
     if awaria_api():
         raise AwariaAPI(f"awaria API - kolejna próba po {datetime.fromtimestamp(STATYSTYKI['awaria_api_do'], TZ_PL):%H:%M}")
     STATYSTYKI["zapytania_api"] += 1
+    _policz_zapytanie(endpoint)
     try:
         res = requests.get(
             f"https://{API_HOST}/{endpoint}",
@@ -369,7 +409,7 @@ def synchronizuj_z_repo():
 
 
 # --- KOPIA ZAPASOWA CACHE ---
-_WZORZEC_KOPII = re.compile(r"^(surowe/\d{8}\.json|sklady/\d+_(home|away)\.json|slownik_lig\.json|znani_zawodnicy\.json)$")
+_WZORZEC_KOPII = re.compile(r"^(surowe/\d{8}\.json|sklady/\d+_(home|away)\.json|slownik_lig\.json|znani_zawodnicy\.json|licznik_api\.json)$")
 
 
 def eksportuj_kopie():
@@ -382,6 +422,7 @@ def eksportuj_kopie():
                     tar.add(os.path.join(katalog, nazwa), arcname=f"{podkatalog}/{nazwa}")
         if os.path.exists(SLOWNIK_PLIK): tar.add(SLOWNIK_PLIK, arcname="slownik_lig.json")
         if os.path.exists(ZNANI_PLIK): tar.add(ZNANI_PLIK, arcname="znani_zawodnicy.json")
+        if os.path.exists(LICZNIK_PLIK): tar.add(LICZNIK_PLIK, arcname="licznik_api.json")
     return bufor.getvalue()
 
 
@@ -413,9 +454,11 @@ def przywroc_kopie():
                 # Tylko znane nazwy plików, zapisywane przez nas - żadnych ścieżek z archiwum
                 if not czlon.isfile() or not _WZORZEC_KOPII.match(czlon.name): continue
                 dane_pliku = tar.extractfile(czlon).read()
-                if czlon.name == "znani_zawodnicy.json":
-                    if not os.path.exists(ZNANI_PLIK):
-                        with open(ZNANI_PLIK, "wb") as f: f.write(dane_pliku)
+                if czlon.name in ("znani_zawodnicy.json", "licznik_api.json"):
+                    cel = ZNANI_PLIK if czlon.name == "znani_zawodnicy.json" else LICZNIK_PLIK
+                    if not os.path.exists(cel):
+                        with open(cel, "wb") as f: f.write(dane_pliku)
+                    _licznik["dni"] = None  # wczytaj licznik z odtworzonego pliku
                     continue
                 if czlon.name == "slownik_lig.json":
                     znane = wczytaj_nasz_slownik()
@@ -714,6 +757,7 @@ def cykl_harmonogramu(wymus_repo=False):
             STATYSTYKI["etap"] = "mecze Polaków"
             _odswiez_mecze_polakow(raport)
         _wyczysc_stary_cache()
+        zapisz_licznik()
         STATYSTYKI["ostatni_cykl"] = time.time()
         return raport
     except Exception:
