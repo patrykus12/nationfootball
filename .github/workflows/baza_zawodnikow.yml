@@ -29,5 +29,5 @@ jobs:
         run: |
           git config user.name "nationfootball-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add zawodnicy.xlsx zawodnicy_tr.xlsx zawodnicy_in.xlsx zawodnicy_cn.xlsx slownik_lig.json
+          git add zawodnicy.xlsx zawodnicy_tr.xlsx zawodnicy_in.xlsx zawodnicy_cn.xlsx zawodnicy_us.xlsx slownik_lig.json
           git diff --cached --quiet || (git commit -m "Automatyczna aktualizacja bazy zawodnikow i lig [skip render]" && git push)

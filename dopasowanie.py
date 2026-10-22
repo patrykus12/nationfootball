@@ -30,11 +30,14 @@ KODY_KRAJOW_RECZNE = {
 
 # Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
 # zawodników. Polska zostaje w zawodnicy.xlsx - z tego pliku korzysta też aplikacja na komputer.
+# pomin_kraje - kraje, w których gra się w tych samych rozgrywkach co u siebie (to nie "za granicą").
 NACJE = {
     "pl": {"nazwa": "Polska", "land_id": 135, "plik": "zawodnicy.xlsx"},
     "tr": {"nazwa": "Turcja", "land_id": 174, "plik": "zawodnicy_tr.xlsx"},
     "in": {"nazwa": "Indie", "land_id": 67, "plik": "zawodnicy_in.xlsx"},
     "cn": {"nazwa": "Chiny", "land_id": 34, "plik": "zawodnicy_cn.xlsx"},
+    "us": {"nazwa": "Stany Zjednaczone", "land_id": 184, "plik": "zawodnicy_us.xlsx",
+           "pomin_kraje": ["Kanada"]},  # kanadyjskie kluby grają w MLS
 }
 
 # Kody krajów z API, których nie ma w CCODE_DO_ALPHA2 serwera (słownik lig ma je zapisane np. jako "ksa") -
@@ -44,6 +47,9 @@ FLAGI_TRZYLITEROWE = {
     "alb": "al", "crc": "cr", "est": "ee", "arm": "am", "aze": "az", "bol": "bo", "geo": "ge",
     "alg": "dz", "ban": "bd", "bih": "ba",
 }
+
+# Kluby, które grają w lidze innego kraju: kanadyjskie (Toronto FC, CF Montréal...) w MLS (USA)
+LIGI_ZA_GRANICA = {"ca": {"us"}}
 
 SLOWA_KLUCZOWE_LIGI_KOBIECE = ("women", "female", "ladies", "kobiet", "femin", "frauen", "wsl")
 
@@ -115,7 +121,8 @@ def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
         kod_z_excela = KODY_KRAJOW_RECZNE.get(kraj_z_excela, "")
         if not kod_z_excela: return True
         if alpha2_z_api and alpha2_z_api != "int":
-            return kod_z_excela == alpha2_z_api or alpha2_z_api in kod_z_excela or kod_z_excela in alpha2_z_api
+            return (kod_z_excela == alpha2_z_api or alpha2_z_api in kod_z_excela or kod_z_excela in alpha2_z_api
+                    or alpha2_z_api in LIGI_ZA_GRANICA.get(kod_z_excela, ()))
         return True
 
     if norm_klub_api in baza_klubow:

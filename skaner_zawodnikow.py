@@ -47,6 +47,11 @@ NAZWY_KLUBOW_JAK_W_API = {
     "Celta de Vigo": "Celta Vigo",
     "Al-Hilal SFC": "Al Hilal",
     "Al-Ahli SFC": "Al Ahli",
+    "Deportivo Guadalajara": "Chivas",
+    "Helsingborgs IF": "Helsingborg",
+    "Zalaegerszegi TE FC": "Zalaegerszeg",
+    "Aalborg BK": "AaB",
+    "Maccabi Ironi Kiryat Gat": "Maccabi Kiryat Gat",
     "Sönderjyske Fodbold": "Sønderjyske",
 }
 
@@ -96,7 +101,8 @@ def pobierz_zawodnikow(nacja="pl"):
         for opt in select_kraj.find_all('option'):
             wartosc = (opt.get('value') or '').strip()
             nazwa = opt.text.strip()
-            if wartosc and wartosc != '0' and len(nazwa) > 2 and nazwa.lower() != nazwa_kraju.lower():
+            pominiete = [nazwa_kraju.lower()] + [k.lower() for k in NACJE[nacja].get("pomin_kraje", [])]
+            if wartosc and wartosc != '0' and len(nazwa) > 2 and nazwa.lower() not in pominiete:
                 kraje_docelowe[nazwa] = int(wartosc)
 
     if not kraje_docelowe:
