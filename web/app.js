@@ -15,6 +15,7 @@ const NACJE = {
   in: { nazwa: "Hindusi", kraj: "Indie", flaga: "in", formy: ["Hindus", "Hindusów", "Hindusów"], dopelniacz: "Hindusów" },
   cn: { nazwa: "Chińczycy", kraj: "Chiny", flaga: "cn", formy: ["Chińczyk", "Chińczyków", "Chińczyków"], dopelniacz: "Chińczyków" },
   us: { nazwa: "Amerykanie", kraj: "USA", flaga: "us", formy: ["Amerykanin", "Amerykanów", "Amerykanów"], dopelniacz: "Amerykanów" },
+  cz: { nazwa: "Czesi", kraj: "Czechy", flaga: "cz", formy: ["Czech", "Czechów", "Czechów"], dopelniacz: "Czechów" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 

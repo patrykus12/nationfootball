@@ -38,6 +38,7 @@ NACJE = {
     "cn": {"nazwa": "Chiny", "land_id": 34, "plik": "zawodnicy_cn.xlsx"},
     "us": {"nazwa": "Stany Zjednaczone", "land_id": 184, "plik": "zawodnicy_us.xlsx",
            "pomin_kraje": ["Kanada"]},  # kanadyjskie kluby grają w MLS
+    "cz": {"nazwa": "Czechy", "land_id": 172, "plik": "zawodnicy_cz.xlsx"},
 }
 
 # Kody krajów z API, których nie ma w CCODE_DO_ALPHA2 serwera (słownik lig ma je zapisane np. jako "ksa") -

@@ -52,6 +52,10 @@ NAZWY_KLUBOW_JAK_W_API = {
     "Zalaegerszegi TE FC": "Zalaegerszeg",
     "Aalborg BK": "AaB",
     "Maccabi Ironi Kiryat Gat": "Maccabi Kiryat Gat",
+    "FC Kopenhaga": "FC København",
+    "PAOK Saloniki": "PAOK Thessaloniki",
+    "Krasava ENY": "Krasava Ypsonas FC",
+    "Al-Hazem SC": "Al Hazem",
     "Sönderjyske Fodbold": "Sønderjyske",
 }
 
