@@ -97,6 +97,8 @@ def status():
         "harmonogram": {"watek_dziala": bool(_watek and _watek.is_alive()), "etap": s["etap"], "pid": os.getpid(),
                         "ostatni_blad": s["ostatni_blad"]},
         "kopia_zapasowa": s["kopia"],
+        "awaria_api": f"tak - kolejna próba po {_czas(s['awaria_api_do'])[11:]}" if dane.awaria_api() else "nie",
+        "ostatni_blad_api": s["ostatni_blad_api"],
     })
 
 

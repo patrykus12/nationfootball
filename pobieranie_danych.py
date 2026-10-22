@@ -60,6 +60,8 @@ OPOZNIENIE_MIN = int(os.environ.get("NF_OPOZNIENIE_MIN", 150))    # pobierz mecz
 OKNO_MIN = int(os.environ.get("NF_OKNO_MIN", 360))                # mecz wciąż "trwa" - czekaj max do 6 h
 PONOW_TRWAJACY_MIN = 20                                           # co ile sprawdzać mecz, który się przedłuża
 LIMIT_SKLADOW_NA_CYKL = 40                                        # uzupełnianie zaległości po restarcie - porcjami
+BLEDY_DO_AWARII = 3                                               # tyle nieudanych zapytań z rzędu = awaria API
+PRZERWA_PO_AWARII_MIN = 60                                        # wtedy przez tyle minut nie pytamy API wcale
 DNI_PRZECHOWYWANIA_SKLADOW = 17
 
 # Baza zawodników / ligi.json są w repozytorium GitHub - serwer sam je stamtąd dociąga, więc
@@ -101,7 +103,8 @@ _blokada_harmonogramu = threading.Lock()
 # Licznik zapytań do API od startu serwera (podgląd na stronie głównej serwera)
 STATYSTYKI = {"start": time.time(), "zapytania_api": 0, "pozostalo_w_limicie": None,
               "ostatni_cykl": None, "ostatnia_synchronizacja_repo": None,
-              "etap": "oczekiwanie", "ostatni_blad": None, "kopia": None}
+              "etap": "oczekiwanie", "ostatni_blad": None, "kopia": None,
+              "bledy_api_z_rzedu": 0, "awaria_api_do": None, "ostatni_blad_api": None}
 
 # Ustawiane po próbie odtworzenia kopii - do tego czasu /mecze czeka (zamiast oddać "brak danych")
 kopia_gotowa = threading.Event()
@@ -121,18 +124,43 @@ def wczytaj_json(sciezka, domyslne=None):
     return domyslne
 
 
+class AwariaAPI(Exception):
+    """API nie odpowiada - zapytanie nie zostało nawet wysłane."""
+
+
+def awaria_api():
+    """True, gdy po serii błędów czekamy z kolejną próbą (patrz _api_get)."""
+    return bool(STATYSTYKI["awaria_api_do"] and time.time() < STATYSTYKI["awaria_api_do"])
+
+
 def _api_get(endpoint, params, timeout=20):
-    """JEDYNE miejsce wywołujące RapidAPI. Używane tylko przez harmonogram."""
+    """JEDYNE miejsce wywołujące RapidAPI. Używane tylko przez harmonogram.
+    Po BLEDY_DO_AWARII nieudanych zapytaniach z rzędu (np. awaria dostawcy API) przez
+    PRZERWA_PO_AWARII_MIN minut nie wysyła niczego - ponawianie w kółko zjadałoby limit."""
+    if awaria_api():
+        raise AwariaAPI(f"awaria API - kolejna próba po {datetime.fromtimestamp(STATYSTYKI['awaria_api_do'], TZ_PL):%H:%M}")
     STATYSTYKI["zapytania_api"] += 1
-    res = requests.get(
-        f"https://{API_HOST}/{endpoint}",
-        headers={"x-rapidapi-key": API_KEY, "x-rapidapi-host": API_HOST},
-        params=params, timeout=timeout,
-    )
-    pozostalo = res.headers.get("x-ratelimit-requests-remaining")
-    if pozostalo is not None: STATYSTYKI["pozostalo_w_limicie"] = int(pozostalo)
-    res.raise_for_status()
-    return res.json()
+    try:
+        res = requests.get(
+            f"https://{API_HOST}/{endpoint}",
+            headers={"x-rapidapi-key": API_KEY, "x-rapidapi-host": API_HOST},
+            params=params, timeout=timeout,
+        )
+        pozostalo = res.headers.get("x-ratelimit-requests-remaining")
+        if pozostalo is not None: STATYSTYKI["pozostalo_w_limicie"] = int(pozostalo)
+        res.raise_for_status()
+        wynik = res.json()
+    except Exception as e:
+        STATYSTYKI["bledy_api_z_rzedu"] += 1
+        STATYSTYKI["ostatni_blad_api"] = f"{datetime.now(TZ_PL):%Y-%m-%d %H:%M} {endpoint}: {e}"[:300]
+        if STATYSTYKI["bledy_api_z_rzedu"] >= BLEDY_DO_AWARII:
+            STATYSTYKI["awaria_api_do"] = time.time() + PRZERWA_PO_AWARII_MIN * 60
+            STATYSTYKI["bledy_api_z_rzedu"] = 0
+            print(f"[api] {BLEDY_DO_AWARII} błędy z rzędu - przerwa {PRZERWA_PO_AWARII_MIN} min", flush=True)
+        raise
+    STATYSTYKI["bledy_api_z_rzedu"] = 0
+    STATYSTYKI["awaria_api_do"] = None
+    return wynik
 
 
 # --- SŁOWNIK LIG ---
@@ -178,6 +206,8 @@ def _pobierz_lige_z_api(league_id, mecz_id):
         detal = _api_get("football-get-match-detail", {"eventid": mecz_id}, timeout=10).get("response", {}).get("detail", {})
         nazwa = detal.get("leagueName", "")
         kod_kraju = str(detal.get("countryCode", "")).split("-")[0].lower()
+    except AwariaAPI:
+        return None  # to nie wina ligi - nie blokujemy jej na 6 h
     except Exception:
         nazwa = ""
     if not nazwa:
@@ -564,6 +594,7 @@ def _odswiez_mecze_polakow(raport):
             zakonczony = bool(aktualne.get(mecz_id, {}).get('status', {}).get('finished'))
             if not zakonczony and wiek_min <= OKNO_MIN:
                 continue  # jeszcze trwa - spróbujemy w kolejnym cyklu
+            if awaria_api(): return
             if pobrane_sklady >= LIMIT_SKLADOW_NA_CYKL:
                 raport.append("(limit składów na cykl - reszta w następnym)")
                 return
@@ -599,7 +630,8 @@ def po_starcie_procesu():
     _blokada_slownika = threading.Lock()
     kopia_gotowa = threading.Event()
     STATYSTYKI.update({"start": time.time(), "zapytania_api": 0, "etap": "oczekiwanie", "ostatni_blad": None,
-                       "ostatni_cykl": None, "ostatnia_synchronizacja_repo": None, "kopia": None})
+                       "ostatni_cykl": None, "ostatnia_synchronizacja_repo": None, "kopia": None,
+                       "bledy_api_z_rzedu": 0, "awaria_api_do": None, "ostatni_blad_api": None})
 
 
 def cykl_harmonogramu(wymus_repo=False):
@@ -615,10 +647,13 @@ def cykl_harmonogramu(wymus_repo=False):
         if REPO_RAW and (wymus_repo or ostatnia is None or time.time() - ostatnia > SYNC_REPO_H * 3600):
             STATYSTYKI["etap"] = "synchronizacja z repozytorium"
             for plik in synchronizuj_z_repo(): raport.append(f"z repozytorium: {plik}")
-        STATYSTYKI["etap"] = "terminarze"
-        _odswiez_terminarze(raport)
-        STATYSTYKI["etap"] = "mecze Polaków"
-        _odswiez_mecze_polakow(raport)
+        if awaria_api():
+            raport.append(f"(awaria API - kolejna próba po {datetime.fromtimestamp(STATYSTYKI['awaria_api_do'], TZ_PL):%H:%M})")
+        else:
+            STATYSTYKI["etap"] = "terminarze"
+            _odswiez_terminarze(raport)
+            STATYSTYKI["etap"] = "mecze Polaków"
+            _odswiez_mecze_polakow(raport)
         _wyczysc_stary_cache()
         STATYSTYKI["ostatni_cykl"] = time.time()
         return raport
