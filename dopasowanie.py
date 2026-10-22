@@ -31,6 +31,7 @@ KODY_KRAJOW_RECZNE = {
 NACJE = {
     "pl": {"nazwa": "Polska", "land_id": 135, "plik": "zawodnicy.xlsx"},
     "tr": {"nazwa": "Turcja", "land_id": 174, "plik": "zawodnicy_tr.xlsx"},
+    "in": {"nazwa": "Indie", "land_id": 67, "plik": "zawodnicy_in.xlsx"},
 }
 
 SLOWA_KLUCZOWE_LIGI_KOBIECE = ("women", "female", "ladies", "kobiet", "femin", "frauen", "wsl")

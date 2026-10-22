@@ -12,6 +12,7 @@ const MIESIACE = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", 
 const NACJE = {
   pl: { nazwa: "Polacy", kraj: "Polska", flaga: "pl", formy: ["Polak", "Polaków", "Polaków"], dopelniacz: "Polaków" },
   tr: { nazwa: "Turcy", kraj: "Turcja", flaga: "tr", formy: ["Turek", "Turków", "Turków"], dopelniacz: "Turków" },
+  in: { nazwa: "Hindusi", kraj: "Indie", flaga: "in", formy: ["Hindus", "Hindusów", "Hindusów"], dopelniacz: "Hindusów" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 

@@ -1,7 +1,7 @@
 {
   "name": "NationFootball",
   "short_name": "NationFootball",
-  "description": "Mecze piłkarzy grających za granicą - Polaków, Turków",
+  "description": "Mecze piłkarzy grających za granicą - Polaków, Turków, Hindusów",
   "lang": "pl",
   "id": "/app/",
   "start_url": "/app/",
