@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 
 import pytz
 
-from dopasowanie import NACJE
+from dopasowanie import FLAGI_TRZYLITEROWE, NACJE
 
 KATALOG_PROJEKTU = os.path.dirname(os.path.abspath(__file__))
 # Na hostingu z trwałym dyskiem ustaw NF_KATALOG_DANYCH na zamontowany wolumen.
@@ -96,6 +96,7 @@ CCODE_DO_ALPHA2 = {
     "pan": "pa", "par": "py", "per": "pe", "sin": "sg", "rsa": "za", "tan": "tz",
     "tha": "th", "tun": "tn", "uzb": "uz", "ven": "ve", "vie": "vn", "int": "int"
 }
+CCODE_DO_ALPHA2.update(FLAGI_TRZYLITEROWE)
 
 _blokada_slownika = threading.Lock()
 _blokada_harmonogramu = threading.Lock()

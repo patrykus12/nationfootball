@@ -46,6 +46,7 @@ NAZWY_KLUBOW_JAK_W_API = {
     "Olympiakos Pireus": "Olympiacos",
     "Celta de Vigo": "Celta Vigo",
     "Al-Hilal SFC": "Al Hilal",
+    "Al-Ahli SFC": "Al Ahli",
     "Sönderjyske Fodbold": "Sønderjyske",
 }
 

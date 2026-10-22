@@ -23,7 +23,9 @@ KODY_KRAJOW_RECZNE = {
     'szwecja': 'se', 'słowacja': 'sk', 'turcja': 'tr', 'usa': 'us', 'stany zjednoczone': 'us',
     'stany zjednaczone': 'us',
     'ukraina': 'ua', 'walia': 'gb-wls', 'wyspy owcze': 'fo', 'węgry': 'hu',
-    'włochy': 'it', 'zjednoczone emiraty arabskie': 'ae', 'polska': 'pl'
+    'włochy': 'it', 'zjednoczone emiraty arabskie': 'ae', 'polska': 'pl',
+    'nowa zelandia': 'nz', 'filipiny': 'ph', 'hong kong': 'hk', 'chiny': 'cn', 'tajlandia': 'th',
+    'słowenia': 'si', 'uganda': 'ug', 'arabia saudyjska': 'sa', 'kirgistan': 'kg'
 }
 
 # Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
@@ -32,6 +34,15 @@ NACJE = {
     "pl": {"nazwa": "Polska", "land_id": 135, "plik": "zawodnicy.xlsx"},
     "tr": {"nazwa": "Turcja", "land_id": 174, "plik": "zawodnicy_tr.xlsx"},
     "in": {"nazwa": "Indie", "land_id": 67, "plik": "zawodnicy_in.xlsx"},
+    "cn": {"nazwa": "Chiny", "land_id": 34, "plik": "zawodnicy_cn.xlsx"},
+}
+
+# Kody krajów z API, których nie ma w CCODE_DO_ALPHA2 serwera (słownik lig ma je zapisane np. jako "ksa") -
+# bez zamiany liga nie ma flagi, a sprawdzanie kraju klubu przepuszcza np. katarskie Al-Ahli jako saudyjskie
+FLAGI_TRZYLITEROWE = {
+    "qat": "qa", "ksa": "sa", "ind": "in", "uae": "ae", "can": "ca", "blr": "by", "chn": "cn",
+    "alb": "al", "crc": "cr", "est": "ee", "arm": "am", "aze": "az", "bol": "bo", "geo": "ge",
+    "alg": "dz", "ban": "bd", "bih": "ba",
 }
 
 SLOWA_KLUCZOWE_LIGI_KOBIECE = ("women", "female", "ladies", "kobiet", "femin", "frauen", "wsl")
@@ -139,6 +150,7 @@ def dopasuj_mecz(mecz, polskie_kluby, nasz_slownik_lig, baza_lig):
     dane_ze_slownika = nasz_slownik_lig.get(league_id, {})
     prawdziwa_nazwa = dane_ze_slownika.get("nazwa", f"Rozgrywki (ID: {league_id})")
     prawdziwa_flaga = dane_ze_slownika.get("flaga", "")
+    prawdziwa_flaga = FLAGI_TRZYLITEROWE.get(prawdziwa_flaga, prawdziwa_flaga)
     # Ochrona przed brakiem kraju z API (np. Puchary Afryki)
     if not prawdziwa_flaga or prawdziwa_flaga == "none": prawdziwa_flaga = "int"
 
