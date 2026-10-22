@@ -17,6 +17,7 @@ const NACJE = {
   us: { nazwa: "Amerykanie", kraj: "USA", flaga: "us", formy: ["Amerykanin", "Amerykanów", "Amerykanów"], dopelniacz: "Amerykanów" },
   cz: { nazwa: "Czesi", kraj: "Czechy", flaga: "cz", formy: ["Czech", "Czechów", "Czechów"], dopelniacz: "Czechów" },
   id: { nazwa: "Indonezyjczycy", kraj: "Indonezja", flaga: "id", formy: ["Indonezyjczyk", "Indonezyjczyków", "Indonezyjczyków"], dopelniacz: "Indonezyjczyków" },
+  pk: { nazwa: "Pakistańczycy", kraj: "Pakistan", flaga: "pk", formy: ["Pakistańczyk", "Pakistańczyków", "Pakistańczyków"], dopelniacz: "Pakistańczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 

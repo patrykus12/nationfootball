@@ -517,16 +517,27 @@ def _znani_od():
     if _znani["wersja"] == wersja: return _znani["od"]
     zapisane = wczytaj_json(ZNANI_PLIK)
     od_teraz = time.time() if zapisane is not None else 0
-    zapisane = zapisane or {}
+    zapisane = {_klucz_znanego(k): v for k, v in (zapisane or {}).items()}
     od = {}
     for nacja in NACJE:
         for klub, info in _kluby_z_bazy(nacja).items():
             for gracz in info['gracze']:
-                klucz = f"{nacja}|{klub}|{gracz}"
+                klucz = _klucz_znanego(f"{nacja}|{klub}|{gracz}")
                 od[klucz] = zapisane.get(klucz, od_teraz)
     if od != zapisane or not os.path.exists(ZNANI_PLIK): zapisz_json_atomowo(ZNANI_PLIK, od)
     _znani.update(wersja=wersja, od=od)
     return od
+
+
+# Litery, których normalizacja Unicode nie rozkłada na literę + znak (bez zamiany by znikały)
+_LITERY_BEZ_ROZKLADU = str.maketrans({"ł": "l", "Ł": "L", "ı": "i", "ø": "o", "Ø": "O", "đ": "d", "Đ": "D",
+                                      "ß": "ss", "æ": "ae", "Æ": "AE", "œ": "oe", "þ": "th", "ð": "d"})
+
+
+def _klucz_znanego(tekst):
+    """Bez polskich znaków i wielkości liter - Transfermarkt raz podaje "Michał Helik", raz "Michal Helik"."""
+    from dopasowanie import normalizuj_tekst
+    return normalizuj_tekst(str(tekst).translate(_LITERY_BEZ_ROZKLADU))
 
 
 def _bez_dopisanych_pozniej(dop, nacja, mecz):
@@ -535,8 +546,8 @@ def _bez_dopisanych_pozniej(dop, nacja, mecz):
     start = czas_rozpoczecia_utc(mecz)
     if start is None: return dop
     znani, ts = _znani_od(), start.timestamp()
-    gosp = [g for g in dop['polacy_gosp'] if znani.get(f"{nacja}|{dop['klub_gosp']}|{g}", 0) <= ts]
-    gosc = [g for g in dop['polacy_gosc'] if znani.get(f"{nacja}|{dop['klub_gosc']}|{g}", 0) <= ts]
+    gosp = [g for g in dop['polacy_gosp'] if znani.get(_klucz_znanego(f"{nacja}|{dop['klub_gosp']}|{g}"), 0) <= ts]
+    gosc = [g for g in dop['polacy_gosc'] if znani.get(_klucz_znanego(f"{nacja}|{dop['klub_gosc']}|{g}"), 0) <= ts]
     if not (gosp or gosc): return None
     if gosp == dop['polacy_gosp'] and gosc == dop['polacy_gosc']: return dop
     return dict(dop, polacy_gosp=gosp, polacy_gosc=gosc)

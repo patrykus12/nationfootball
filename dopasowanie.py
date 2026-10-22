@@ -40,6 +40,7 @@ NACJE = {
            "pomin_kraje": ["Kanada"]},  # kanadyjskie kluby grają w MLS
     "cz": {"nazwa": "Czechy", "land_id": 172, "plik": "zawodnicy_cz.xlsx"},
     "id": {"nazwa": "Indonezja", "land_id": 68, "plik": "zawodnicy_id.xlsx"},
+    "pk": {"nazwa": "Pakistan", "land_id": 128, "plik": "zawodnicy_pk.xlsx"},
 }
 
 # Kody krajów z API, których nie ma w CCODE_DO_ALPHA2 serwera (słownik lig ma je zapisane np. jako "ksa") -
@@ -53,7 +54,10 @@ FLAGI_TRZYLITEROWE = {
 # Kluby, które grają w lidze innego kraju: kanadyjskie (Toronto FC, CF Montréal...) w MLS (USA)
 LIGI_ZA_GRANICA = {"ca": {"us"}}
 
-SLOWA_KLUCZOWE_LIGI_KOBIECE = ("women", "female", "ladies", "kobiet", "femin", "frauen", "wsl")
+# Ligi kobiece - także te, w których drużyny nazywają się jak męskie (szkocka SWPL: "Aberdeen", "Celtic")
+SLOWA_KLUCZOWE_LIGI_KOBIECE = ("women", "female", "ladies", "kobiet", "femin", "frauen", "wsl", "swpl",
+                               "kvinner", "vrouwen", "damallsvenskan", "toppserien", "kvindeliga",
+                               "nwsl", "arkema", "iberdrola", "(w)")
 
 
 def normalizuj_tekst(tekst): return unicodedata.normalize('NFKD', str(tekst)).encode('ASCII', 'ignore').decode('utf-8').lower().strip()
@@ -69,13 +73,13 @@ def podobienstwo(a, b): return difflib.SequenceMatcher(None, wyczysc_nazwe_klubu
 
 def czy_liga_kobieca(nazwa_ligi):
     n = (nazwa_ligi or "").lower()
-    return any(slowo in n for slowo in SLOWA_KLUCZOWE_LIGI_KOBIECE)
+    return any(slowo in n for slowo in SLOWA_KLUCZOWE_LIGI_KOBIECE) or bool(re.search(r"\bliga f\b", n))
 
 def czy_to_niechciana_druzyna(nazwa):
     n = nazwa.lower().strip()
     if "(w)" in n or " (w) " in n or n.endswith(" (w)") or n.endswith(" w") or "women" in n or "kobiety" in n: return True
     if "willem ii" in n: return False
-    if n.endswith(" akatemia") or n.startswith("jong "): return True  # rezerwy: "KuPS Akatemia", "Jong Sparta Rotterdam"
+    if n.endswith((" akatemia", " reserves")) or n.startswith("jong "): return True  # rezerwy: "KuPS Akatemia", "Jong Sparta Rotterdam"
     return bool(re.search(r'\b(b|c|ii|2)\b$', n) or " u2" in n or " u1" in n)
 
 def wczytaj_kluby(excel_plik):

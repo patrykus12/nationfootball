@@ -186,7 +186,9 @@ def pobierz_zawodnikow(nacja="pl"):
                     klub = klub_img.get('title', klub_img.get('alt', '')).strip() if klub_img else ""
                     if not klub or "Bez klubu" in klub: continue
 
-                    poziom_ligi = 1
+                    # Bez linku do ligi Transfermarkt pokazuje tylko niskie, amatorskie rozgrywki
+                    # (np. angielska Northern Premier League, australijskie NPL stanowe) - pomijamy
+                    poziom_ligi = 99
                     liga_link = wiersz.select_one("a[href*='wettbewerb']")
 
                     if liga_link:
