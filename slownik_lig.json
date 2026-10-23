@@ -1998,5 +1998,333 @@
     "42": {
         "nazwa": "UEFA Champions League",
         "flaga": "int"
+    },
+    "936592": {
+        "nazwa": "1. Division",
+        "flaga": "dk"
+    },
+    "938696": {
+        "nazwa": "2. Liga",
+        "flaga": "at"
+    },
+    "938639": {
+        "nazwa": "3. Division",
+        "flaga": "dk"
+    },
+    "937668": {
+        "nazwa": "Championship",
+        "flaga": "gb-sct"
+    },
+    "937879": {
+        "nazwa": "Ekstraklasa",
+        "flaga": "pl"
+    },
+    "938422": {
+        "nazwa": "First League",
+        "flaga": "ru"
+    },
+    "936550": {
+        "nazwa": "First Professional League",
+        "flaga": "bg"
+    },
+    "938215": {
+        "nazwa": "J. League 2",
+        "flaga": "jp"
+    },
+    "937672": {
+        "nazwa": "League Two",
+        "flaga": "gb-sct"
+    },
+    "942122": {
+        "nazwa": "Liga II",
+        "flaga": "ro"
+    },
+    "948410": {
+        "nazwa": "National League Championship",
+        "flaga": "nz"
+    },
+    "923169": {
+        "nazwa": "Premier League",
+        "flaga": "by"
+    },
+    "940873": {
+        "nazwa": "Premier League",
+        "flaga": "ba"
+    },
+    "943480": {
+        "nazwa": "Premier League",
+        "flaga": "kw"
+    },
+    "938371": {
+        "nazwa": "Premiership",
+        "flaga": "gb-nir"
+    },
+    "938428": {
+        "nazwa": "Superliga",
+        "flaga": "ro"
+    },
+    "1000001678": {
+        "nazwa": "Australian A-League Men",
+        "flaga": "au"
+    },
+    "1000001737": {
+        "nazwa": "Korean K-League 2",
+        "flaga": "kr"
+    },
+    "1000001644": {
+        "nazwa": "Liga MX",
+        "flaga": "mx"
+    },
+    "1000001618": {
+        "nazwa": "Israeli Ligat Ha'al",
+        "flaga": "il"
+    },
+    "1000001181": {
+        "nazwa": "Estonian Premium liiga",
+        "flaga": "ee"
+    },
+    "1000001576": {
+        "nazwa": "Saudi Arabian First Division League",
+        "flaga": "sa"
+    },
+    "1000001612": {
+        "nazwa": "Serbian Super Liga",
+        "flaga": "rs"
+    },
+    "938187": {
+        "nazwa": "Leumit League",
+        "flaga": "il"
+    },
+    "943389": {
+        "nazwa": "Stars League",
+        "flaga": "iq"
+    },
+    "1000001497": {
+        "nazwa": "Australian A-League Women",
+        "flaga": "au"
+    },
+    "1000001739": {
+        "nazwa": "dieci Challenge League",
+        "flaga": "ch"
+    },
+    "1000001771": {
+        "nazwa": "Indian Football League",
+        "flaga": "in"
+    },
+    "938190": {
+        "nazwa": "Primera Division Apertura",
+        "flaga": "cr"
+    },
+    "1000001481": {
+        "nazwa": "Qatar Stars League 2",
+        "flaga": "qa"
+    },
+    "943983": {
+        "nazwa": "AFC Champions League Elite West",
+        "flaga": "int"
+    },
+    "952919": {
+        "nazwa": "Challenge Cup",
+        "flaga": "gb-sct"
+    },
+    "1000001608": {
+        "nazwa": "Thai League Cup",
+        "flaga": "th"
+    },
+    "1000001719": {
+        "nazwa": "South Africa PSL",
+        "flaga": "za"
+    },
+    "1000001691": {
+        "nazwa": "Venezuela Primera División",
+        "flaga": "ve"
+    },
+    "1000001798": {
+        "nazwa": "Swedish Allsvenskan",
+        "flaga": "se"
+    },
+    "1000001483": {
+        "nazwa": "Croatia Cup",
+        "flaga": "hr"
+    },
+    "1000001729": {
+        "nazwa": "Liga Profesional Argentina",
+        "flaga": "ar"
+    },
+    "1000001661": {
+        "nazwa": "Chile Primera",
+        "flaga": "cl"
+    },
+    "942036": {
+        "nazwa": "League Cup",
+        "flaga": "gb-sct"
+    },
+    "939530": {
+        "nazwa": "Liga de Expansion MX Apertura",
+        "flaga": "mx"
+    },
+    "938778": {
+        "nazwa": "Primera Federacion - Group 1",
+        "flaga": "es"
+    },
+    "1000001235": {
+        "nazwa": "Chile Primera B",
+        "flaga": "cl"
+    },
+    "1000001253": {
+        "nazwa": "Ecuador Liga Pro",
+        "flaga": "ec"
+    },
+    "1000001429": {
+        "nazwa": "SWPL Cup",
+        "flaga": "gb-sct"
+    },
+    "1000001180": {
+        "nazwa": "Latvian Virsliga",
+        "flaga": "lv"
+    },
+    "938220": {
+        "nazwa": "League Two",
+        "flaga": "gb-eng"
+    },
+    "942851": {
+        "nazwa": "Liga 3 Zona B",
+        "flaga": "pt"
+    },
+    "940355": {
+        "nazwa": "National League",
+        "flaga": "gb-eng"
+    },
+    "943009": {
+        "nazwa": "Premier League",
+        "flaga": "eg"
+    },
+    "922739": {
+        "nazwa": "Premier League",
+        "flaga": "kz"
+    },
+    "1000001616": {
+        "nazwa": "Thai League 2",
+        "flaga": "th"
+    },
+    "944692": {
+        "nazwa": "Cup Grp. C",
+        "flaga": "ro"
+    },
+    "938649": {
+        "nazwa": "FA Cup",
+        "flaga": "pl"
+    },
+    "944910": {
+        "nazwa": "CONCACAF Central American Cup",
+        "flaga": "int"
+    },
+    "944691": {
+        "nazwa": "Cup Grp. B",
+        "flaga": "ro"
+    },
+    "944693": {
+        "nazwa": "Cup Grp. D",
+        "flaga": "ro"
+    },
+    "943985": {
+        "nazwa": "Ligue I",
+        "flaga": "tn"
+    },
+    "938420": {
+        "nazwa": "Cup Grp. C",
+        "flaga": "ru"
+    },
+    "944690": {
+        "nazwa": "Cup Grp. A",
+        "flaga": "ro"
+    },
+    "938421": {
+        "nazwa": "Cup Grp. D",
+        "flaga": "ru"
+    },
+    "1000001214": {
+        "nazwa": "South Africa League Cup",
+        "flaga": "za"
+    },
+    "922761": {
+        "nazwa": "Segunda Division",
+        "flaga": "uy"
+    },
+    "942853": {
+        "nazwa": "Liga AUF Uruguaya Clausura",
+        "flaga": "uy"
+    },
+    "1000001752": {
+        "nazwa": "CAF Confederation Cup",
+        "flaga": "int"
+    },
+    "1000001589": {
+        "nazwa": "Colombia Primera B",
+        "flaga": "co"
+    },
+    "1000001595": {
+        "nazwa": "Scottish SWPL 1",
+        "flaga": "gb-sct"
+    },
+    "944406": {
+        "nazwa": "AFC Challenge League Grp. E",
+        "flaga": "int"
+    },
+    "943487": {
+        "nazwa": "CAF Champions League Qualification",
+        "flaga": "int"
+    },
+    "949266": {
+        "nazwa": "FA Cup",
+        "flaga": "gb-sct"
+    },
+    "1000001706": {
+        "nazwa": "Icelandic Besta deild",
+        "flaga": "is"
+    },
+    "944397": {
+        "nazwa": "AFC Challenge League Grp. B",
+        "flaga": "int"
+    },
+    "944396": {
+        "nazwa": "AFC Challenge League Grp. A",
+        "flaga": "int"
+    },
+    "944401": {
+        "nazwa": "AFC Challenge League Grp. C",
+        "flaga": "int"
+    },
+    "922585": {
+        "nazwa": "US Open Cup",
+        "flaga": "us"
+    },
+    "1000001671": {
+        "nazwa": "FA Cup",
+        "flaga": "th"
+    },
+    "1000001178": {
+        "nazwa": "Brazilian Serie C",
+        "flaga": "br"
+    },
+    "1000001663": {
+        "nazwa": "Scottish SWF Cup",
+        "flaga": "gb-sct"
+    },
+    "11012": {
+        "nazwa": "ASEAN Club Championship",
+        "flaga": "int"
+    },
+    "931430": {
+        "nazwa": "Cup",
+        "flaga": "se"
+    },
+    "938238": {
+        "nazwa": "EFL Trophy Northern Grp. H",
+        "flaga": "gb-eng"
+    },
+    "953430": {
+        "nazwa": "FA Cup",
+        "flaga": "gb-eng"
     }
 }
