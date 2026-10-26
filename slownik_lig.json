@@ -2326,5 +2326,21 @@
     "953430": {
         "nazwa": "FA Cup",
         "flaga": "gb-eng"
+    },
+    "938235": {
+        "nazwa": "EFL Trophy Northern Grp. E",
+        "flaga": "gb-eng"
+    },
+    "938243": {
+        "nazwa": "EFL Trophy Southern Grp. E",
+        "flaga": "gb-eng"
+    },
+    "938244": {
+        "nazwa": "EFL Trophy Southern Grp. F",
+        "flaga": "gb-eng"
+    },
+    "938246": {
+        "nazwa": "EFL Trophy Southern Grp. H",
+        "flaga": "gb-eng"
     }
 }
