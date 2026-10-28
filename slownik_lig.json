@@ -2358,5 +2358,17 @@
     "1000001827": {
         "nazwa": "Egyptian Premier League",
         "flaga": "eg"
+    },
+    "920743": {
+        "nazwa": "UEFA Nations League A Grp. 3",
+        "flaga": "int"
+    },
+    "943885": {
+        "nazwa": "Africa Cup of Nations Qualification Grp. J",
+        "flaga": "int"
+    },
+    "1000001591": {
+        "nazwa": "Colombia Primera B",
+        "flaga": "co"
     }
 }
