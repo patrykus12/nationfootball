@@ -41,6 +41,7 @@ const NACJE = {
   mm: { nazwa: "Birmańczycy", kraj: "Mjanma", flaga: "mm", formy: ["Birmańczyk", "Birmańczyków", "Birmańczyków"], dopelniacz: "Birmańczyków" },
   za: { nazwa: "Południowoafrykańczycy", kraj: "RPA", flaga: "za", formy: ["Południowoafrykańczyk", "Południowoafrykańczyków", "Południowoafrykańczyków"], dopelniacz: "Południowoafrykańczyków" },
   ke: { nazwa: "Kenijczycy", kraj: "Kenia", flaga: "ke", formy: ["Kenijczyk", "Kenijczyków", "Kenijczyków"], dopelniacz: "Kenijczyków" },
+  kr: { nazwa: "Koreańczycy", kraj: "Korea Południowa", flaga: "kr", formy: ["Koreańczyk", "Koreańczyków", "Koreańczyków"], dopelniacz: "Koreańczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 
