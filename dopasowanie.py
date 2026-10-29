@@ -76,6 +76,7 @@ NACJE = {
     "ph": {"nazwa": "Filipiny", "land_id": 134, "plik": "zawodnicy_ph.xlsx", "od": "2026-10-29 12:20"},
     "et": {"nazwa": "Etiopia", "land_id": 11, "plik": "zawodnicy_et.xlsx", "od": "2026-10-29 12:25",
            "kraje_bez_lig": ["Kuwejt"]},  # Al-Arabi, Al-Fahaheel
+    "cd": {"nazwa": "Demokratyczna Republika Kongo", "land_id": 193, "plik": "zawodnicy_cd.xlsx", "od": "2026-10-29 12:40"},
 }
 
 
