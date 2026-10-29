@@ -70,6 +70,7 @@ NACJE = {
            "ligi": LIGI_CZOLOWE},
     "bd": {"nazwa": "Bangladesz", "land_id": 16, "plik": "zawodnicy_bd.xlsx", "od": "2026-10-29 11:50"},
     "mx": {"nazwa": "Meksyk", "land_id": 110, "plik": "zawodnicy_mx.xlsx", "od": "2026-10-29 11:55"},
+    "jp": {"nazwa": "Japonia", "land_id": 77, "plik": "zawodnicy_jp.xlsx", "od": "2026-10-29 12:15"},
 }
 
 
