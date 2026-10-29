@@ -197,6 +197,7 @@ body.z-wskazowka main { padding-bottom: calc(150px + env(safe-area-inset-bottom)
   background: var(--karta); border: 1px solid var(--ramka);
   box-shadow: 0 16px 40px rgba(0, 0, 0, .5);
   animation: wjazd .3s ease-out;
+  max-height: 100%; overflow-y: auto; overscroll-behavior: contain;  /* lista krajów dłuższa niż ekran */
 }
 .wybor-okno .zamknij { position: absolute; top: 12px; right: 12px; }
 .wybor-okno .zamknij[hidden] { display: none; }

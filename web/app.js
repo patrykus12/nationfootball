@@ -204,7 +204,7 @@ function ustawNacje(n) {
   try { localStorage.setItem(KLUCZ_NACJI, n); } catch (e) {}
   const b = $("zmien-nacje");
   b.innerHTML = flagaNacji(n);
-  b.setAttribute("aria-label", `Zmień nację (teraz: ${NACJE[n].nazwa})`);
+  b.setAttribute("aria-label", `Zmień kraj (teraz: ${NACJE[n].kraj})`);
   b.hidden = false;
   zamknijWyborNacji();
   if (zmiana) wybierzDzien(wybrany, false);
@@ -213,7 +213,7 @@ function ustawNacje(n) {
 function otworzWyborNacji() {
   $("nacje").innerHTML = Object.entries(NACJE).map(([k, n]) =>
     `<button class="nacja${k === nacja ? " obecna" : ""}" data-n="${k}">${flagaNacji(k)}` +
-    `<span><b>${esc(n.nazwa)}</b><small>piłkarze z kraju: ${esc(n.kraj)}</small></span></button>`).join("");
+    `<span><b>${esc(n.kraj)}</b></span></button>`).join("");
   $("nacje").querySelectorAll(".nacja").forEach((b) => b.addEventListener("click", () => ustawNacje(b.dataset.n)));
   $("zamknij-wybor").hidden = !nacja;     // przy pierwszym uruchomieniu wybór jest obowiązkowy
   $("wybor-nacji").hidden = false;
