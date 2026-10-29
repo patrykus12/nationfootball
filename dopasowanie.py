@@ -30,7 +30,9 @@ KODY_KRAJOW_RECZNE = {
     'zjednaczone emiraty arabskie': 'ae', 'argentyna': 'ar', 'brazylia': 'br', 'ekwador': 'ec',
     'kolumbia': 'co', 'urugwaj': 'uy', 'meksyk': 'mx', 'republika południowej afryki': 'za',
     'maroko': 'ma', 'egipt': 'eg', 'algieria': 'dz', 'tanzania': 'tz', 'iran': 'ir', 'kuwejt': 'kw',
-    'irlandia północna': 'gb-nir', 'katar': 'qa', 'libia': 'ly', 'irak': 'iq', 'ghana': 'gh'
+    'irlandia północna': 'gb-nir', 'katar': 'qa', 'libia': 'ly', 'irak': 'iq', 'ghana': 'gh',
+    'etiopia': 'et', 'rwanda': 'rw', 'bułgaria': 'bg', 'łotwa': 'lv', 'bangladesz': 'bd', 'tunezja': 'tn',
+    'wietnam': 'vn', 'malta': 'mt'
 }
 
 # Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
@@ -105,6 +107,7 @@ NACJE = {
            "ligi": LIGI_CZOLOWE, "pomin_kluby": ["FC Andorra"]},  # gra w hiszpańskiej Segunda División
     "ar": {"nazwa": "Argentyna", "land_id": 9, "plik": "zawodnicy_ar.xlsx", "od": "2026-10-29 18:45",
            "ligi": LIGI_CZOLOWE},
+    "ug": {"nazwa": "Uganda", "land_id": 176, "plik": "zawodnicy_ug.xlsx", "od": "2026-10-29 19:02"},
 }
 
 
