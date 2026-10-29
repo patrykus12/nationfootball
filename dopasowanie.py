@@ -82,6 +82,7 @@ NACJE = {
     "ir": {"nazwa": "Iran", "land_id": 71, "plik": "zawodnicy_ir.xlsx", "od": "2026-10-29 13:05"},
     "de": {"nazwa": "Niemcy", "land_id": 40, "plik": "zawodnicy_de.xlsx", "od": "2026-10-29 13:15",
            "ligi": LIGI_CZOLOWE},
+    "th": {"nazwa": "Tajlandia", "land_id": 167, "plik": "zawodnicy_th.xlsx", "od": "2026-10-29 13:20"},
 }
 
 
