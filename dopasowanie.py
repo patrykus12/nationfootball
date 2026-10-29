@@ -78,6 +78,7 @@ NACJE = {
            "kraje_bez_lig": ["Kuwejt"]},  # Al-Arabi, Al-Fahaheel
     "cd": {"nazwa": "Demokratyczna Republika Kongo", "land_id": 193, "plik": "zawodnicy_cd.xlsx", "od": "2026-10-29 12:40"},
     "eg": {"nazwa": "Egipt", "land_id": 2, "plik": "zawodnicy_eg.xlsx", "od": "2026-10-29 12:45"},
+    "vn": {"nazwa": "Wietnam", "land_id": 185, "plik": "zawodnicy_vn.xlsx", "od": "2026-10-29 13:00"},
 }
 
 

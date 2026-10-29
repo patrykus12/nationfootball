@@ -27,6 +27,7 @@ const NACJE = {
   et: { nazwa: "Etiopczycy", kraj: "Etiopia", flaga: "et", formy: ["Etiopczyk", "Etiopczyków", "Etiopczyków"], dopelniacz: "Etiopczyków" },
   cd: { nazwa: "Kongijczycy", kraj: "DR Konga", flaga: "cd", formy: ["Kongijczyk", "Kongijczyków", "Kongijczyków"], dopelniacz: "Kongijczyków" },
   eg: { nazwa: "Egipcjanie", kraj: "Egipt", flaga: "eg", formy: ["Egipcjanin", "Egipcjan", "Egipcjan"], dopelniacz: "Egipcjan" },
+  vn: { nazwa: "Wietnamczycy", kraj: "Wietnam", flaga: "vn", formy: ["Wietnamczyk", "Wietnamczyków", "Wietnamczyków"], dopelniacz: "Wietnamczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 
