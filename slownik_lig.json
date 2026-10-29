@@ -2370,5 +2370,33 @@
     "1000001591": {
         "nazwa": "Colombia Primera B",
         "flaga": "co"
+    },
+    "1000001064": {
+        "nazwa": "King's Cup",
+        "flaga": "int"
+    },
+    "1000001216": {
+        "nazwa": "South Africa League Cup",
+        "flaga": "za"
+    },
+    "938628": {
+        "nazwa": "Liga Nacional Apertura",
+        "flaga": "gt"
+    },
+    "1000001681": {
+        "nazwa": "Peru Liga 1",
+        "flaga": "pe"
+    },
+    "941466": {
+        "nazwa": "Primera Division - Apertura",
+        "flaga": "sv"
+    },
+    "1000001696": {
+        "nazwa": "Colombia Primera A",
+        "flaga": "co"
+    },
+    "938229": {
+        "nazwa": "EFL Trophy Northern Grp. C",
+        "flaga": "gb-eng"
     }
 }
