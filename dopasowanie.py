@@ -36,6 +36,7 @@ KODY_KRAJOW_RECZNE = {
 # Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
 # zawodników. Polska zostaje w zawodnicy.xlsx - z tego pliku korzysta też aplikacja na komputer.
 # pomin_kraje - kraje, w których gra się w tych samych rozgrywkach co u siebie (to nie "za granicą").
+# pomin_kluby - to samo dla pojedynczych klubów (nazwa jak na Transfermarkcie), gdy reszta ligi kraju się liczy.
 # od - kiedy nację dodano: jej zawodnicy nie liczą się w meczach sprzed tej chwili (bez dociągania
 # składów wstecz), nawet gdy serwer straci zapis dat dopisania zawodników.
 # ligi - nacja z mnóstwem legionistów: do bazy (czyli do pobierania składów) tylko kraje z tej listy,
@@ -100,6 +101,8 @@ NACJE = {
     "kr": {"nazwa": "Korea Południowa", "land_id": 87, "plik": "zawodnicy_kr.xlsx", "od": "2026-10-29 16:56"},
     "co": {"nazwa": "Kolumbia", "land_id": 83, "plik": "zawodnicy_co.xlsx", "od": "2026-10-29 17:09"},
     "sd": {"nazwa": "Sudan", "land_id": 160, "plik": "zawodnicy_sd.xlsx", "od": "2026-10-29 17:28"},
+    "es": {"nazwa": "Hiszpania", "land_id": 157, "plik": "zawodnicy_es.xlsx", "od": "2026-10-29 18:24",
+           "ligi": LIGI_CZOLOWE, "pomin_kluby": ["FC Andorra"]},  # gra w hiszpańskiej Segunda División
 }
 
 

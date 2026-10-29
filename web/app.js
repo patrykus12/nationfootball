@@ -44,6 +44,7 @@ const NACJE = {
   kr: { nazwa: "Koreańczycy", kraj: "Korea Południowa", flaga: "kr", formy: ["Koreańczyk", "Koreańczyków", "Koreańczyków"], dopelniacz: "Koreańczyków" },
   co: { nazwa: "Kolumbijczycy", kraj: "Kolumbia", flaga: "co", formy: ["Kolumbijczyk", "Kolumbijczyków", "Kolumbijczyków"], dopelniacz: "Kolumbijczyków" },
   sd: { nazwa: "Sudańczycy", kraj: "Sudan", flaga: "sd", formy: ["Sudańczyk", "Sudańczyków", "Sudańczyków"], dopelniacz: "Sudańczyków" },
+  es: { nazwa: "Hiszpanie", kraj: "Hiszpania", flaga: "es", formy: ["Hiszpan", "Hiszpanów", "Hiszpanów"], dopelniacz: "Hiszpanów" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 

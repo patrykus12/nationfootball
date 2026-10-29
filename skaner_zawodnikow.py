@@ -147,6 +147,7 @@ def pobierz_zawodnikow(nacja="pl"):
     land_id, nazwa_kraju, nazwa_pliku = NACJE[nacja]["land_id"], NACJE[nacja]["nazwa"], NACJE[nacja]["plik"]
     dozwolone_ligi = NACJE[nacja].get("ligi")  # None - wszystkie ligi centralne
     kraje_bez_lig = NACJE[nacja].get("kraje_bez_lig", [])
+    pominiete_kluby = NACJE[nacja].get("pomin_kluby", [])
     print("=== URUCHAMIAM SKANER TRANSFERMARKT (W pełni Dynamiczny) ===")
     print("KROK 1: Otwieram listę państw (odrzucam kwoty i liczby)... \n")
 
@@ -260,7 +261,7 @@ def pobierz_zawodnikow(nacja="pl"):
 
                     klub_img = wiersz.select_one("img.tiny_wappen")
                     klub = klub_img.get('title', klub_img.get('alt', '')).strip() if klub_img else ""
-                    if not klub or "Bez klubu" in klub: continue
+                    if not klub or "Bez klubu" in klub or klub in pominiete_kluby: continue
                     klub_z_krajem = f"[{kraj_nazwa}] {NAZWY_KLUBOW_JAK_W_API.get(klub, klub)}"
                     szeroka_baza[pelne_imie] = klub_z_krajem
                     dodani_na_stronie += 1
