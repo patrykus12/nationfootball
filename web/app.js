@@ -23,6 +23,7 @@ const NACJE = {
   bd: { nazwa: "Banglijczycy", kraj: "Bangladesz", flaga: "bd", formy: ["Banglijczyk", "Banglijczyków", "Banglijczyków"], dopelniacz: "Banglijczyków" },
   mx: { nazwa: "Meksykanie", kraj: "Meksyk", flaga: "mx", formy: ["Meksykanin", "Meksykanów", "Meksykanów"], dopelniacz: "Meksykanów" },
   jp: { nazwa: "Japończycy", kraj: "Japonia", flaga: "jp", formy: ["Japończyk", "Japończyków", "Japończyków"], dopelniacz: "Japończyków" },
+  ph: { nazwa: "Filipińczycy", kraj: "Filipiny", flaga: "ph", formy: ["Filipińczyk", "Filipińczyków", "Filipińczyków"], dopelniacz: "Filipińczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 
