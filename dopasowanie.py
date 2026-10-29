@@ -30,7 +30,7 @@ KODY_KRAJOW_RECZNE = {
     'zjednaczone emiraty arabskie': 'ae', 'argentyna': 'ar', 'brazylia': 'br', 'ekwador': 'ec',
     'kolumbia': 'co', 'urugwaj': 'uy', 'meksyk': 'mx', 'republika południowej afryki': 'za',
     'maroko': 'ma', 'egipt': 'eg', 'algieria': 'dz', 'tanzania': 'tz', 'iran': 'ir', 'kuwejt': 'kw',
-    'irlandia północna': 'gb-nir'
+    'irlandia północna': 'gb-nir', 'katar': 'qa', 'libia': 'ly', 'irak': 'iq', 'ghana': 'gh'
 }
 
 # Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
@@ -99,6 +99,7 @@ NACJE = {
     "ke": {"nazwa": "Kenia", "land_id": 82, "plik": "zawodnicy_ke.xlsx", "od": "2026-10-29 16:43"},
     "kr": {"nazwa": "Korea Południowa", "land_id": 87, "plik": "zawodnicy_kr.xlsx", "od": "2026-10-29 16:56"},
     "co": {"nazwa": "Kolumbia", "land_id": 83, "plik": "zawodnicy_co.xlsx", "od": "2026-10-29 17:09"},
+    "sd": {"nazwa": "Sudan", "land_id": 160, "plik": "zawodnicy_sd.xlsx", "od": "2026-10-29 17:28"},
 }
 
 
