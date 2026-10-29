@@ -116,6 +116,8 @@ NAZWY_KLUBOW_JAK_W_API = {
     "Ninh Binh FC": "Ninh Bình Club",
     "Surkhon Termiz": "Surkhon-2011",
     "Sönderjyske Fodbold": "Sønderjyske",
+    "Al-Arabi SC (Kuwait)": "Al-Arabi",
+    "Al-Fahaheel SC": "Al Fahaheel",
 }
 
 # Nazwy rozgrywek, które ZAWSZE liczą się jako niecentralne, niezależnie od tego, co wyjdzie
@@ -131,6 +133,7 @@ SLOWA_KLUCZOWE_NIECENTRALNE = [
 def pobierz_zawodnikow(nacja="pl"):
     land_id, nazwa_kraju, nazwa_pliku = NACJE[nacja]["land_id"], NACJE[nacja]["nazwa"], NACJE[nacja]["plik"]
     dozwolone_ligi = NACJE[nacja].get("ligi")  # None - wszystkie ligi centralne
+    kraje_bez_lig = NACJE[nacja].get("kraje_bez_lig", [])
     print("=== URUCHAMIAM SKANER TRANSFERMARKT (W pełni Dynamiczny) ===")
     print("KROK 1: Otwieram listę państw (odrzucam kwoty i liczby)... \n")
 
@@ -252,7 +255,7 @@ def pobierz_zawodnikow(nacja="pl"):
 
                     # Bez linku do ligi Transfermarkt pokazuje tylko niskie, amatorskie rozgrywki
                     # (np. angielska Northern Premier League, australijskie NPL stanowe) - pomijamy
-                    poziom_ligi = 99
+                    poziom_ligi = 1 if kraj_nazwa in kraje_bez_lig else 99
                     liga_link = wiersz.select_one("a[href*='wettbewerb']")
 
                     if liga_link:

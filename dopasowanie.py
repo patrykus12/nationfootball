@@ -29,7 +29,7 @@ KODY_KRAJOW_RECZNE = {
     'słowenia': 'si', 'uganda': 'ug', 'arabia saudyjska': 'sa', 'kirgistan': 'kg',
     'zjednaczone emiraty arabskie': 'ae', 'argentyna': 'ar', 'brazylia': 'br', 'ekwador': 'ec',
     'kolumbia': 'co', 'urugwaj': 'uy', 'meksyk': 'mx', 'republika południowej afryki': 'za',
-    'maroko': 'ma', 'egipt': 'eg', 'algieria': 'dz', 'tanzania': 'tz', 'iran': 'ir'
+    'maroko': 'ma', 'egipt': 'eg', 'algieria': 'dz', 'tanzania': 'tz', 'iran': 'ir', 'kuwejt': 'kw'
 }
 
 # Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
@@ -39,6 +39,8 @@ KODY_KRAJOW_RECZNE = {
 # składów wstecz), nawet gdy serwer straci zapis dat dopisania zawodników.
 # ligi - nacja z mnóstwem legionistów: do bazy (czyli do pobierania składów) tylko kraje z tej listy,
 # do podanego poziomu rozgrywkowego. Bez "ligi" - wszystkie ligi centralne (skaner_zawodnikow.py).
+# kraje_bez_lig - kraje, których lig Transfermarkt nie ma (zawodnik bez linku do ligi); tam brak linku
+# to najwyższa liga, a nie amatorska.
 
 # Kraj (nazwa jak na Transfermarkcie) -> najniższy uwzględniany poziom rozgrywkowy
 LIGI_CZOLOWE = {
@@ -72,7 +74,8 @@ NACJE = {
     "mx": {"nazwa": "Meksyk", "land_id": 110, "plik": "zawodnicy_mx.xlsx", "od": "2026-10-29 11:55"},
     "jp": {"nazwa": "Japonia", "land_id": 77, "plik": "zawodnicy_jp.xlsx", "od": "2026-10-29 12:15"},
     "ph": {"nazwa": "Filipiny", "land_id": 134, "plik": "zawodnicy_ph.xlsx", "od": "2026-10-29 12:20"},
-    "et": {"nazwa": "Etiopia", "land_id": 11, "plik": "zawodnicy_et.xlsx", "od": "2026-10-29 12:25"},
+    "et": {"nazwa": "Etiopia", "land_id": 11, "plik": "zawodnicy_et.xlsx", "od": "2026-10-29 12:25",
+           "kraje_bez_lig": ["Kuwejt"]},  # Al-Arabi, Al-Fahaheel
 }
 
 
