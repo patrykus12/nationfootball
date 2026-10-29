@@ -103,6 +103,8 @@ NACJE = {
     "sd": {"nazwa": "Sudan", "land_id": 160, "plik": "zawodnicy_sd.xlsx", "od": "2026-10-29 17:28"},
     "es": {"nazwa": "Hiszpania", "land_id": 157, "plik": "zawodnicy_es.xlsx", "od": "2026-10-29 18:24",
            "ligi": LIGI_CZOLOWE, "pomin_kluby": ["FC Andorra"]},  # gra w hiszpańskiej Segunda División
+    "ar": {"nazwa": "Argentyna", "land_id": 9, "plik": "zawodnicy_ar.xlsx", "od": "2026-10-29 18:45",
+           "ligi": LIGI_CZOLOWE},
 }
 
 
