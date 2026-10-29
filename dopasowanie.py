@@ -98,6 +98,7 @@ NACJE = {
     "za": {"nazwa": "Republika Południowej Afryki", "land_id": 159, "plik": "zawodnicy_za.xlsx", "od": "2026-10-29 15:12"},
     "ke": {"nazwa": "Kenia", "land_id": 82, "plik": "zawodnicy_ke.xlsx", "od": "2026-10-29 16:43"},
     "kr": {"nazwa": "Korea Południowa", "land_id": 87, "plik": "zawodnicy_kr.xlsx", "od": "2026-10-29 16:56"},
+    "co": {"nazwa": "Kolumbia", "land_id": 83, "plik": "zawodnicy_co.xlsx", "od": "2026-10-29 17:09"},
 }
 
 
