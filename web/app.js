@@ -37,6 +37,7 @@ const NACJE = {
   wl: { nazwa: "Walijczycy", kraj: "Walia", flaga: "gb-wls", formy: ["Walijczyk", "Walijczyków", "Walijczyków"], dopelniacz: "Walijczyków" },
   ni: { nazwa: "Północnoirlandczycy", kraj: "Irlandia Północna", flaga: "gb-nir", formy: ["Północnoirlandczyk", "Północnoirlandczyków", "Północnoirlandczyków"], dopelniacz: "Północnoirlandczyków" },
   tz: { nazwa: "Tanzańczycy", kraj: "Tanzania", flaga: "tz", formy: ["Tanzańczyk", "Tanzańczyków", "Tanzańczyków"], dopelniacz: "Tanzańczyków" },
+  it: { nazwa: "Włosi", kraj: "Włochy", flaga: "it", formy: ["Włoch", "Włochów", "Włochów"], dopelniacz: "Włochów" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 
