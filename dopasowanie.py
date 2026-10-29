@@ -26,7 +26,10 @@ KODY_KRAJOW_RECZNE = {
     'ukraina': 'ua', 'walia': 'gb-wls', 'wyspy owcze': 'fo', 'węgry': 'hu',
     'włochy': 'it', 'zjednoczone emiraty arabskie': 'ae', 'polska': 'pl',
     'nowa zelandia': 'nz', 'filipiny': 'ph', 'hong kong': 'hk', 'chiny': 'cn', 'tajlandia': 'th',
-    'słowenia': 'si', 'uganda': 'ug', 'arabia saudyjska': 'sa', 'kirgistan': 'kg'
+    'słowenia': 'si', 'uganda': 'ug', 'arabia saudyjska': 'sa', 'kirgistan': 'kg',
+    'zjednaczone emiraty arabskie': 'ae', 'argentyna': 'ar', 'brazylia': 'br', 'ekwador': 'ec',
+    'kolumbia': 'co', 'urugwaj': 'uy', 'meksyk': 'mx', 'republika południowej afryki': 'za',
+    'maroko': 'ma', 'egipt': 'eg', 'algieria': 'dz', 'tanzania': 'tz', 'iran': 'ir'
 }
 
 # Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
@@ -34,6 +37,24 @@ KODY_KRAJOW_RECZNE = {
 # pomin_kraje - kraje, w których gra się w tych samych rozgrywkach co u siebie (to nie "za granicą").
 # od - kiedy nację dodano: jej zawodnicy nie liczą się w meczach sprzed tej chwili (bez dociągania
 # składów wstecz), nawet gdy serwer straci zapis dat dopisania zawodników.
+# ligi - nacja z mnóstwem legionistów: do bazy (czyli do pobierania składów) tylko kraje z tej listy,
+# do podanego poziomu rozgrywkowego. Bez "ligi" - wszystkie ligi centralne (skaner_zawodnikow.py).
+
+# Kraj (nazwa jak na Transfermarkcie) -> najniższy uwzględniany poziom rozgrywkowy
+LIGI_CZOLOWE = {
+    # Europa - top 10 lig, w pierwszej piątce także 2. poziom
+    "Anglia": 2, "Hiszpania": 2, "Niemcy": 2, "Włochy": 2, "Francja": 2,
+    "Portugalia": 1, "Belgia": 1, "Holandia": 1, "Turcja": 1, "Polska": 1,
+    # Ameryka Południowa i Północna
+    "Argentyna": 1, "Brazylia": 1, "Ekwador": 1, "Kolumbia": 1, "Urugwaj": 1,
+    "Stany Zjednaczone": 1, "Meksyk": 1,
+    # Afryka
+    "Republika Południowej Afryki": 1, "Maroko": 1, "Egipt": 1, "Algieria": 1, "Tanzania": 1,
+    # Azja i Oceania
+    "Arabia Saudyjska": 1, "Japonia": 1, "Korea Południowa": 1, "Zjednaczone Emiraty Arabskie": 1,
+    "Iran": 1, "Australia": 1, "Nowa Zelandia": 1,
+}
+
 NACJE = {
     "pl": {"nazwa": "Polska", "land_id": 135, "plik": "zawodnicy.xlsx"},
     "tr": {"nazwa": "Turcja", "land_id": 174, "plik": "zawodnicy_tr.xlsx"},
@@ -45,7 +66,20 @@ NACJE = {
     "id": {"nazwa": "Indonezja", "land_id": 68, "plik": "zawodnicy_id.xlsx"},
     "pk": {"nazwa": "Pakistan", "land_id": 128, "plik": "zawodnicy_pk.xlsx", "od": "2026-10-22 16:30"},
     "ng": {"nazwa": "Nigeria", "land_id": 124, "plik": "zawodnicy_ng.xlsx", "od": "2026-10-22 16:45"},
+    "br": {"nazwa": "Brazylia", "land_id": 26, "plik": "zawodnicy_br.xlsx", "od": "2026-10-29 11:45",
+           "ligi": LIGI_CZOLOWE},
 }
+
+
+def ma_szeroka_baze(nacja):
+    """Nacja z zawężonymi ligami ("ligi") ma też szeroką bazę - pozostałe działają jak dotąd."""
+    return "ligi" in NACJE[nacja]
+
+def plik_szerokiej_bazy(nacja):
+    """Wszyscy zawodnicy nacji z zawężonymi ligami, bez limitu lig (zawodnicy_XX_wszyscy.xlsx). Ta baza
+    nigdy nie powoduje zapytań do API - liczy się tylko w meczach, których składy serwer i tak ma
+    (pobrane dla innych nacji, np. Brazylijczyk w szkockim klubie Polaka)."""
+    return NACJE[nacja]["plik"].replace(".xlsx", "_wszyscy.xlsx")
 
 # Kody krajów z API, których nie ma w CCODE_DO_ALPHA2 serwera (słownik lig ma je zapisane np. jako "ksa") -
 # bez zamiany liga nie ma flagi, a sprawdzanie kraju klubu przepuszcza np. katarskie Al-Ahli jako saudyjskie
@@ -220,6 +254,17 @@ def czas_rozpoczecia_utc(mecz):
         return pytz.utc.localize(datetime.strptime(mecz.get('status', {}).get('utcTime', '')[:19], "%Y-%m-%dT%H:%M:%S"))
     except Exception:
         return None
+
+def _zawodnicy_skladu(sklady_api):
+    for zespol in sklady_api:
+        for z in zespol.get('starters', []) + zespol.get('subs', []) + zespol.get('unavailable', []):
+            yield normalizuj_tekst(f"{z.get('firstName', '')} {z.get('lastName', '')}")
+
+def jest_w_skladzie(sklady_api, gracz):
+    """Czy gracz jest w składzie z API (także wśród rezerwowych / niedostępnych) - to samo porównanie
+    nazwisk co w wyodrebnij_wystepy_polakow."""
+    g = normalizuj_tekst(gracz)
+    return any(z == g or podobienstwo(z, g) > 0.8 for z in _zawodnicy_skladu(sklady_api or []))
 
 def wyodrebnij_wystepy_polakow(sklady_api, lista_polakow, oczekiwano_danych=False):
     """Występy Polaków w meczu na podstawie składów z API: dla każdego gracza słownik z kluczami

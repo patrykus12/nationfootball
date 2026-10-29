@@ -52,7 +52,8 @@ app = Flask(__name__)
 
 def _przygotuj_pliki_startowe():
     """Gdy dane trzymamy na osobnym wolumenie - skopiuj tam pliki z repozytorium przy pierwszym starcie."""
-    for nazwa in [n["plik"] for n in dane.NACJE.values()] + ["ligi.json", "slownik_lig.json"]:
+    bazy = [os.path.basename(dane.plik_bazy(n, s)) for n, s in dane.pliki_baz()]
+    for nazwa in bazy + ["ligi.json", "slownik_lig.json"]:
         cel = os.path.join(dane.KATALOG_DANYCH, nazwa)
         zrodlo = os.path.join(dane.KATALOG_PROJEKTU, nazwa)
         if not os.path.exists(cel) and os.path.exists(zrodlo) and cel != zrodlo:

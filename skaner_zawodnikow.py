@@ -5,7 +5,7 @@ import time
 import os
 import re
 
-from dopasowanie import NACJE
+from dopasowanie import NACJE, ma_szeroka_baze, plik_szerokiej_bazy
 
 KATALOG = os.path.dirname(os.path.abspath(__file__))
 
@@ -130,6 +130,7 @@ SLOWA_KLUCZOWE_NIECENTRALNE = [
 
 def pobierz_zawodnikow(nacja="pl"):
     land_id, nazwa_kraju, nazwa_pliku = NACJE[nacja]["land_id"], NACJE[nacja]["nazwa"], NACJE[nacja]["plik"]
+    dozwolone_ligi = NACJE[nacja].get("ligi")  # None - wszystkie ligi centralne
     print("=== URUCHAMIAM SKANER TRANSFERMARKT (W pełni Dynamiczny) ===")
     print("KROK 1: Otwieram listę państw (odrzucam kwoty i liczby)... \n")
 
@@ -179,6 +180,7 @@ def pobierz_zawodnikow(nacja="pl"):
     print("KROK 2: Rozpoczynam bezlitosne skanowanie zawodników...")
     
     wszyscy_zawodnicy = {}
+    szeroka_baza = {}  # wszyscy, bez limitu lig - tylko do meczów, których składy serwer i tak pobiera
     suma_wszystkich = 0
 
     for kraj_nazwa, kraj_id in kraje_docelowe.items():
@@ -225,7 +227,7 @@ def pobierz_zawodnikow(nacja="pl"):
                 break 
             ostatni_pierwszy_zawodnik = pierwszy_zawodnik_na_stronie
                 
-            dodani_na_stronie = 0
+            dodani_na_stronie = 0  # do szerokiej bazy - strona bez nikogo z wyceną kończy kraj
             for wiersz in wiersze:
                 try:
                     kolumny = wiersz.find_all("td")
@@ -244,6 +246,9 @@ def pobierz_zawodnikow(nacja="pl"):
                     klub_img = wiersz.select_one("img.tiny_wappen")
                     klub = klub_img.get('title', klub_img.get('alt', '')).strip() if klub_img else ""
                     if not klub or "Bez klubu" in klub: continue
+                    klub_z_krajem = f"[{kraj_nazwa}] {NAZWY_KLUBOW_JAK_W_API.get(klub, klub)}"
+                    szeroka_baza[pelne_imie] = klub_z_krajem
+                    dodani_na_stronie += 1
 
                     # Bez linku do ligi Transfermarkt pokazuje tylko niskie, amatorskie rozgrywki
                     # (np. angielska Northern Premier League, australijskie NPL stanowe) - pomijamy
@@ -260,11 +265,13 @@ def pobierz_zawodnikow(nacja="pl"):
                             match = re.search(r'wettbewerb/[A-Za-z\-]+(\d+)', href)
                             poziom_ligi = int(match.group(1)) if match else 1
 
-                    max_poziom = LIMIT_SZCZEBLI_DLA_KRAJU.get(kraj_nazwa, DOMYSLNY_LIMIT_SZCZEBLA)
-                    
+                    if dozwolone_ligi is not None:
+                        max_poziom = dozwolone_ligi.get(kraj_nazwa, 0)
+                    else:
+                        max_poziom = LIMIT_SZCZEBLI_DLA_KRAJU.get(kraj_nazwa, DOMYSLNY_LIMIT_SZCZEBLA)
+
                     if poziom_ligi <= max_poziom:
-                        wszyscy_zawodnicy[pelne_imie] = f"[{kraj_nazwa}] {NAZWY_KLUBOW_JAK_W_API.get(klub, klub)}"
-                        dodani_na_stronie += 1
+                        wszyscy_zawodnicy[pelne_imie] = klub_z_krajem
                         znaleziono_w_kraju += 1
                         suma_wszystkich += 1
                         
@@ -287,28 +294,36 @@ def pobierz_zawodnikow(nacja="pl"):
         time.sleep(1.2)
 
     print("\n--- PODSUMOWANIE ---")
+    if szeroka_baza and ma_szeroka_baze(nacja):
+        zapisz_baze(szeroka_baza, plik_szerokiej_bazy(nacja))
+        print(f"Szeroka baza (wszystkie ligi): {len(szeroka_baza)} zawodników w {plik_szerokiej_bazy(nacja)}")
     if wszyscy_zawodnicy:
-        dane_excel = []
-        for pelne_imie, klub in wszyscy_zawodnicy.items():
-            czesci = pelne_imie.split(" ", 1)
-            imie = czesci[0]
-            nazwisko = czesci[1] if len(czesci) > 1 else ""
-            dane_excel.append({"Imię": imie, "Nazwisko": nazwisko, "Klub": klub})
-            
-        df = pd.DataFrame(dane_excel)
-        df = df.sort_values(by=["Nazwisko", "Imię"])
-        
-        sciezka_excel = os.path.join(KATALOG, nazwa_pliku)
-        
-        if os.path.exists(sciezka_excel):
-            stary_plik = os.path.join(KATALOG, nazwa_pliku.replace(".xlsx", "_kopia_zapasowa.xlsx"))
-            try: os.replace(sciezka_excel, stary_plik)
-            except: pass
-            
-        df.to_excel(sciezka_excel, index=False)
+        zapisz_baze(wszyscy_zawodnicy, nazwa_pliku)
         print(f"GOTOWE! Zapisano {suma_wszystkich} perfekcyjnie wyselekcjonowanych graczy do {nazwa_pliku}!")
     else:
         print("Nie udało się pobrać zawodników.")
+
+
+def zapisz_baze(zawodnicy, nazwa_pliku):
+    dane_excel = []
+    for pelne_imie, klub in zawodnicy.items():
+        czesci = pelne_imie.split(" ", 1)
+        imie = czesci[0]
+        nazwisko = czesci[1] if len(czesci) > 1 else ""
+        dane_excel.append({"Imię": imie, "Nazwisko": nazwisko, "Klub": klub})
+        
+    df = pd.DataFrame(dane_excel)
+    df = df.sort_values(by=["Nazwisko", "Imię"])
+    
+    sciezka_excel = os.path.join(KATALOG, nazwa_pliku)
+    
+    if os.path.exists(sciezka_excel):
+        stary_plik = os.path.join(KATALOG, nazwa_pliku.replace(".xlsx", "_kopia_zapasowa.xlsx"))
+        try: os.replace(sciezka_excel, stary_plik)
+        except: pass
+        
+    df.to_excel(sciezka_excel, index=False)
+
 
 if __name__ == "__main__":
     import sys

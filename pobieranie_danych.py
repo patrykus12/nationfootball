@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 
 import pytz
 
-from dopasowanie import FLAGI_TRZYLITEROWE, NACJE
+from dopasowanie import FLAGI_TRZYLITEROWE, NACJE, ma_szeroka_baze, plik_szerokiej_bazy
 
 KATALOG_PROJEKTU = os.path.dirname(os.path.abspath(__file__))
 # Na hostingu z trwałym dyskiem ustaw NF_KATALOG_DANYCH na zamontowany wolumen.
@@ -41,8 +41,14 @@ LICZNIK_PLIK = os.path.join(KATALOG_DANYCH, "serwer_cache", "licznik_api.json")
 TZ_PL = pytz.timezone("Europe/Warsaw")
 
 
-def plik_bazy(nacja):
-    return os.path.join(KATALOG_DANYCH, NACJE[nacja]["plik"])
+def pliki_baz():
+    """(nacja, szeroka) dla każdej bazy zawodników: główne wszystkich nacji + szerokie tam, gdzie są."""
+    return [(n, False) for n in NACJE] + [(n, True) for n in NACJE if ma_szeroka_baze(n)]
+
+
+def plik_bazy(nacja, szeroka=False):
+    """Baza nacji; szeroka=True - wszyscy zawodnicy, bez limitu lig (tylko do składów, które już mamy)."""
+    return os.path.join(KATALOG_DANYCH, plik_szerokiej_bazy(nacja) if szeroka else NACJE[nacja]["plik"])
 
 
 def _wczytaj_klucz_api():
@@ -372,17 +378,18 @@ def synchronizuj_z_repo():
     from dopasowanie import wczytaj_kluby
     zmienione = []
     try:
-        for nacja, info in NACJE.items():
-            res = _pobierz_z_repo(info["plik"])
+        for nacja, szeroka in pliki_baz():
+            sciezka = plik_bazy(nacja, szeroka)
+            nazwa = os.path.basename(sciezka)
+            res = _pobierz_z_repo(nazwa)
             if res.status_code == 200 and res.content:
-                sciezka = plik_bazy(nacja)
                 obecny = open(sciezka, "rb").read() if os.path.exists(sciezka) else b""
                 if res.content != obecny:
                     tymczasowy = sciezka + ".nowy.xlsx"
                     with open(tymczasowy, "wb") as f: f.write(res.content)
                     if wczytaj_kluby(tymczasowy):
                         os.replace(tymczasowy, sciezka)
-                        zmienione.append(info["plik"])
+                        zmienione.append(nazwa)
                     else:
                         os.remove(tymczasowy)
 
@@ -499,6 +506,7 @@ def mecze_polakow_dnia(data_pl, nacja="pl"):
     for mecz in wszystkie:
         dop = _dopasuj(mecz, nacja, kluby, slownik, ligi, wersja_baz)
         if dop: dop = _bez_dopisanych_pozniej(dop, nacja, mecz)
+        dop = _z_szerokiej_bazy(mecz, nacja, dop, slownik, ligi, wersja_baz)
         if not dop: continue
         start = czas_rozpoczecia_utc(mecz)
         if start is None: continue
@@ -527,6 +535,32 @@ def mecze_polakow_dnia(data_pl, nacja="pl"):
     return wyniki
 
 
+def _z_szerokiej_bazy(mecz, nacja, dop, slownik, ligi, wersja_baz):
+    """Dopisuje zawodników z szerokiej bazy nacji (ligi spoza limitu), ale tylko w drużynach, których
+    skład serwer już ma - pobrany dla innej nacji, więc bez żadnego zapytania do API - i tylko gdy
+    zawodnik naprawdę jest w tym składzie (inaczej np. mecz nowego klubu sprzed transferu)."""
+    from dopasowanie import jest_w_skladzie
+    if not ma_szeroka_baze(nacja): return dop
+    mecz_id = mecz.get('id')
+    strony = [s for s in ("home", "away") if os.path.exists(_plik_skladu(mecz_id, s))]
+    if not strony: return dop
+    kluby = _kluby_z_bazy(nacja, szeroka=True)
+    szeroki = _dopasuj(mecz, nacja, kluby, slownik, ligi, wersja_baz, szeroka=True) if kluby else None
+    if not szeroki: return dop
+
+    wynik = dict(dop) if dop else dict(szeroki, polacy_gosp=[], polacy_gosc=[], klub_gosp=None, klub_gosc=None)
+    dopisani = False
+    for strona, klucz in (("home", 'polacy_gosp'), ("away", 'polacy_gosc')):
+        if strona not in strony or not szeroki[klucz]: continue
+        sklad = sklad_z_cache(mecz_id, strona)
+        juz = {_klucz_znanego(g) for g in wynik[klucz]}
+        nowi = [g for g in szeroki[klucz] if _klucz_znanego(g) not in juz and jest_w_skladzie([sklad] if sklad else [], g)]
+        if nowi:
+            wynik[klucz] = wynik[klucz] + nowi
+            dopisani = True
+    return wynik if dopisani else dop
+
+
 # --- HARMONOGRAM ---
 _gotowe_mecze = set()      # id meczów już załatwionych (bez naszych zawodników albo z ostatecznymi składami)
 _cache_klubow = {}         # nacja -> {"wersja": ..., "kluby": {...}, "druzyny": {(nazwa, flaga): dopasowany klub}}
@@ -534,16 +568,21 @@ _cache_klubow = {}         # nacja -> {"wersja": ..., "kluby": {...}, "druzyny":
 
 def _wersja_baz():
     """Zmienia się, gdy podmieniono którąś bazę zawodników albo ligi.json - wtedy dopasowania liczymy od nowa."""
-    pliki = [plik_bazy(n) for n in NACJE] + [LIGI_PLIK]
+    pliki = [plik_bazy(n, s) for n, s in pliki_baz()] + [LIGI_PLIK]
     return tuple(os.path.getmtime(p) if os.path.exists(p) else 0 for p in pliki)
 
 
-def _kluby_z_bazy(nacja):
+def _klucz_bazy(nacja, szeroka=False):
+    return f"{nacja}*" if szeroka else nacja
+
+
+def _kluby_z_bazy(nacja, szeroka=False):
     from dopasowanie import wczytaj_kluby
     wersja = _wersja_baz()
-    cache = _cache_klubow.get(nacja)
+    cache = _cache_klubow.get(_klucz_bazy(nacja, szeroka))
     if not cache or cache["wersja"] != wersja:
-        cache = _cache_klubow[nacja] = {"wersja": wersja, "kluby": wczytaj_kluby(plik_bazy(nacja)), "druzyny": {}}
+        cache = _cache_klubow[_klucz_bazy(nacja, szeroka)] = {
+            "wersja": wersja, "kluby": wczytaj_kluby(plik_bazy(nacja, szeroka)), "druzyny": {}}
     return cache["kluby"]
 
 
@@ -596,11 +635,11 @@ def _bez_dopisanych_pozniej(dop, nacja, mecz):
     return dict(dop, polacy_gosp=gosp, polacy_gosc=gosc)
 
 
-def _dopasuj(mecz, nacja, kluby, slownik, ligi, wersja):
+def _dopasuj(mecz, nacja, kluby, slownik, ligi, wersja, szeroka=False):
     """Dopasowanie meczu do bazy nacji. Zapamiętywane są wyniki dla drużyn (nie meczów) - drużyn jest
     kilkanaście razy mniej niż meczów w oknie terminarza, a każdy mecz liczy się wtedy w mikrosekundy."""
     from dopasowanie import dopasuj_mecz
-    cache = _cache_klubow.get(nacja)
+    cache = _cache_klubow.get(_klucz_bazy(nacja, szeroka))
     pamiec = cache["druzyny"] if cache and cache["kluby"] is kluby else None  # baza podmieniona w trakcie
     return dopasuj_mecz(mecz, kluby, slownik, ligi, pamiec)
 

@@ -16,7 +16,7 @@ import sys
 
 import requests
 
-from dopasowanie import NACJE, wczytaj_kluby
+from dopasowanie import NACJE, ma_szeroka_baze, plik_szerokiej_bazy, wczytaj_kluby
 
 KATALOG = os.path.dirname(os.path.abspath(__file__))
 MIN_UDZIAL_STAREJ_BAZY = 0.6  # nowa baza musi mieć co najmniej 60% zawodników starej
@@ -27,27 +27,35 @@ def policz_zawodnikow(plik):
 
 
 def aktualizuj_zawodnikow(nacja):
-    EXCEL = os.path.join(KATALOG, NACJE[nacja]["plik"])
-    kopia = EXCEL + ".przed_skanem"
-    stara_liczba = policz_zawodnikow(EXCEL) if os.path.exists(EXCEL) else 0
-    if os.path.exists(EXCEL): shutil.copy2(EXCEL, kopia)
+    # Baza do pobierania składów i szeroka baza (wszystkie ligi) - każda sprawdzana osobno
+    pliki = [os.path.join(KATALOG, NACJE[nacja]["plik"])]
+    if ma_szeroka_baze(nacja): pliki.append(os.path.join(KATALOG, plik_szerokiej_bazy(nacja)))
+    stare = {}
+    for plik in pliki:
+        stare[plik] = policz_zawodnikow(plik) if os.path.exists(plik) else 0
+        if os.path.exists(plik): shutil.copy2(plik, plik + ".przed_skanem")
 
     try:
         import skaner_zawodnikow
         skaner_zawodnikow.pobierz_zawodnikow(nacja)
-        nowa_liczba = policz_zawodnikow(EXCEL)
     except Exception as e:
         print(f"Skan nie powiódł się: {e}")
-        nowa_liczba = 0
 
-    if nowa_liczba == 0 or nowa_liczba < stara_liczba * MIN_UDZIAL_STAREJ_BAZY:
-        if os.path.exists(kopia): shutil.move(kopia, EXCEL)
-        print(f"[{nacja}] ODRZUCONO nową bazę: {nowa_liczba} zawodników (było {stara_liczba}). Zostaje stara baza.")
-        return False
-
-    if os.path.exists(kopia): os.remove(kopia)
-    print(f"[{nacja}] OK: {nowa_liczba} zawodników (było {stara_liczba}).")
-    return True
+    wynik = True
+    for plik in pliki:
+        kopia, stara_liczba = plik + ".przed_skanem", stare[plik]
+        try:
+            nowa_liczba = policz_zawodnikow(plik) if os.path.exists(plik) else 0
+        except Exception:
+            nowa_liczba = 0
+        if nowa_liczba == 0 or nowa_liczba < stara_liczba * MIN_UDZIAL_STAREJ_BAZY:
+            if os.path.exists(kopia): shutil.move(kopia, plik)
+            print(f"[{nacja}] ODRZUCONO nową bazę {os.path.basename(plik)}: {nowa_liczba} zawodników (było {stara_liczba}). Zostaje stara baza.")
+            wynik = False
+            continue
+        if os.path.exists(kopia): os.remove(kopia)
+        print(f"[{nacja}] OK {os.path.basename(plik)}: {nowa_liczba} zawodników (było {stara_liczba}).")
+    return wynik
 
 
 def pobierz_slownik_lig():
