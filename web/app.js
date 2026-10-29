@@ -32,6 +32,10 @@ const NACJE = {
   de: { nazwa: "Niemcy", kraj: "Niemcy", flaga: "de", formy: ["Niemiec", "Niemców", "Niemców"], dopelniacz: "Niemców" },
   th: { nazwa: "Tajowie", kraj: "Tajlandia", flaga: "th", formy: ["Taj", "Tajów", "Tajów"], dopelniacz: "Tajów" },
   fr: { nazwa: "Francuzi", kraj: "Francja", flaga: "fr", formy: ["Francuz", "Francuzów", "Francuzów"], dopelniacz: "Francuzów" },
+  en: { nazwa: "Anglicy", kraj: "Anglia", flaga: "gb-eng", formy: ["Anglik", "Anglików", "Anglików"], dopelniacz: "Anglików" },
+  sc: { nazwa: "Szkoci", kraj: "Szkocja", flaga: "gb-sct", formy: ["Szkot", "Szkotów", "Szkotów"], dopelniacz: "Szkotów" },
+  wl: { nazwa: "Walijczycy", kraj: "Walia", flaga: "gb-wls", formy: ["Walijczyk", "Walijczyków", "Walijczyków"], dopelniacz: "Walijczyków" },
+  ni: { nazwa: "Północnoirlandczycy", kraj: "Irlandia Północna", flaga: "gb-nir", formy: ["Północnoirlandczyk", "Północnoirlandczyków", "Północnoirlandczyków"], dopelniacz: "Północnoirlandczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 

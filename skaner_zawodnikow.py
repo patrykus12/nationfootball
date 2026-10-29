@@ -130,6 +130,19 @@ SLOWA_KLUCZOWE_NIECENTRALNE = [
     "women", "frauen", "femenina", "feminine", "kobiet",
 ]
 
+def pobierz_strone(scraper, url, proby=3):
+    """Strona listy zawodników. Transfermarkt co jakiś czas zrywa połączenie albo zwraca błąd serwera -
+    bez ponowienia przepadałby cały kraj (np. wszyscy Szkoci w Anglii). None, gdy wszystkie próby zawiodą."""
+    for proba in range(proby):
+        try:
+            res = scraper.get(url, timeout=(5, 15))
+            if res.status_code < 500: return res
+        except Exception:
+            pass
+        time.sleep(5 * (proba + 1))
+    return None
+
+
 def pobierz_zawodnikow(nacja="pl"):
     land_id, nazwa_kraju, nazwa_pliku = NACJE[nacja]["land_id"], NACJE[nacja]["nazwa"], NACJE[nacja]["plik"]
     dozwolone_ligi = NACJE[nacja].get("ligi")  # None - wszystkie ligi centralne
@@ -198,9 +211,8 @@ def pobierz_zawodnikow(nacja="pl"):
             print(".", end="", flush=True)
             url = f"https://www.transfermarkt.pl/spieler-statistik/legionaere/statistik/stat/land_id/{land_id}/land/{kraj_id}?page={strona}"
             
-            try:
-                res = scraper.get(url, timeout=(5, 15))
-            except Exception:
+            res = pobierz_strone(scraper, url)
+            if res is None:
                 print(" [BŁĄD POŁĄCZENIA]", end="")
                 blad_blokady = True
                 break

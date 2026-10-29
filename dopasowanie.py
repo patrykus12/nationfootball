@@ -29,7 +29,8 @@ KODY_KRAJOW_RECZNE = {
     'słowenia': 'si', 'uganda': 'ug', 'arabia saudyjska': 'sa', 'kirgistan': 'kg',
     'zjednaczone emiraty arabskie': 'ae', 'argentyna': 'ar', 'brazylia': 'br', 'ekwador': 'ec',
     'kolumbia': 'co', 'urugwaj': 'uy', 'meksyk': 'mx', 'republika południowej afryki': 'za',
-    'maroko': 'ma', 'egipt': 'eg', 'algieria': 'dz', 'tanzania': 'tz', 'iran': 'ir', 'kuwejt': 'kw'
+    'maroko': 'ma', 'egipt': 'eg', 'algieria': 'dz', 'tanzania': 'tz', 'iran': 'ir', 'kuwejt': 'kw',
+    'irlandia północna': 'gb-nir'
 }
 
 # Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
@@ -85,6 +86,11 @@ NACJE = {
     "th": {"nazwa": "Tajlandia", "land_id": 167, "plik": "zawodnicy_th.xlsx", "od": "2026-10-29 13:20"},
     "fr": {"nazwa": "Francja", "land_id": 50, "plik": "zawodnicy_fr.xlsx", "od": "2026-10-29 13:45",
            "ligi": LIGI_CZOLOWE, "pomin_kraje": ["Monako"]},  # AS Monaco gra w Ligue 1
+    "en": {"nazwa": "Anglia", "land_id": 189, "plik": "zawodnicy_en.xlsx", "od": "2026-10-29 14:14",
+           "ligi": LIGI_CZOLOWE},
+    "sc": {"nazwa": "Szkocja", "land_id": 190, "plik": "zawodnicy_sc.xlsx", "od": "2026-10-29 14:14"},
+    "wl": {"nazwa": "Walia", "land_id": 191, "plik": "zawodnicy_wl.xlsx", "od": "2026-10-29 14:14"},
+    "ni": {"nazwa": "Irlandia Północna", "land_id": 192, "plik": "zawodnicy_ni.xlsx", "od": "2026-10-29 14:14"},
 }
 
 
