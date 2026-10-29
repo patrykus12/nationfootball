@@ -1,6 +1,6 @@
 // Service worker: aplikacja otwiera się także bez internetu (ostatnio oglądane dni z pamięci).
 // Zawsze najpierw sieć - nowa wersja strony i świeże wyniki trafiają do telefonu od razu.
-const PAMIEC = "nationfootball-v6";
+const PAMIEC = "nationfootball-v7";
 const POWLOKA = ["./", "index.html", "styl.css", "app.js", "manifest.webmanifest", "favicon.png", "ikona-192.png"];
 
 self.addEventListener("install", (e) => {
