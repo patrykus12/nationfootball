@@ -83,6 +83,8 @@ NACJE = {
     "de": {"nazwa": "Niemcy", "land_id": 40, "plik": "zawodnicy_de.xlsx", "od": "2026-10-29 13:15",
            "ligi": LIGI_CZOLOWE},
     "th": {"nazwa": "Tajlandia", "land_id": 167, "plik": "zawodnicy_th.xlsx", "od": "2026-10-29 13:20"},
+    "fr": {"nazwa": "Francja", "land_id": 50, "plik": "zawodnicy_fr.xlsx", "od": "2026-10-29 13:45",
+           "ligi": LIGI_CZOLOWE, "pomin_kraje": ["Monako"]},  # AS Monaco gra w Ligue 1
 }
 
 

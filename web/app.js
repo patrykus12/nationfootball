@@ -31,6 +31,7 @@ const NACJE = {
   ir: { nazwa: "Irańczycy", kraj: "Iran", flaga: "ir", formy: ["Irańczyk", "Irańczyków", "Irańczyków"], dopelniacz: "Irańczyków" },
   de: { nazwa: "Niemcy", kraj: "Niemcy", flaga: "de", formy: ["Niemiec", "Niemców", "Niemców"], dopelniacz: "Niemców" },
   th: { nazwa: "Tajowie", kraj: "Tajlandia", flaga: "th", formy: ["Taj", "Tajów", "Tajów"], dopelniacz: "Tajów" },
+  fr: { nazwa: "Francuzi", kraj: "Francja", flaga: "fr", formy: ["Francuz", "Francuzów", "Francuzów"], dopelniacz: "Francuzów" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 
