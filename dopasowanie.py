@@ -91,6 +91,7 @@ NACJE = {
     "sc": {"nazwa": "Szkocja", "land_id": 190, "plik": "zawodnicy_sc.xlsx", "od": "2026-10-29 14:14"},
     "wl": {"nazwa": "Walia", "land_id": 191, "plik": "zawodnicy_wl.xlsx", "od": "2026-10-29 14:14"},
     "ni": {"nazwa": "Irlandia Północna", "land_id": 192, "plik": "zawodnicy_ni.xlsx", "od": "2026-10-29 14:14"},
+    "tz": {"nazwa": "Tanzania", "land_id": 166, "plik": "zawodnicy_tz.xlsx", "od": "2026-10-29 14:15"},
 }
 
 
