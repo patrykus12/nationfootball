@@ -34,7 +34,9 @@ KODY_KRAJOW_RECZNE = {
     'etiopia': 'et', 'rwanda': 'rw', 'bułgaria': 'bg', 'łotwa': 'lv', 'bangladesz': 'bd', 'tunezja': 'tn',
     'wietnam': 'vn', 'malta': 'mt', 'luksemburg': 'lu', 'rosja': 'ru', 'armenia': 'am', 'chorwacja': 'hr',
     'bośnia i hercegowina': 'ba', 'kosowo': 'xk', 'oman': 'om', 'liban': 'lb', 'jordania': 'jo',
-    'kazachstan': 'kz'
+    'kazachstan': 'kz', 'gruzja': 'ge', 'białoruś': 'by', 'uzbekistan': 'uz', 'serbia': 'rs', 'estonia': 'ee',
+    'izrael': 'il', 'malezja': 'my', 'indie': 'in', 'chile': 'cl', 'macedonia północna': 'mk', 'albania': 'al',
+    'czarnogóra': 'me'
 }
 
 # Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
@@ -111,6 +113,11 @@ NACJE = {
            "ligi": LIGI_CZOLOWE},
     "ug": {"nazwa": "Uganda", "land_id": 176, "plik": "zawodnicy_ug.xlsx", "od": "2026-10-29 19:02"},
     "dz": {"nazwa": "Algieria", "land_id": 4, "plik": "zawodnicy_dz.xlsx", "od": "2026-10-30 10:46"},
+    "ua": {"nazwa": "Ukraina", "land_id": 177, "plik": "zawodnicy_ua.xlsx", "od": "2026-10-30 11:20"},
+    "iq": {"nazwa": "Irak", "land_id": 70, "plik": "zawodnicy_iq.xlsx", "od": "2026-10-30 11:24"},
+    "af": {"nazwa": "Afganistan", "land_id": 1, "plik": "zawodnicy_af.xlsx", "od": "2026-10-30 11:27"},
+    "ca": {"nazwa": "Kanada", "land_id": 80, "plik": "zawodnicy_ca.xlsx", "od": "2026-10-30 11:32"},
+    "ma": {"nazwa": "Maroko", "land_id": 107, "plik": "zawodnicy_ma.xlsx", "od": "2026-10-30 11:37"},
 }
 
 

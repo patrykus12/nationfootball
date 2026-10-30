@@ -48,6 +48,11 @@ const NACJE = {
   ar: { nazwa: "Argentyńczycy", kraj: "Argentyna", flaga: "ar", formy: ["Argentyńczyk", "Argentyńczyków", "Argentyńczyków"], dopelniacz: "Argentyńczyków" },
   ug: { nazwa: "Ugandyjczycy", kraj: "Uganda", flaga: "ug", formy: ["Ugandyjczyk", "Ugandyjczyków", "Ugandyjczyków"], dopelniacz: "Ugandyjczyków" },
   dz: { nazwa: "Algierczycy", kraj: "Algieria", flaga: "dz", formy: ["Algierczyk", "Algierczyków", "Algierczyków"], dopelniacz: "Algierczyków" },
+  ua: { nazwa: "Ukraińcy", kraj: "Ukraina", flaga: "ua", formy: ["Ukrainiec", "Ukraińców", "Ukraińców"], dopelniacz: "Ukraińców" },
+  iq: { nazwa: "Irakijczycy", kraj: "Irak", flaga: "iq", formy: ["Irakijczyk", "Irakijczyków", "Irakijczyków"], dopelniacz: "Irakijczyków" },
+  af: { nazwa: "Afgańczycy", kraj: "Afganistan", flaga: "af", formy: ["Afgańczyk", "Afgańczyków", "Afgańczyków"], dopelniacz: "Afgańczyków" },
+  ca: { nazwa: "Kanadyjczycy", kraj: "Kanada", flaga: "ca", formy: ["Kanadyjczyk", "Kanadyjczyków", "Kanadyjczyków"], dopelniacz: "Kanadyjczyków" },
+  ma: { nazwa: "Marokańczycy", kraj: "Maroko", flaga: "ma", formy: ["Marokańczyk", "Marokańczyków", "Marokańczyków"], dopelniacz: "Marokańczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 
