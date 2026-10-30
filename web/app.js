@@ -54,6 +54,7 @@ const NACJE = {
   ca: { nazwa: "Kanadyjczycy", kraj: "Kanada", flaga: "ca", formy: ["Kanadyjczyk", "Kanadyjczyków", "Kanadyjczyków"], dopelniacz: "Kanadyjczyków" },
   ma: { nazwa: "Marokańczycy", kraj: "Maroko", flaga: "ma", formy: ["Marokańczyk", "Marokańczyków", "Marokańczyków"], dopelniacz: "Marokańczyków" },
   sa: { nazwa: "Saudyjczycy", kraj: "Arabia Saudyjska", flaga: "sa", formy: ["Saudyjczyk", "Saudyjczyków", "Saudyjczyków"], dopelniacz: "Saudyjczyków" },
+  ao: { nazwa: "Angolczycy", kraj: "Angola", flaga: "ao", formy: ["Angolczyk", "Angolczyków", "Angolczyków"], dopelniacz: "Angolczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 

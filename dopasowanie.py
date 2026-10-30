@@ -119,6 +119,7 @@ NACJE = {
     "ca": {"nazwa": "Kanada", "land_id": 80, "plik": "zawodnicy_ca.xlsx", "od": "2026-10-30 11:32"},
     "ma": {"nazwa": "Maroko", "land_id": 107, "plik": "zawodnicy_ma.xlsx", "od": "2026-10-30 11:37"},
     "sa": {"nazwa": "Arabia Saudyjska", "land_id": 146, "plik": "zawodnicy_sa.xlsx", "od": "2026-10-30 11:50"},
+    "ao": {"nazwa": "Angola", "land_id": 6, "plik": "zawodnicy_ao.xlsx", "od": "2026-10-30 11:51"},
 }
 
 
