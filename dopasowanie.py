@@ -129,6 +129,7 @@ NACJE = {
     "mz": {"nazwa": "Mozambik", "land_id": 115, "plik": "zawodnicy_mz.xlsx", "od": "2026-10-30 12:15"},
     "uz": {"nazwa": "Uzbekistan", "land_id": 180, "plik": "zawodnicy_uz.xlsx", "od": "2026-10-30 12:17"},
     "ye": {"nazwa": "Jemen", "land_id": 186, "plik": "zawodnicy_ye.xlsx", "od": "2026-10-30 12:24"},
+    "np": {"nazwa": "Nepal", "land_id": 119, "plik": "zawodnicy_np.xlsx", "od": "2026-10-30 12:35"},
 }
 
 
@@ -153,6 +154,11 @@ FLAGI_TRZYLITEROWE = {
 
 # Kluby, które grają w lidze innego kraju: kanadyjskie (Toronto FC, CF Montréal...) w MLS (USA)
 LIGI_ZA_GRANICA = {"ca": {"us"}}
+
+# id drużyny z API -> flaga ligi krajowej, w której gra (uczone z jej meczów ligowych). W pucharach
+# międzynarodowych (flaga "int") kraj klubu sprawdzany jest po tej fladze - bez niej iracki Al-Gharraf
+# łapał mecze katarskiego Al-Gharafa w Azjatyckiej Lidze Mistrzów.
+KRAJE_DRUZYN = {}
 
 # Ligi kobiece - także te, w których drużyny nazywają się jak męskie (szkocka SWPL: "Aberdeen", "Celtic")
 SLOWA_KLUCZOWE_LIGI_KOBIECE = ("women", "female", "ladies", "kobiet", "femin", "frauen", "wsl", "swpl",
@@ -262,6 +268,21 @@ def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
     if best_ratio > 0.89: return best_match
     return None, None
 
+def flaga_ligi_meczu(mecz, nasz_slownik_lig, baza_lig):
+    """Flaga ligi meczu tak jak w dopasuj_mecz ("int" dla pucharów międzynarodowych / nieznanych)."""
+    league_id = str(mecz.get('leagueId', mecz.get('tournament', {}).get('id', '')))
+    flaga = nasz_slownik_lig.get(league_id, {}).get("flaga", "")
+    flaga = FLAGI_TRZYLITEROWE.get(flaga, flaga)
+    if not flaga or flaga == "none": flaga = "int"
+    flaga_override = baza_lig.get(league_id, {}).get('flaga', '')
+    return FLAGI_TRZYLITEROWE.get(flaga_override, flaga_override) or flaga
+
+def zapamietaj_kraje_druzyn(mecz, flaga_ligi):
+    if flaga_ligi == "int": return
+    for strona in ('home', 'away'):
+        id_druzyny = mecz.get(strona, {}).get('id')
+        if id_druzyny is not None: KRAJE_DRUZYN[id_druzyny] = flaga_ligi
+
 def dopasuj_mecz(mecz, polskie_kluby, nasz_slownik_lig, baza_lig, pamiec_druzyn=None):
     """Zwraca słownik z ligą i dopasowanymi klubami, jeśli mecz jest z udziałem Polaków
     (i nie jest odfiltrowany: drużyny rezerw/kobiece, ligi ignorowane), w przeciwnym razie None.
@@ -286,19 +307,23 @@ def dopasuj_mecz(mecz, polskie_kluby, nasz_slownik_lig, baza_lig, pamiec_druzyn=
     nazwa_override = info_uzytkownika.get('nazwa', '')
     if not nazwa_override or nazwa_override.startswith("Rozgrywki (ID:"): nazwa_override = ""
     flaga_override = info_uzytkownika.get('flaga', '')
+    flaga_override = FLAGI_TRZYLITEROWE.get(flaga_override, flaga_override)  # ligi.json: "alg", "arm"...
 
     flaga_ligi = flaga_override or prawdziwa_flaga
     nazwa_ligi = nazwa_override or prawdziwa_nazwa
+    zapamietaj_kraje_druzyn(mecz, flaga_ligi)
     if czy_liga_kobieca(nazwa_ligi): return None
 
-    def klub(nazwa):
-        if pamiec_druzyn is None: return dopasuj_klub_do_bazy(nazwa, flaga_ligi, polskie_kluby)
-        klucz = (nazwa, flaga_ligi)
-        if klucz not in pamiec_druzyn: pamiec_druzyn[klucz] = dopasuj_klub_do_bazy(nazwa, flaga_ligi, polskie_kluby)
+    def klub(nazwa, strona):
+        flaga = flaga_ligi
+        if flaga == "int": flaga = KRAJE_DRUZYN.get(mecz.get(strona, {}).get('id'), "int")
+        if pamiec_druzyn is None: return dopasuj_klub_do_bazy(nazwa, flaga, polskie_kluby)
+        klucz = (nazwa, flaga)
+        if klucz not in pamiec_druzyn: pamiec_druzyn[klucz] = dopasuj_klub_do_bazy(nazwa, flaga, polskie_kluby)
         return pamiec_druzyn[klucz]
 
-    klub_gosp, info_gosp = klub(gosp)
-    klub_gosc, info_gosc = klub(gosc)
+    klub_gosp, info_gosp = klub(gosp, 'home')
+    klub_gosc, info_gosc = klub(gosc, 'away')
     if not (info_gosp or info_gosc): return None
 
     return {

@@ -500,6 +500,7 @@ def mecze_polakow_dnia(data_pl, nacja="pl"):
     if not kluby: return None
     wersja_baz = _wersja_baz()
     slownik, ligi = wczytaj_nasz_slownik(), wczytaj_json(LIGI_PLIK, {}) or {}
+    _ucz_kraje_druzyn(slownik, ligi)
     teraz = datetime.now(pytz.utc)
 
     wyniki = []
@@ -635,6 +636,26 @@ def _bez_dopisanych_pozniej(dop, nacja, mecz):
     return dict(dop, polacy_gosp=gosp, polacy_gosc=gosc)
 
 
+_kraje_druzyn_pliki = {}  # plik dnia -> czas modyfikacji, z którego już nauczono kraje drużyn
+
+
+def _ucz_kraje_druzyn(slownik, ligi):
+    """Przed dopasowaniem: kraje drużyn z meczów ligowych wszystkich dni w cache (dopasowanie.KRAJE_DRUZYN),
+    żeby w pucharach międzynarodowych sprawdzać kraj klubu także wtedy, gdy mecz ligowy jest dopiero
+    później w oknie. Czytane są tylko pliki zmienione od ostatniego razu."""
+    from dopasowanie import flaga_ligi_meczu, zapamietaj_kraje_druzyn
+    if not os.path.isdir(KATALOG_SUROWYCH): return
+    for nazwa in sorted(os.listdir(KATALOG_SUROWYCH)):
+        plik = os.path.join(KATALOG_SUROWYCH, nazwa)
+        if not nazwa.endswith(".json"): continue
+        try: zmieniony = os.path.getmtime(plik)
+        except OSError: continue
+        if _kraje_druzyn_pliki.get(plik) == zmieniony: continue
+        for mecz in (wczytaj_json(plik) or {}).get("mecze", []):
+            zapamietaj_kraje_druzyn(mecz, flaga_ligi_meczu(mecz, slownik, ligi))
+        _kraje_druzyn_pliki[plik] = zmieniony
+
+
 def _dopasuj(mecz, nacja, kluby, slownik, ligi, wersja, szeroka=False):
     """Dopasowanie meczu do bazy nacji. Zapamiętywane są wyniki dla drużyn (nie meczów) - drużyn jest
     kilkanaście razy mniej niż meczów w oknie terminarza, a każdy mecz liczy się wtedy w mikrosekundy."""
@@ -667,6 +688,7 @@ def _odswiez_mecze_polakow(raport):
     if not kluby: return
     wersja_baz = _wersja_baz()
     slownik, ligi = wczytaj_nasz_slownik(), wczytaj_json(LIGI_PLIK, {}) or {}
+    _ucz_kraje_druzyn(slownik, ligi)
     teraz = time.time()
     dzis = datetime.now(TZ_PL).date()
     pobrane_sklady = 0
