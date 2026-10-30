@@ -2398,5 +2398,153 @@
     "938229": {
         "nazwa": "EFL Trophy Northern Grp. C",
         "flaga": "gb-eng"
+    },
+    "920752": {
+        "nazwa": "UEFA Nations League C Grp. 4",
+        "flaga": "int"
+    },
+    "949116": {
+        "nazwa": "Australian Championship Grp. C",
+        "flaga": "au"
+    },
+    "937670": {
+        "nazwa": "League One",
+        "flaga": "gb-sct"
+    },
+    "938783": {
+        "nazwa": "Primera Federacion - Group 2",
+        "flaga": "es"
+    },
+    "951356": {
+        "nazwa": "CONCACAF Nations League Play-In",
+        "flaga": "int"
+    },
+    "1000001643": {
+        "nazwa": "Argentina Supercopa",
+        "flaga": "ar"
+    },
+    "938226": {
+        "nazwa": "EFL Trophy Northern Grp. A",
+        "flaga": "gb-eng"
+    },
+    "938228": {
+        "nazwa": "EFL Trophy Northern Grp. B",
+        "flaga": "gb-eng"
+    },
+    "938230": {
+        "nazwa": "EFL Trophy Northern Grp. D",
+        "flaga": "gb-eng"
+    },
+    "938236": {
+        "nazwa": "EFL Trophy Northern Grp. F",
+        "flaga": "gb-eng"
+    },
+    "938237": {
+        "nazwa": "EFL Trophy Northern Grp. G",
+        "flaga": "gb-eng"
+    },
+    "938241": {
+        "nazwa": "EFL Trophy Southern Grp. C",
+        "flaga": "gb-eng"
+    },
+    "938245": {
+        "nazwa": "EFL Trophy Southern Grp. G",
+        "flaga": "gb-eng"
+    },
+    "1000001249": {
+        "nazwa": "Primera División",
+        "flaga": "bo"
+    },
+    "941508": {
+        "nazwa": "Liga Nacional - Apertura",
+        "flaga": "hn"
+    },
+    "941168": {
+        "nazwa": "LPF Apertura",
+        "flaga": "pa"
+    },
+    "1000001382": {
+        "nazwa": "Copa do Brazil",
+        "flaga": "br"
+    },
+    "1000001415": {
+        "nazwa": "Brazilian Serie B",
+        "flaga": "br"
+    },
+    "955147": {
+        "nazwa": "K-League 1 Final Group B",
+        "flaga": "kr"
+    },
+    "938779": {
+        "nazwa": "Segunda Federacion - Group 1",
+        "flaga": "es"
+    },
+    "920266": {
+        "nazwa": "Super League",
+        "flaga": "cn"
+    },
+    "1000001769": {
+        "nazwa": "CAF Super Cup",
+        "flaga": "int"
+    },
+    "1000001212": {
+        "nazwa": "Division Profesional",
+        "flaga": "py"
+    },
+    "1000001442": {
+        "nazwa": "Canadian Premier League",
+        "flaga": "ca"
+    },
+    "920267": {
+        "nazwa": "China League",
+        "flaga": "cn"
+    },
+    "1000001206": {
+        "nazwa": "CAF Women's Champions League",
+        "flaga": "int"
+    },
+    "916561": {
+        "nazwa": "Primera B Metropolitana",
+        "flaga": "ar"
+    },
+    "916553": {
+        "nazwa": "Primera Nacional",
+        "flaga": "ar"
+    },
+    "919792": {
+        "nazwa": "3. Divisjon Avd. 1",
+        "flaga": "no"
+    },
+    "951108": {
+        "nazwa": "SAFF Championship Grp. A",
+        "flaga": "int"
+    },
+    "1000001251": {
+        "nazwa": "Ecuador Liga Pro",
+        "flaga": "ec"
+    },
+    "938416": {
+        "nazwa": "Cup",
+        "flaga": "co"
+    },
+    "920742": {
+        "nazwa": "UEFA Nations League A Grp. 4",
+        "flaga": "int"
+    },
+    "941129": {
+        "nazwa": "CONCACAF Nations League A Championship Playoff",
+        "flaga": "int"
+    },
+    "1000001403": {
+        "nazwa": "Copa Argentina",
+        "flaga": "ar"
+    },
+    "1000001172": {
+        "nazwa": "CONMEBOL Libertadores Femenina",
+        "flaga": "int"
+    },
+    "1000001173": {
+        "nazwa": "CONMEBOL Libertadores Femenina",
+        "flaga": "int"
     }
 }
