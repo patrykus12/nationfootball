@@ -36,7 +36,9 @@ KODY_KRAJOW_RECZNE = {
     'bośnia i hercegowina': 'ba', 'kosowo': 'xk', 'oman': 'om', 'liban': 'lb', 'jordania': 'jo',
     'kazachstan': 'kz', 'gruzja': 'ge', 'białoruś': 'by', 'uzbekistan': 'uz', 'serbia': 'rs', 'estonia': 'ee',
     'izrael': 'il', 'malezja': 'my', 'indie': 'in', 'chile': 'cl', 'macedonia północna': 'mk', 'albania': 'al',
-    'czarnogóra': 'me'
+    'czarnogóra': 'me', 'wenezuela': 've', 'nigeria': 'ng', 'sudan': 'sd', 'tadżykistan': 'tj', 'bhutan': 'bt',
+    'mjanma': 'mm', 'timor-leste': 'tl', 'senegal': 'sn', 'chinese taipei': 'tw', 'kambodża': 'kh',
+    'sri lanka': 'lk', 'boliwia': 'bo'
 }
 
 # Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
@@ -122,6 +124,10 @@ NACJE = {
     "ao": {"nazwa": "Angola", "land_id": 6, "plik": "zawodnicy_ao.xlsx", "od": "2026-10-30 11:51"},
     "my": {"nazwa": "Malezja", "land_id": 103, "plik": "zawodnicy_my.xlsx", "od": "2026-10-30 11:56",
            "pomin_kluby": ["Brunei DPMM FC"]},  # gra w malezyjskiej Liga Super
+    "gh": {"nazwa": "Ghana", "land_id": 54, "plik": "zawodnicy_gh.xlsx", "od": "2026-10-30 12:00"},
+    "pe": {"nazwa": "Peru", "land_id": 133, "plik": "zawodnicy_pe.xlsx", "od": "2026-10-30 12:11"},
+    "mz": {"nazwa": "Mozambik", "land_id": 115, "plik": "zawodnicy_mz.xlsx", "od": "2026-10-30 12:15"},
+    "uz": {"nazwa": "Uzbekistan", "land_id": 180, "plik": "zawodnicy_uz.xlsx", "od": "2026-10-30 12:17"},
 }
 
 
@@ -140,7 +146,8 @@ def plik_szerokiej_bazy(nacja):
 FLAGI_TRZYLITEROWE = {
     "qat": "qa", "ksa": "sa", "ind": "in", "uae": "ae", "can": "ca", "blr": "by", "chn": "cn",
     "alb": "al", "crc": "cr", "est": "ee", "arm": "am", "aze": "az", "bol": "bo", "geo": "ge",
-    "alg": "dz", "ban": "bd", "bih": "ba",
+    "alg": "dz", "ban": "bd", "bih": "ba", "ven": "ve", "nga": "ng", "sud": "sd", "tjk": "tj", "bhu": "bt",
+    "mya": "mm", "tls": "tl", "sen": "sn", "tpe": "tw", "cam": "kh", "sri": "lk",
 }
 
 # Kluby, które grają w lidze innego kraju: kanadyjskie (Toronto FC, CF Montréal...) w MLS (USA)
