@@ -38,7 +38,7 @@ KODY_KRAJOW_RECZNE = {
     'izrael': 'il', 'malezja': 'my', 'indie': 'in', 'chile': 'cl', 'macedonia północna': 'mk', 'albania': 'al',
     'czarnogóra': 'me', 'wenezuela': 've', 'nigeria': 'ng', 'sudan': 'sd', 'tadżykistan': 'tj', 'bhutan': 'bt',
     'mjanma': 'mm', 'timor-leste': 'tl', 'senegal': 'sn', 'chinese taipei': 'tw', 'kambodża': 'kh',
-    'sri lanka': 'lk', 'boliwia': 'bo'
+    'sri lanka': 'lk', 'boliwia': 'bo', 'kostaryka': 'cr', 'panama': 'pa', 'peru': 'pe', 'paragwaj': 'py'
 }
 
 # Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
@@ -130,6 +130,8 @@ NACJE = {
     "uz": {"nazwa": "Uzbekistan", "land_id": 180, "plik": "zawodnicy_uz.xlsx", "od": "2026-10-30 12:17"},
     "ye": {"nazwa": "Jemen", "land_id": 186, "plik": "zawodnicy_ye.xlsx", "od": "2026-10-30 12:24"},
     "np": {"nazwa": "Nepal", "land_id": 119, "plik": "zawodnicy_np.xlsx", "od": "2026-10-30 12:35"},
+    "ve": {"nazwa": "Wenezuela", "land_id": 182, "plik": "zawodnicy_ve.xlsx", "od": "2026-10-30 12:43"},
+    "cm": {"nazwa": "Kamerun", "land_id": 31, "plik": "zawodnicy_cm.xlsx", "od": "2026-10-30 12:51"},
 }
 
 
@@ -160,8 +162,13 @@ LIGI_ZA_GRANICA = {"ca": {"us"}}
 # łapał mecze katarskiego Al-Gharafa w Azjatyckiej Lidze Mistrzów.
 KRAJE_DRUZYN = {}
 
+
+def kraj_zgodny(kod_z_excela, flaga_ligi):
+    return (kod_z_excela == flaga_ligi or flaga_ligi in kod_z_excela or kod_z_excela in flaga_ligi
+            or flaga_ligi in LIGI_ZA_GRANICA.get(kod_z_excela, ()))
+
 # Ligi kobiece - także te, w których drużyny nazywają się jak męskie (szkocka SWPL: "Aberdeen", "Celtic")
-SLOWA_KLUCZOWE_LIGI_KOBIECE = ("women", "female", "ladies", "kobiet", "femin", "frauen", "wsl", "swpl",
+SLOWA_KLUCZOWE_LIGI_KOBIECE = ("women", "female", "ladies", "kobiet", "femin", "femen", "femmin", "frauen", "wsl", "swpl",
                                "kvinner", "vrouwen", "damallsvenskan", "toppserien", "kvindeliga",
                                "nwsl", "arkema", "iberdrola", "(w)")
 
@@ -233,9 +240,7 @@ def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
         if not kraj_z_excela: return True
         kod_z_excela = KODY_KRAJOW_RECZNE.get(kraj_z_excela, "")
         if not kod_z_excela: return True
-        if alpha2_z_api and alpha2_z_api != "int":
-            return (kod_z_excela == alpha2_z_api or alpha2_z_api in kod_z_excela or kod_z_excela in alpha2_z_api
-                    or alpha2_z_api in LIGI_ZA_GRANICA.get(kod_z_excela, ()))
+        if alpha2_z_api and alpha2_z_api != "int": return kraj_zgodny(kod_z_excela, alpha2_z_api)
         return True
 
     if norm_klub_api in baza_klubow:
