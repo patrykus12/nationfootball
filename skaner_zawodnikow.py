@@ -118,6 +118,10 @@ NAZWY_KLUBOW_JAK_W_API = {
     "Sönderjyske Fodbold": "Sønderjyske",
     "Al-Arabi SC (Kuwait)": "Al-Arabi",
     "Al-Fahaheel SC": "Al Fahaheel",
+    # Rezerwy (w API z "II", odfiltrowywane) - inaczej łapały mecze pierwszej drużyny
+    "Eithad Al-Gharafa": "Al-Gharafa II",
+    "Al-Rayyan NextGen": "Al-Rayyan II",
+    "ÍR Reykjavík": "ÍR",  # 1. deild, nie KR Reykjavík
 }
 
 # Nazwy rozgrywek, które ZAWSZE liczą się jako niecentralne, niezależnie od tego, co wyjdzie

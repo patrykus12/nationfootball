@@ -60,6 +60,7 @@ const NACJE = {
   pe: { nazwa: "Peruwiańczycy", kraj: "Peru", flaga: "pe", formy: ["Peruwiańczyk", "Peruwiańczyków", "Peruwiańczyków"], dopelniacz: "Peruwiańczyków" },
   mz: { nazwa: "Mozambijczycy", kraj: "Mozambik", flaga: "mz", formy: ["Mozambijczyk", "Mozambijczyków", "Mozambijczyków"], dopelniacz: "Mozambijczyków" },
   uz: { nazwa: "Uzbecy", kraj: "Uzbekistan", flaga: "uz", formy: ["Uzbek", "Uzbeków", "Uzbeków"], dopelniacz: "Uzbeków" },
+  ye: { nazwa: "Jemeńczycy", kraj: "Jemen", flaga: "ye", formy: ["Jemeńczyk", "Jemeńczyków", "Jemeńczyków"], dopelniacz: "Jemeńczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 
