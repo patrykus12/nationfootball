@@ -132,6 +132,7 @@ NACJE = {
     "np": {"nazwa": "Nepal", "land_id": 119, "plik": "zawodnicy_np.xlsx", "od": "2026-10-30 12:35"},
     "ve": {"nazwa": "Wenezuela", "land_id": 182, "plik": "zawodnicy_ve.xlsx", "od": "2026-10-30 12:43"},
     "cm": {"nazwa": "Kamerun", "land_id": 31, "plik": "zawodnicy_cm.xlsx", "od": "2026-10-30 12:51"},
+    "ci": {"nazwa": "Wybrzeże Kości Słoniowej", "land_id": 38, "plik": "zawodnicy_ci.xlsx", "od": "2026-10-30 13:12"},
 }
 
 
