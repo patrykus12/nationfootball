@@ -32,7 +32,9 @@ KODY_KRAJOW_RECZNE = {
     'maroko': 'ma', 'egipt': 'eg', 'algieria': 'dz', 'tanzania': 'tz', 'iran': 'ir', 'kuwejt': 'kw',
     'irlandia północna': 'gb-nir', 'katar': 'qa', 'libia': 'ly', 'irak': 'iq', 'ghana': 'gh',
     'etiopia': 'et', 'rwanda': 'rw', 'bułgaria': 'bg', 'łotwa': 'lv', 'bangladesz': 'bd', 'tunezja': 'tn',
-    'wietnam': 'vn', 'malta': 'mt'
+    'wietnam': 'vn', 'malta': 'mt', 'luksemburg': 'lu', 'rosja': 'ru', 'armenia': 'am', 'chorwacja': 'hr',
+    'bośnia i hercegowina': 'ba', 'kosowo': 'xk', 'oman': 'om', 'liban': 'lb', 'jordania': 'jo',
+    'kazachstan': 'kz'
 }
 
 # Śledzone nacje: kod -> kraj na Transfermarkcie (land_id, nazwa na liście krajów) i plik bazy
@@ -108,6 +110,7 @@ NACJE = {
     "ar": {"nazwa": "Argentyna", "land_id": 9, "plik": "zawodnicy_ar.xlsx", "od": "2026-10-29 18:45",
            "ligi": LIGI_CZOLOWE},
     "ug": {"nazwa": "Uganda", "land_id": 176, "plik": "zawodnicy_ug.xlsx", "od": "2026-10-29 19:02"},
+    "dz": {"nazwa": "Algieria", "land_id": 4, "plik": "zawodnicy_dz.xlsx", "od": "2026-10-30 10:46"},
 }
 
 
