@@ -120,6 +120,8 @@ NACJE = {
     "ma": {"nazwa": "Maroko", "land_id": 107, "plik": "zawodnicy_ma.xlsx", "od": "2026-10-30 11:37"},
     "sa": {"nazwa": "Arabia Saudyjska", "land_id": 146, "plik": "zawodnicy_sa.xlsx", "od": "2026-10-30 11:50"},
     "ao": {"nazwa": "Angola", "land_id": 6, "plik": "zawodnicy_ao.xlsx", "od": "2026-10-30 11:51"},
+    "my": {"nazwa": "Malezja", "land_id": 103, "plik": "zawodnicy_my.xlsx", "od": "2026-10-30 11:56",
+           "pomin_kluby": ["Brunei DPMM FC"]},  # gra w malezyjskiej Liga Super
 }
 
 
