@@ -2558,5 +2558,21 @@
     "1000001176": {
         "nazwa": "CONMEBOL Libertadores Femenina",
         "flaga": "int"
+    },
+    "943368": {
+        "nazwa": "NPFL",
+        "flaga": "ng"
+    },
+    "1000001715": {
+        "nazwa": "Persian Gulf Pro League",
+        "flaga": "ir"
+    },
+    "946196": {
+        "nazwa": "Cup",
+        "flaga": "cl"
+    },
+    "1000001841": {
+        "nazwa": "Liga de Expansión MX",
+        "flaga": "mx"
     }
 }
