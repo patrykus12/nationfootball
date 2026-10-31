@@ -138,6 +138,7 @@ NACJE = {
            "pomin_kluby": ["Auckland FC", "Wellington Phoenix"]},  # grają w australijskiej A-League
     "kp": {"nazwa": "Korea Północna", "land_id": 86, "plik": "zawodnicy_kp.xlsx", "od": "2026-10-31 15:43"},
     "ne": {"nazwa": "Niger", "land_id": 123, "plik": "zawodnicy_ne.xlsx", "od": "2026-10-31 15:45"},
+    "tw": {"nazwa": "Chinese Taipei", "land_id": 164, "plik": "zawodnicy_tw.xlsx", "od": "2026-10-31 15:48"},  # Tajwan - tak nazywa go Transfermarkt
 }
 
 
