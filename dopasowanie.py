@@ -151,6 +151,7 @@ NACJE = {
     "td": {"nazwa": "Chad", "land_id": 171, "plik": "zawodnicy_td.xlsx", "od": "2026-10-31 17:27"},  # Czad - tak nazywa go Transfermarkt
     "sn": {"nazwa": "Senegal", "land_id": 149, "plik": "zawodnicy_sn.xlsx", "od": "2026-10-31 17:30"},
     "nl": {"nazwa": "Holandia", "land_id": 122, "plik": "zawodnicy_nl.xlsx", "od": "2026-10-31 17:59"},
+    "gt": {"nazwa": "Gwatemala", "land_id": 58, "plik": "zawodnicy_gt.xlsx", "od": "2026-10-31 18:10"},
 }
 
 
