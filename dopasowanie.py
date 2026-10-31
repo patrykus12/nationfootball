@@ -146,6 +146,7 @@ NACJE = {
     "ml": {"nazwa": "Mali", "land_id": 105, "plik": "zawodnicy_ml.xlsx", "od": "2026-10-31 16:48"},
     "zm": {"nazwa": "Zambia", "land_id": 142, "plik": "zawodnicy_zm.xlsx", "od": "2026-10-31 16:56"},
     "kz": {"nazwa": "Kazachstan", "land_id": 81, "plik": "zawodnicy_kz.xlsx", "od": "2026-10-31 16:59"},
+    "ro": {"nazwa": "Rumunia", "land_id": 140, "plik": "zawodnicy_ro.xlsx", "od": "2026-10-31 17:04"},
 }
 
 
@@ -254,6 +255,10 @@ def wczytaj_kluby(excel_plik):
                 baza[k_czysty]['gracze'].append(pelne_imie)
     return baza
 
+# Słowa, które w dłuższej nazwie z bazy oznaczają inny klub niż krótsza nazwa z API (Dundee FC / Dundee United)
+SLOWA_ODROZNIAJACE_KLUB = {"united", "utd", "city", "town", "athletic", "rovers", "wanderers", "county", "albion",
+                           "ii", "b", "u19", "u21", "u23", "reserves", "juniors"}
+
 def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
     norm_klub_api = wyczysc_nazwe_klubu(nazwa_klubu_z_api)
     if norm_klub_api in ["fire", "chicago"]: norm_klub_api = "chicago fire"
@@ -278,6 +283,7 @@ def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
     for k_baza, info in baza_klubow.items():
         if norm_klub_api == normalizuj_tekst(info.get('kraj', '')): continue  # reprezentacja "Gibraltar" to nie "Lions Gibraltar"
         if len(norm_klub_api) >= 4 and wzorzec.search(k_baza):
+            if SLOWA_ODROZNIAJACE_KLUB & set(wzorzec.sub(' ', k_baza).split()): continue  # "Dundee" to nie "Dundee United"
             if weryfikuj_kraj(info): return k_baza, info
 
     # To samo co podobienstwo(k_baza, norm_klub_api) dla każdego klubu, ale szybciej: tanie górne

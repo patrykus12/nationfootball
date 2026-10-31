@@ -129,6 +129,13 @@ NAZWY_KLUBOW_JAK_W_API = {
     "Zenit Petersburg": "Zenit St. Petersburg", "CSKA Moskwa": "CSKA Moscow", "Spartak Moskwa": "Spartak Moscow",
     "Lokomotiw Moskwa": "Lokomotiv Moscow", "Dynamo Moskwa": "Dinamo Moscow", "Krylja Sowietow Samara": "Krylya Sovetov Samara",
     "Akhmat Grozny": "FK Akhmat", "FK Sochi": "PFC Sochi", "FK Ufa": "FC Ufa", "FC Nizhniy Novgorod": "Nizhny Novgorod",
+    # Inne nazwy niż w API (spolszczone albo pełne)
+    "FK Zalgiris Wilno": "Žalgiris Vilnius", "ETO FC": "Györi ETO", "AEK Ateny": "AEK Athens",
+    "PAOK Saloniki": "PAOK Thessaloniki", "PAOK Saloniki B": "PAOK Thessaloniki B", "Union Saint-Gilloise": "Union St.Gilloise",
+    "Al-Fateh SC": "Al Fateh FC", "Zhejiang FC": "Zhejiang Professional", "Ironi Kiryat Shmona": "Hapoel Ironi Kiryat Shmona",
+    "SV Kapfenberg": "Kapfenberger SV", "Karcagi SC": "Karcagi SE",
+    # Ten sam klub, w API krócej - bez tego reguła SLOWA_ODROZNIAJACE_KLUB (dopasowanie.py) by je odrzuciła
+    "Real Salt Lake City": "Real Salt Lake", "Caernarfon Town": "Caernarfon", "Haverfordwest County": "Haverfordwest",
 }
 
 # Nazwy rozgrywek, które ZAWSZE liczą się jako niecentralne, niezależnie od tego, co wyjdzie
