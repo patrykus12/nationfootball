@@ -137,6 +137,7 @@ NACJE = {
     "au": {"nazwa": "Australia", "land_id": 12, "plik": "zawodnicy_au.xlsx", "od": "2026-10-31 15:34",
            "pomin_kluby": ["Auckland FC", "Wellington Phoenix"]},  # grają w australijskiej A-League
     "kp": {"nazwa": "Korea Północna", "land_id": 86, "plik": "zawodnicy_kp.xlsx", "od": "2026-10-31 15:43"},
+    "ne": {"nazwa": "Niger", "land_id": 123, "plik": "zawodnicy_ne.xlsx", "od": "2026-10-31 15:45"},
 }
 
 
