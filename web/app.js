@@ -66,6 +66,7 @@ const NACJE = {
   cm: { nazwa: "Kameruńczycy", kraj: "Kamerun", flaga: "cm", formy: ["Kameruńczyk", "Kameruńczyków", "Kameruńczyków"], dopelniacz: "Kameruńczyków" },
   ci: { nazwa: "Iworyjczycy", kraj: "Wybrzeże Kości Słoniowej", flaga: "ci", formy: ["Iworyjczyk", "Iworyjczyków", "Iworyjczyków"], dopelniacz: "Iworyjczyków" },
   mg: { nazwa: "Malgasze", kraj: "Madagaskar", flaga: "mg", formy: ["Malgasz", "Malgaszów", "Malgaszów"], dopelniacz: "Malgaszów" },
+  au: { nazwa: "Australijczycy", kraj: "Australia", flaga: "au", formy: ["Australijczyk", "Australijczyków", "Australijczyków"], dopelniacz: "Australijczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 

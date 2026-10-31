@@ -37,7 +37,7 @@ KODY_KRAJOW_RECZNE = {
     'kazachstan': 'kz', 'gruzja': 'ge', 'białoruś': 'by', 'uzbekistan': 'uz', 'serbia': 'rs', 'estonia': 'ee',
     'izrael': 'il', 'malezja': 'my', 'indie': 'in', 'chile': 'cl', 'macedonia północna': 'mk', 'albania': 'al',
     'czarnogóra': 'me', 'wenezuela': 've', 'nigeria': 'ng', 'sudan': 'sd', 'tadżykistan': 'tj', 'bhutan': 'bt',
-    'mjanma': 'mm', 'timor-leste': 'tl', 'senegal': 'sn', 'chinese taipei': 'tw', 'kambodża': 'kh',
+    'mjanma': 'mm', 'timor-leste': 'tl', 'senegal': 'sn', 'chinese taipei': 'tw', 'kambodża': 'kh', 'singapur': 'sg',
     'sri lanka': 'lk', 'boliwia': 'bo', 'kostaryka': 'cr', 'panama': 'pa', 'peru': 'pe', 'paragwaj': 'py'
 }
 
@@ -134,6 +134,8 @@ NACJE = {
     "cm": {"nazwa": "Kamerun", "land_id": 31, "plik": "zawodnicy_cm.xlsx", "od": "2026-10-30 12:51"},
     "ci": {"nazwa": "Wybrzeże Kości Słoniowej", "land_id": 38, "plik": "zawodnicy_ci.xlsx", "od": "2026-10-30 13:12"},
     "mg": {"nazwa": "Madagaskar", "land_id": 101, "plik": "zawodnicy_mg.xlsx", "od": "2026-10-31 15:27"},
+    "au": {"nazwa": "Australia", "land_id": 12, "plik": "zawodnicy_au.xlsx", "od": "2026-10-31 15:34",
+           "pomin_kluby": ["Auckland FC", "Wellington Phoenix"]},  # grają w australijskiej A-League
 }
 
 
