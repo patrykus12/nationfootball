@@ -37,7 +37,7 @@ KODY_KRAJOW_RECZNE = {
     'kazachstan': 'kz', 'gruzja': 'ge', 'białoruś': 'by', 'uzbekistan': 'uz', 'serbia': 'rs', 'estonia': 'ee',
     'izrael': 'il', 'malezja': 'my', 'indie': 'in', 'chile': 'cl', 'macedonia północna': 'mk', 'albania': 'al',
     'czarnogóra': 'me', 'wenezuela': 've', 'nigeria': 'ng', 'sudan': 'sd', 'tadżykistan': 'tj', 'bhutan': 'bt',
-    'mjanma': 'mm', 'timor-leste': 'tl', 'senegal': 'sn', 'chinese taipei': 'tw', 'kambodża': 'kh', 'singapur': 'sg', 'andora': 'ad',
+    'mjanma': 'mm', 'timor-leste': 'tl', 'senegal': 'sn', 'chinese taipei': 'tw', 'kambodża': 'kh', 'singapur': 'sg', 'andora': 'ad', 'honduras': 'hn', 'salwador': 'sv',
     'sri lanka': 'lk', 'boliwia': 'bo', 'kostaryka': 'cr', 'panama': 'pa', 'peru': 'pe', 'paragwaj': 'py'
 }
 
@@ -147,6 +147,7 @@ NACJE = {
     "zm": {"nazwa": "Zambia", "land_id": 142, "plik": "zawodnicy_zm.xlsx", "od": "2026-10-31 16:56"},
     "kz": {"nazwa": "Kazachstan", "land_id": 81, "plik": "zawodnicy_kz.xlsx", "od": "2026-10-31 16:59"},
     "ro": {"nazwa": "Rumunia", "land_id": 140, "plik": "zawodnicy_ro.xlsx", "od": "2026-10-31 17:04"},
+    "cl": {"nazwa": "Chile", "land_id": 33, "plik": "zawodnicy_cl.xlsx", "od": "2026-10-31 17:17"},
 }
 
 
@@ -170,8 +171,8 @@ FLAGI_TRZYLITEROWE = {
 }
 
 # Kluby, które grają w lidze innego kraju: kanadyjskie (Toronto FC, CF Montréal...) w MLS (USA),
-# andorskie w hiszpańskiej (ligi andorskiej nie ma w API - reszta klubów tylko w pucharach)
-LIGI_ZA_GRANICA = {"ca": {"us"}, "ad": {"es"}}  # FC Andorra - hiszpańska Segunda División
+# andorskie w hiszpańskiej (ligi andorskiej nie ma w API - reszta klubów tylko w pucharach), nowozelandzkie w australijskiej
+LIGI_ZA_GRANICA = {"ca": {"us"}, "ad": {"es"}, "nz": {"au"}}  # FC Andorra - Segunda; Auckland FC, Wellington Phoenix - A-League
 
 # id drużyny z API -> flaga ligi krajowej, w której gra (uczone z jej meczów ligowych). W pucharach
 # międzynarodowych (flaga "int") kraj klubu sprawdzany jest po tej fladze - bez niej iracki Al-Gharraf

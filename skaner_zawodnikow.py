@@ -136,6 +136,10 @@ NAZWY_KLUBOW_JAK_W_API = {
     "SV Kapfenberg": "Kapfenberger SV", "Karcagi SC": "Karcagi SE",
     # Ten sam klub, w API krócej - bez tego reguła SLOWA_ODROZNIAJACE_KLUB (dopasowanie.py) by je odrzuciła
     "Real Salt Lake City": "Real Salt Lake", "Caernarfon Town": "Caernarfon", "Haverfordwest County": "Haverfordwest",
+    "Puskás Akadémia FC": "Puskás FC Academy",
+    "CD Platense Zacatecoluca": "CD Platense Municipal", "CD Motagua Tegucigalpa": "FC Motagua",
+    "Lobos de la UPNFM": "Lobos UPNFM", "Real CD España": "Real España",
+    "LDU Quito": "LDU de Quito", "Club Atlético Tigre": "Tigre",  # Tigre: przybliżone dopasowanie łapało Club Atlético Mitre
 }
 
 # Nazwy rozgrywek, które ZAWSZE liczą się jako niecentralne, niezależnie od tego, co wyjdzie
