@@ -140,6 +140,7 @@ NAZWY_KLUBOW_JAK_W_API = {
     "CD Platense Zacatecoluca": "CD Platense Municipal", "CD Motagua Tegucigalpa": "FC Motagua",
     "Lobos de la UPNFM": "Lobos UPNFM", "Real CD España": "Real España",
     "LDU Quito": "LDU de Quito", "Club Atlético Tigre": "Tigre",  # Tigre: przybliżone dopasowanie łapało Club Atlético Mitre
+    "FC Wil 1900": "Wil",
 }
 
 # Nazwy rozgrywek, które ZAWSZE liczą się jako niecentralne, niezależnie od tego, co wyjdzie

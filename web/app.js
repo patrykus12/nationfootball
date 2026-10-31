@@ -79,6 +79,7 @@ const NACJE = {
   kz: { nazwa: "Kazachowie", kraj: "Kazachstan", flaga: "kz", formy: ["Kazach", "Kazachów", "Kazachów"], dopelniacz: "Kazachów" },
   ro: { nazwa: "Rumuni", kraj: "Rumunia", flaga: "ro", formy: ["Rumun", "Rumunów", "Rumunów"], dopelniacz: "Rumunów" },
   cl: { nazwa: "Chilijczycy", kraj: "Chile", flaga: "cl", formy: ["Chilijczyk", "Chilijczyków", "Chilijczyków"], dopelniacz: "Chilijczyków" },
+  td: { nazwa: "Czadyjczycy", kraj: "Czad", flaga: "td", formy: ["Czadyjczyk", "Czadyjczyków", "Czadyjczyków"], dopelniacz: "Czadyjczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 
