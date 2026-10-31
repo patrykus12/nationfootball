@@ -122,6 +122,7 @@ NAZWY_KLUBOW_JAK_W_API = {
     "Eithad Al-Gharafa": "Al-Gharafa II",
     "Al-Rayyan NextGen": "Al-Rayyan II",
     "ÍR Reykjavík": "ÍR",  # 1. deild, nie KR Reykjavík
+    "Al-Ittihad SC": "Ittihad Tripoli",  # libijski - "Al-Ittihad" łapał syryjski Al-Ittihad w AFC Challenge League
 }
 
 # Nazwy rozgrywek, które ZAWSZE liczą się jako niecentralne, niezależnie od tego, co wyjdzie

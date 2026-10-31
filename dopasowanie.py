@@ -140,6 +140,7 @@ NACJE = {
     "ne": {"nazwa": "Niger", "land_id": 123, "plik": "zawodnicy_ne.xlsx", "od": "2026-10-31 15:45"},
     "tw": {"nazwa": "Chinese Taipei", "land_id": 164, "plik": "zawodnicy_tw.xlsx", "od": "2026-10-31 15:48"},  # Tajwan - tak nazywa go Transfermarkt
     "lk": {"nazwa": "Sri Lanka", "land_id": 158, "plik": "zawodnicy_lk.xlsx", "od": "2026-10-31 16:10"},
+    "bf": {"nazwa": "Burkina Faso", "land_id": 29, "plik": "zawodnicy_bf.xlsx", "od": "2026-10-31 16:33"},
 }
 
 
@@ -169,6 +170,14 @@ LIGI_ZA_GRANICA = {"ca": {"us"}}
 # międzynarodowych (flaga "int") kraj klubu sprawdzany jest po tej fladze - bez niej iracki Al-Gharraf
 # łapał mecze katarskiego Al-Gharafa w Azjatyckiej Lidze Mistrzów.
 KRAJE_DRUZYN = {}
+# Nazwa drużyny (bez myślników) -> flagi lig, w których gra drużyna o tej nazwie. Drużyna z pucharu
+# bez znanego kraju, nazwana tak jak drużyna grająca w lidze kraju naszego klubu, to inny klub (ten sam
+# miałby to samo id) - np. syryjski Al-Ittihad w AFC Challenge League to nie saudyjski Al Ittihad.
+FLAGI_NAZW_DRUZYN = {}
+
+
+def klucz_nazwy_druzyny(nazwa):
+    return re.sub(r"[\s\-]+", " ", wyczysc_nazwe_klubu(nazwa)).strip()
 
 
 def kraj_zgodny(kod_z_excela, flaga_ligi):
@@ -295,6 +304,14 @@ def zapamietaj_kraje_druzyn(mecz, flaga_ligi):
     for strona in ('home', 'away'):
         id_druzyny = mecz.get(strona, {}).get('id')
         if id_druzyny is not None: KRAJE_DRUZYN[id_druzyny] = flaga_ligi
+        nazwa = mecz.get(strona, {}).get('name')
+        if nazwa: FLAGI_NAZW_DRUZYN.setdefault(klucz_nazwy_druzyny(nazwa), set()).add(flaga_ligi)
+
+
+def _imiennik_z_kraju_klubu(nazwa_z_api, info_klubu):
+    """Czy drużyna o tej nazwie gra w lidze kraju klubu z bazy (czyli puchar to jej imiennik)."""
+    kod = KODY_KRAJOW_RECZNE.get(info_klubu.get('kraj', '').lower(), "")
+    return bool(kod) and any(kraj_zgodny(kod, f) for f in FLAGI_NAZW_DRUZYN.get(klucz_nazwy_druzyny(nazwa_z_api), ()))
 
 def dopasuj_mecz(mecz, polskie_kluby, nasz_slownik_lig, baza_lig, pamiec_druzyn=None):
     """Zwraca słownik z ligą i dopasowanymi klubami, jeśli mecz jest z udziałem Polaków
@@ -330,9 +347,13 @@ def dopasuj_mecz(mecz, polskie_kluby, nasz_slownik_lig, baza_lig, pamiec_druzyn=
     def klub(nazwa, strona):
         flaga = flaga_ligi
         if flaga == "int": flaga = KRAJE_DRUZYN.get(mecz.get(strona, {}).get('id'), "int")
-        if pamiec_druzyn is None: return dopasuj_klub_do_bazy(nazwa, flaga, polskie_kluby)
+        def policz():
+            wynik = dopasuj_klub_do_bazy(nazwa, flaga, polskie_kluby)
+            if flaga == "int" and wynik[1] and _imiennik_z_kraju_klubu(nazwa, wynik[1]): return wynik[0], None
+            return wynik
+        if pamiec_druzyn is None: return policz()
         klucz = (nazwa, flaga)
-        if klucz not in pamiec_druzyn: pamiec_druzyn[klucz] = dopasuj_klub_do_bazy(nazwa, flaga, polskie_kluby)
+        if klucz not in pamiec_druzyn: pamiec_druzyn[klucz] = policz()
         return pamiec_druzyn[klucz]
 
     klub_gosp, info_gosp = klub(gosp, 'home')
