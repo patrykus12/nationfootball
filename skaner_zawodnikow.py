@@ -125,6 +125,10 @@ NAZWY_KLUBOW_JAK_W_API = {
     "Al-Ittihad SC": "Ittihad Tripoli",  # libijski - "Al-Ittihad" łapał syryjski Al-Ittihad w AFC Challenge League
     "CA San Lorenzo de Almagro": "San Lorenzo",  # "Almagro" to inny klub (Primera Nacional)
     "Quevilly - Rouen Métropole": "Quevilly",  # "Rouen" to inny klub (FC Rouen)
+    # Rosja - Transfermarkt.pl spolszcza nazwy, API ma angielskie
+    "Zenit Petersburg": "Zenit St. Petersburg", "CSKA Moskwa": "CSKA Moscow", "Spartak Moskwa": "Spartak Moscow",
+    "Lokomotiw Moskwa": "Lokomotiv Moscow", "Dynamo Moskwa": "Dinamo Moscow", "Krylja Sowietow Samara": "Krylya Sovetov Samara",
+    "Akhmat Grozny": "FK Akhmat", "FK Sochi": "PFC Sochi", "FK Ufa": "FC Ufa", "FC Nizhniy Novgorod": "Nizhny Novgorod",
 }
 
 # Nazwy rozgrywek, które ZAWSZE liczą się jako niecentralne, niezależnie od tego, co wyjdzie
