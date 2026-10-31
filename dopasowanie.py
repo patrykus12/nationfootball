@@ -37,7 +37,7 @@ KODY_KRAJOW_RECZNE = {
     'kazachstan': 'kz', 'gruzja': 'ge', 'białoruś': 'by', 'uzbekistan': 'uz', 'serbia': 'rs', 'estonia': 'ee',
     'izrael': 'il', 'malezja': 'my', 'indie': 'in', 'chile': 'cl', 'macedonia północna': 'mk', 'albania': 'al',
     'czarnogóra': 'me', 'wenezuela': 've', 'nigeria': 'ng', 'sudan': 'sd', 'tadżykistan': 'tj', 'bhutan': 'bt',
-    'mjanma': 'mm', 'timor-leste': 'tl', 'senegal': 'sn', 'chinese taipei': 'tw', 'kambodża': 'kh', 'singapur': 'sg',
+    'mjanma': 'mm', 'timor-leste': 'tl', 'senegal': 'sn', 'chinese taipei': 'tw', 'kambodża': 'kh', 'singapur': 'sg', 'andora': 'ad',
     'sri lanka': 'lk', 'boliwia': 'bo', 'kostaryka': 'cr', 'panama': 'pa', 'peru': 'pe', 'paragwaj': 'py'
 }
 
@@ -143,6 +143,7 @@ NACJE = {
     "bf": {"nazwa": "Burkina Faso", "land_id": 29, "plik": "zawodnicy_bf.xlsx", "od": "2026-10-31 16:33"},
     "sy": {"nazwa": "Syria", "land_id": 163, "plik": "zawodnicy_sy.xlsx", "od": "2026-10-31 16:42"},
     "mw": {"nazwa": "Malawi", "land_id": 102, "plik": "zawodnicy_mw.xlsx", "od": "2026-10-31 16:46"},
+    "ml": {"nazwa": "Mali", "land_id": 105, "plik": "zawodnicy_ml.xlsx", "od": "2026-10-31 16:48"},
 }
 
 
@@ -165,8 +166,9 @@ FLAGI_TRZYLITEROWE = {
     "mya": "mm", "tls": "tl", "sen": "sn", "tpe": "tw", "cam": "kh", "sri": "lk",
 }
 
-# Kluby, które grają w lidze innego kraju: kanadyjskie (Toronto FC, CF Montréal...) w MLS (USA)
-LIGI_ZA_GRANICA = {"ca": {"us"}}
+# Kluby, które grają w lidze innego kraju: kanadyjskie (Toronto FC, CF Montréal...) w MLS (USA),
+# andorskie w hiszpańskiej (ligi andorskiej nie ma w API - reszta klubów tylko w pucharach)
+LIGI_ZA_GRANICA = {"ca": {"us"}, "ad": {"es"}}  # FC Andorra - hiszpańska Segunda División
 
 # id drużyny z API -> flaga ligi krajowej, w której gra (uczone z jej meczów ligowych). W pucharach
 # międzynarodowych (flaga "int") kraj klubu sprawdzany jest po tej fladze - bez niej iracki Al-Gharraf
