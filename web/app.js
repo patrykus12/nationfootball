@@ -71,7 +71,7 @@ const NACJE = {
   ne: { nazwa: "Nigerczycy", kraj: "Niger", flaga: "ne", formy: ["Nigerczyk", "Nigerczyków", "Nigerczyków"], dopelniacz: "Nigerczyków" },
   tw: { nazwa: "Tajwańczycy", kraj: "Tajwan", flaga: "tw", formy: ["Tajwańczyk", "Tajwańczyków", "Tajwańczyków"], dopelniacz: "Tajwańczyków" },
   lk: { nazwa: "Lankijczycy", kraj: "Sri Lanka", flaga: "lk", formy: ["Lankijczyk", "Lankijczyków", "Lankijczyków"], dopelniacz: "Lankijczyków" },
-  bf: { nazwa: "Burkinijczycy", kraj: "Burkina Faso", flaga: "bf", formy: ["Burkinijczyk", "Burkinijczyków", "Burkinijczyków"], dopelniacz: "Burkinijczyków" },
+  bf: { nazwa: "Burkińczycy", kraj: "Burkina Faso", flaga: "bf", formy: ["Burkińczyk", "Burkińczyków", "Burkińczyków"], dopelniacz: "Burkińczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 
