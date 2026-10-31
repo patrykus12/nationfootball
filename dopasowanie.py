@@ -141,6 +141,7 @@ NACJE = {
     "tw": {"nazwa": "Chinese Taipei", "land_id": 164, "plik": "zawodnicy_tw.xlsx", "od": "2026-10-31 15:48"},  # Tajwan - tak nazywa go Transfermarkt
     "lk": {"nazwa": "Sri Lanka", "land_id": 158, "plik": "zawodnicy_lk.xlsx", "od": "2026-10-31 16:10"},
     "bf": {"nazwa": "Burkina Faso", "land_id": 29, "plik": "zawodnicy_bf.xlsx", "od": "2026-10-31 16:33"},
+    "sy": {"nazwa": "Syria", "land_id": 163, "plik": "zawodnicy_sy.xlsx", "od": "2026-10-31 16:42"},
 }
 
 

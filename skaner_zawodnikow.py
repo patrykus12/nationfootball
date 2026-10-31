@@ -123,6 +123,7 @@ NAZWY_KLUBOW_JAK_W_API = {
     "Al-Rayyan NextGen": "Al-Rayyan II",
     "ÍR Reykjavík": "ÍR",  # 1. deild, nie KR Reykjavík
     "Al-Ittihad SC": "Ittihad Tripoli",  # libijski - "Al-Ittihad" łapał syryjski Al-Ittihad w AFC Challenge League
+    "CA San Lorenzo de Almagro": "San Lorenzo",  # "Almagro" to inny klub (Primera Nacional)
 }
 
 # Nazwy rozgrywek, które ZAWSZE liczą się jako niecentralne, niezależnie od tego, co wyjdzie
