@@ -178,6 +178,7 @@ NAZWY_KLUBOW_JAK_W_API = {
     "Kazincbarcikai SC": "Kazincbarcikai BSC", "Szeged-Csanád - GA": "Szeged-Csanád Grosics Akademia",
     "Vasas FC": "Vasas Budapest", "Sharjah FC": "Sharjah Cultural Club", "Stade Brestois 29": "Brest",
     "Stade Lavallois": "Laval", "HJK Helsinki": "HJK", "Lyn 1896 FK": "Lyn", "Ryga FC": "Riga FC",
+    "FK Lipawa": "FK Liepāja", "K Lierse SK": "K. Lierse SK", "Turun Palloseura": "TPS", "Ekenäs IF": "EIF",
 }
 
 # Nazwy rozgrywek, które ZAWSZE liczą się jako niecentralne, niezależnie od tego, co wyjdzie

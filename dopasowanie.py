@@ -150,6 +150,7 @@ NACJE = {
     "cl": {"nazwa": "Chile", "land_id": 33, "plik": "zawodnicy_cl.xlsx", "od": "2026-10-31 17:17"},
     "td": {"nazwa": "Chad", "land_id": 171, "plik": "zawodnicy_td.xlsx", "od": "2026-10-31 17:27"},  # Czad - tak nazywa go Transfermarkt
     "sn": {"nazwa": "Senegal", "land_id": 149, "plik": "zawodnicy_sn.xlsx", "od": "2026-10-31 17:30"},
+    "nl": {"nazwa": "Holandia", "land_id": 122, "plik": "zawodnicy_nl.xlsx", "od": "2026-10-31 17:59"},
 }
 
 
@@ -174,7 +175,7 @@ FLAGI_TRZYLITEROWE = {
 
 # Kluby, które grają w lidze innego kraju: kanadyjskie (Toronto FC, CF Montréal...) w MLS (USA),
 # andorskie w hiszpańskiej (ligi andorskiej nie ma w API - reszta klubów tylko w pucharach), nowozelandzkie w australijskiej
-LIGI_ZA_GRANICA = {"ca": {"us"}, "ad": {"es"}, "nz": {"au"}}  # FC Andorra - Segunda; Auckland FC, Wellington Phoenix - A-League
+LIGI_ZA_GRANICA = {"ca": {"us"}, "ad": {"es"}, "nz": {"au"}, "gb-nir": {"ie"}}  # FC Andorra - Segunda; Auckland FC, Wellington Phoenix - A-League; Derry City - liga Irlandii
 
 # id drużyny z API -> flaga ligi krajowej, w której gra (uczone z jej meczów ligowych). W pucharach
 # międzynarodowych (flaga "int") kraj klubu sprawdzany jest po tej fladze - bez niej iracki Al-Gharraf
