@@ -65,6 +65,7 @@ const NACJE = {
   ve: { nazwa: "Wenezuelczycy", kraj: "Wenezuela", flaga: "ve", formy: ["Wenezuelczyk", "Wenezuelczyków", "Wenezuelczyków"], dopelniacz: "Wenezuelczyków" },
   cm: { nazwa: "Kameruńczycy", kraj: "Kamerun", flaga: "cm", formy: ["Kameruńczyk", "Kameruńczyków", "Kameruńczyków"], dopelniacz: "Kameruńczyków" },
   ci: { nazwa: "Iworyjczycy", kraj: "Wybrzeże Kości Słoniowej", flaga: "ci", formy: ["Iworyjczyk", "Iworyjczyków", "Iworyjczyków"], dopelniacz: "Iworyjczyków" },
+  mg: { nazwa: "Malgasze", kraj: "Madagaskar", flaga: "mg", formy: ["Malgasz", "Malgaszów", "Malgaszów"], dopelniacz: "Malgaszów" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 
