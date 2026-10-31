@@ -478,5 +478,10 @@
         "nazwa": "Saudi First Division",
         "flaga": "ksa",
         "ignoruj": false
+    },
+    "1000001192": {
+        "nazwa": "Canadian Premier League",
+        "flaga": "ca",
+        "ignoruj": false
     }
 }

@@ -587,6 +587,61 @@ def _kluby_z_bazy(nacja, szeroka=False):
     return cache["kluby"]
 
 
+# Dawne klucze klubów (nazwa z Transfermarktu przed mapowaniem w skaner_zawodnikow.NAZWY_KLUBOW_JAK_W_API
+# i przed liczeniem myślnika jak spacji) - żeby zmiana nazwy w bazie nie wyglądała jak transfer
+DAWNE_NAZWY_KLUBOW = {
+    'aab': ['aalborg bk'], 'aek athens': ['aek ateny'], 'al ahli': ['al-ahli sfc'],
+    'al arabi': ['al-arabi sc (kuwait)'], 'al gharafa ii': ['eithad al-gharafa'], 'al hilal': ['al-hilal sfc'],
+    'al ittihad': ['al-ittihad club'], 'al nejmeh': ['nejmeh'], 'al rayyan ii': ['al-rayyan nextgen'],
+    'al sharkeyah enppi': ['el sharkia enppi'], 'amed sportif': ['amed sk'],
+    'anderlecht futures': ['rsca futures'], 'ararat': ['fc ararat erewan'],
+    'aris thessaloniki': ['aris saloniki'], 'asswehly': ['swehly'], 'atletico madrid': ['atletico madryt'],
+    'austria wien': ['fk austria wieden'], 'avenir de la marsa': ['as marsa'], 'benfica': ['benfika lizbona'],
+    'bohemians 1905': ['bohemians praga 1905'], 'ca bizertin': ['club athletique bizertin'],
+    'caernarfon': ['caernarfon town'], 'cd platense municipal': ['cd platense zacatecoluca'],
+    'celta vigo': ['celta de vigo'], 'ceramica cleopatra': ['cleopatra'], 'chivas': ['deportivo guadalajara'],
+    'chornomorets odesa': ['czornomorec odessa'], 'cska moscow': ['cska moskwa'], 'debrecen': ['debreceni vsc'],
+    'dinamo moscow': ['dynamo moskwa'], 'dukla praha': ['fk dukla praga'], 'dynamo kyiv': ['dynamo kijow'],
+    'estrela da amadora': ['cf estrela amadora'], 'etoile du sahel': ['etoile sportive du sahel'],
+    'etoile metlaoui': ['etoile sportive metlaoui'], 'fc altai oskemen': ['altay oskemen'],
+    'fc kapaz': ['kapaz pfk'], 'fc kbenhavn': ['fc kopenhaga'], 'fc milsami orhei': ['fc milsami orgiejow'],
+    'fc motagua': ['cd motagua tegucigalpa'], 'fc rostov': ['fk rostov'], 'fc ufa': ['fk ufa'],
+    'ferencvaros': ['ferencvarosi tc'], 'fk akhmat': ['akhmat grozny'],
+    'fk crvena zvezda': ['crvena zvezda belgrad'], 'fk neftchi': ['neftchi pfk'],
+    'fk struga': ['struga trim & lum'], 'gfk tikves kavadarci': ['tikves kavadarci'], 'gyori eto': ['eto'],
+    'hapoel ironi kiryat shmona': ['ironi kiryat shmona'], 'haverfordwest': ['haverfordwest county'],
+    'helsingborg': ['helsingborgs if'], 'igdr': ['igdir'], 'ir': ['ir reykjavik'],
+    'ittihad tripoli': ['al-ittihad'], 'js omrane': ['jeunesse sportive omrane'],
+    'kapfenberger sv': ['sv kapfenberg'], 'karcagi se': ['karcagi'], 'khorfakkan': ['khor fakkan ssc'],
+    'krasava ypsonas': ['krasava eny'], 'krylya sovetov samara': ['krylja sowietow samara'],
+    'kudrivka': ['fc kudriwka'], 'kups': ['kuopion palloseura'], 'ldu de quito': ['ldu quito'],
+    'lobos upnfm': ['lobos de la upnfm'], 'lokomotiv moscow': ['lokomotiw moskwa'],
+    'maccabi bnei raina': ['maccabi bnei reineh'], 'maccabi kiryat gat': ['maccabi ironi kiryat gat'],
+    'marek dupnitsa': ['marek'], 'ninh binh club': ['ninh binh'], 'nizhny novgorod': ['fc nizhniy novgorod'],
+    'odds ballklubb': ['odds bk'], 'oh leuven': ['oud-heverlee leuven'], 'olympiacos': ['olympiakos pireus'],
+    'omonia 29 maiou': ['omonia 29th may'], 'omonia nicosia': ['omonia nikozja'],
+    'panthrakikos komotini': ['panthrakikos'], 'paok thessaloniki': ['paok saloniki'],
+    'paok thessaloniki b': ['paok saloniki b'], 'partizan beograd': ['fk partizan belgrad'],
+    'petrojet suez': ['suez petrojet'], 'pfc lokomotiv sofia 1929': ['lokomotiv sofia'],
+    'pfc sochi': ['fk sochi'], 'puskas fc academy': ['puskas akademia'],
+    'quevilly': ['quevilly - rouen metropole'], 'raja casablanca': ['raja club athletic'],
+    'rapid wien': ['sk rapid wieden'], 'real espana': ['real cd espana'], 'real madrid': ['real madryt'],
+    'real salt lake': ['real salt lake city'], 'renaissance club zemamra': ['renaissance zemamra'],
+    'rennes': ['stade rennais'], 'rfs': ['fc rfs'], 'rijeka': ['hnk rijeka'], 'rw essen': ['rot-weiss essen'],
+    'san lorenzo': ['ca san lorenzo de almagro'], 'shakhtar donetsk': ['szachtar donieck'],
+    'sjk': ['sjk seinajoki'], 'slavia prague': ['sk slavia praga'], 'snderjyske': ['sonderjyske fodbold'],
+    'sparta prague': ['ac sparta praga'], 'spartak moscow': ['spartak moskwa'],
+    'surkhon 2011': ['surkhon termiz'], 'teuta durres': ['kf teuta'], 'tigre': ['club atletico tigre'],
+    'torpedo moscow': ['torpedo moskau'], 'torpedo zhodino': ['torpedo-belaz zhodino'],
+    'union st.gilloise': ['union saint-gilloise'], 'van spor kulubu': ['van spor'],
+    'viktoria plzen': ['fc viktoria pilzno'], 'vps': ['vaasan palloseura'], 'wil': ['fc wil 1900'],
+    'zakynthos aps': ['zakynthos'], 'zalaegerszeg': ['zalaegerszegi te'],
+    'zalgiris vilnius': ['fk zalgiris wilno'], 'zenit st. petersburg': ['zenit petersburg'],
+    'zhejiang professional': ['zhejiang'],
+}
+
+_DZIEN_ZMIANY_NAZW = TZ_PL.localize(datetime(2026, 10, 31)).timestamp()
+
 _znani = {"wersja": None, "od": {}}
 
 
@@ -600,13 +655,29 @@ def _znani_od():
     zapisane = wczytaj_json(ZNANI_PLIK)
     od_teraz = time.time() if zapisane is not None else 0
     zapisane = {_klucz_znanego(k): v for k, v in (zapisane or {}).items()}
+    # Zmiana nazwy klubu w bazie (mapowanie na nazwę z API, myślnik jako spacja, kraj w kluczu) to nie
+    # transfer - zawodnik zachowuje datę dopisania spod dawnego klucza
+    zapisane_bez_myslnikow = {}
+    for k, v in zapisane.items(): zapisane_bez_myslnikow.setdefault(_bez_myslnikow(k), v)
+    def dawna_data(nacja, klub, gracz):
+        klub_bez_kraju = re.sub(r"\s*\[[^\]]*\]$", "", klub)
+        if klub_bez_kraju in DAWNE_NAZWY_KLUBOW:
+            # 31.10 nazwy części klubów zmieniono w bazach, zanim ta tabela trafiła na serwer - zapisana
+            # tego dnia data pod nową nazwą to data zmiany nazwy, nie dopisania zawodnika
+            v = zapisane.get(_klucz_znanego(f"{nacja}|{klub}|{gracz}"))
+            if v is not None and _DZIEN_ZMIANY_NAZW <= v < _DZIEN_ZMIANY_NAZW + 86400: return 0
+        for k in [klub, klub_bez_kraju] + DAWNE_NAZWY_KLUBOW.get(klub_bez_kraju, []):
+            klucz = _klucz_znanego(f"{nacja}|{k}|{gracz}")
+            if klucz in zapisane: return zapisane[klucz]
+            if _bez_myslnikow(klucz) in zapisane_bez_myslnikow: return zapisane_bez_myslnikow[_bez_myslnikow(klucz)]
+        return od_teraz
     od = {}
     for nacja, info_nacji in NACJE.items():
         od_nacji = TZ_PL.localize(datetime.strptime(info_nacji["od"], "%Y-%m-%d %H:%M")).timestamp() if "od" in info_nacji else 0
         for klub, info in _kluby_z_bazy(nacja).items():
             for gracz in info['gracze']:
                 klucz = _klucz_znanego(f"{nacja}|{klub}|{gracz}")
-                od[klucz] = max(zapisane.get(klucz, od_teraz), od_nacji)
+                od[klucz] = max(dawna_data(nacja, klub, gracz), od_nacji)
     if od != zapisane or not os.path.exists(ZNANI_PLIK): zapisz_json_atomowo(ZNANI_PLIK, od)
     _znani.update(wersja=wersja, od=od)
     return od
@@ -615,6 +686,9 @@ def _znani_od():
 # Litery, których normalizacja Unicode nie rozkłada na literę + znak (bez zamiany by znikały)
 _LITERY_BEZ_ROZKLADU = str.maketrans({"ł": "l", "Ł": "L", "ı": "i", "ø": "o", "Ø": "O", "đ": "d", "Đ": "D",
                                       "ß": "ss", "æ": "ae", "Æ": "AE", "œ": "oe", "þ": "th", "ð": "d"})
+
+
+def _bez_myslnikow(klucz): return re.sub(r"\s*-\s*|\s+", " ", klucz).strip()
 
 
 def _klucz_znanego(tekst):

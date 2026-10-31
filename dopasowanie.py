@@ -149,6 +149,7 @@ NACJE = {
     "ro": {"nazwa": "Rumunia", "land_id": 140, "plik": "zawodnicy_ro.xlsx", "od": "2026-10-31 17:04"},
     "cl": {"nazwa": "Chile", "land_id": 33, "plik": "zawodnicy_cl.xlsx", "od": "2026-10-31 17:17"},
     "td": {"nazwa": "Chad", "land_id": 171, "plik": "zawodnicy_td.xlsx", "od": "2026-10-31 17:27"},  # Czad - tak nazywa go Transfermarkt
+    "sn": {"nazwa": "Senegal", "land_id": 149, "plik": "zawodnicy_sn.xlsx", "od": "2026-10-31 17:30"},
 }
 
 
@@ -203,7 +204,8 @@ def normalizuj_tekst(tekst): return unicodedata.normalize('NFKD', str(tekst)).en
 
 @functools.lru_cache(maxsize=200000)  # te same nazwy czyszczone tysiące razy przy dopasowaniu
 def wyczysc_nazwe_klubu(nazwa):
-    n = normalizuj_tekst(nazwa)
+    # myślnik jak spacja: "Al-Nassr FC" = "Al Nassr FC", "Turan-Tovuz" = "Turan Tovuz"
+    n = re.sub(r"\s*-\s*|\s+", " ", normalizuj_tekst(nazwa)).strip()
     for fraza in ["1. fc ", "1.fc ", " fc", " sc", " fk", " afc"]:
         if n.endswith(fraza): n = n[:-len(fraza)].strip()
         elif n.startswith(fraza): n = n[len(fraza):].strip()
@@ -252,6 +254,9 @@ def wczytaj_kluby(excel_plik):
             # odfiltrowywane, a wpis łapałby przez dopasowanie nazw mecze pierwszej drużyny
             if czy_to_niechciana_druzyna(k_raw): continue
             k_czysty = wyczysc_nazwe_klubu(k_raw)
+            # Ta sama nazwa w innym kraju ("Al-Ahli" Katar / "Al Ahli" Arabia) - osobny wpis z krajem w kluczu
+            # (znajduje go dopasowanie przez zawieranie, ze sprawdzeniem kraju)
+            if k_czysty in baza and baza[k_czysty]['kraj'] != kraj: k_czysty = f"{k_czysty} [{kraj.lower()}]"
             if k_czysty not in baza: baza[k_czysty] = {'gracze': [], 'kraj': kraj}
             if pelne_imie not in baza[k_czysty]['gracze']:
                 baza[k_czysty]['gracze'].append(pelne_imie)
@@ -260,6 +265,10 @@ def wczytaj_kluby(excel_plik):
 # Słowa, które w dłuższej nazwie z bazy oznaczają inny klub niż krótsza nazwa z API (Dundee FC / Dundee United)
 SLOWA_ODROZNIAJACE_KLUB = {"united", "utd", "city", "town", "athletic", "rovers", "wanderers", "county", "albion",
                            "ii", "b", "u19", "u21", "u23", "reserves", "juniors"}
+
+# (nazwa z API, nazwa z bazy) po wyczysc_nazwe_klubu - różne kluby, które dopasowanie przybliżone brałoby za jeden
+INNE_KLUBY_O_PODOBNEJ_NAZWIE = {("cs dinamo bucuresti", "dinamo bucuresti"),  # 3. liga / Liga 1
+                                ("vancouver", "vancouver whitecaps")}  # Vancouver FC (CPL) / MLS
 
 def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
     norm_klub_api = wyczysc_nazwe_klubu(nazwa_klubu_z_api)
@@ -286,6 +295,7 @@ def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
         if norm_klub_api == normalizuj_tekst(info.get('kraj', '')): continue  # reprezentacja "Gibraltar" to nie "Lions Gibraltar"
         if len(norm_klub_api) >= 4 and wzorzec.search(k_baza):
             if SLOWA_ODROZNIAJACE_KLUB & set(wzorzec.sub(' ', k_baza).split()): continue  # "Dundee" to nie "Dundee United"
+            if (norm_klub_api, wyczysc_nazwe_klubu(k_baza)) in INNE_KLUBY_O_PODOBNEJ_NAZWIE: continue
             if weryfikuj_kraj(info): return k_baza, info
 
     # To samo co podobienstwo(k_baza, norm_klub_api) dla każdego klubu, ale szybciej: tanie górne
@@ -300,7 +310,9 @@ def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
         prog = max(best_ratio, 0.89)
         if porownanie.real_quick_ratio() <= prog or porownanie.quick_ratio() <= prog: continue
         r = porownanie.ratio()
-        if r > best_ratio: best_ratio, best_match = r, (k_baza, info)
+        if r > best_ratio:
+            if (wyczysc_nazwe_klubu(norm_klub_api), wyczysc_nazwe_klubu(k_baza)) in INNE_KLUBY_O_PODOBNEJ_NAZWIE: continue
+            best_ratio, best_match = r, (k_baza, info)
     if best_ratio > 0.89: return best_match
     return None, None
 
