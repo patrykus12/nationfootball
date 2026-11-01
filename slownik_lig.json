@@ -2574,5 +2574,21 @@
     "1000001841": {
         "nazwa": "Liga de Expansión MX",
         "flaga": "mx"
+    },
+    "943490": {
+        "nazwa": "League Cup Grp. B",
+        "flaga": "eg"
+    },
+    "943492": {
+        "nazwa": "League Cup Grp. D",
+        "flaga": "eg"
+    },
+    "943491": {
+        "nazwa": "League Cup Grp. C",
+        "flaga": "eg"
+    },
+    "943489": {
+        "nazwa": "League Cup Grp. A",
+        "flaga": "eg"
     }
 }
