@@ -87,6 +87,7 @@ const NACJE = {
   kh: { nazwa: "Kambodżanie", kraj: "Kambodża", flaga: "kh", formy: ["Kambodżanin", "Kambodżan", "Kambodżan"], dopelniacz: "Kambodżan" },
   zw: { nazwa: "Zimbabweńczycy", kraj: "Zimbabwe", flaga: "zw", formy: ["Zimbabweńczyk", "Zimbabweńczyków", "Zimbabweńczyków"], dopelniacz: "Zimbabweńczyków" },
   bj: { nazwa: "Beninczycy", kraj: "Benin", flaga: "bj", formy: ["Beninczyk", "Beninczyków", "Beninczyków"], dopelniacz: "Beninczyków" },
+  gn: { nazwa: "Gwinejczycy", kraj: "Gwinea", flaga: "gn", formy: ["Gwinejczyk", "Gwinejczyków", "Gwinejczyków"], dopelniacz: "Gwinejczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 
