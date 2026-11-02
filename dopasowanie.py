@@ -157,6 +157,7 @@ NACJE = {
     "zw": {"nazwa": "Zimbabwe", "land_id": 187, "plik": "zawodnicy_zw.xlsx", "od": "2026-11-02 18:25"},
     "bj": {"nazwa": "Benin", "land_id": 21, "plik": "zawodnicy_bj.xlsx", "od": "2026-11-02 18:38"},
     "gn": {"nazwa": "Gwinea", "land_id": 59, "plik": "zawodnicy_gn.xlsx", "od": "2026-11-02 18:47"},
+    "rw": {"nazwa": "Rwanda", "land_id": 139, "plik": "zawodnicy_rw.xlsx", "od": "2026-11-02 18:58"},
 }
 
 
@@ -279,7 +280,8 @@ INNE_KLUBY_O_PODOBNEJ_NAZWIE = {("cs dinamo bucuresti", "dinamo bucuresti"),  # 
                                 ("paris", "paris saint germain"),  # Paris FC / PSG
                                 ("miami", "inter miami cf"),  # Miami FC (USL) / Inter Miami
                                 ("toronto", "inter toronto"),  # Toronto FC (MLS) / Inter Toronto (CPL)
-                                ("atletico go", "atletico mg")}  # Atlético Goianiense / Mineiro (przybliżone 0.91)
+                                ("atletico go", "atletico mg"),  # Atlético Goianiense / Mineiro (przybliżone 0.91)
+                                ("lausanne", "fc stade lausanne ouchy")}  # Lausanne-Sport / Stade Lausanne-Ouchy
 
 def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
     norm_klub_api = wyczysc_nazwe_klubu(nazwa_klubu_z_api)

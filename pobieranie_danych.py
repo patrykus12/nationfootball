@@ -681,11 +681,11 @@ DAWNE_NAZWY_KLUBOW = {
     'torpedo moscow': ['torpedo moskau'], 'torpedo zhodino': ['torpedo-belaz zhodino'],
     'tps': ['turun palloseura'], 'trefelin bgc': ['trefelin boys & girls club'],
     'uniao de leiria': ['ud leiria'], 'union st.gilloise': ['union saint-gilloise'],
-    'van spor kulubu': ['van spor'], 'vasas budapest': ['vasas'], 'viktoria plzen': ['fc viktoria pilzno'],
-    'vps': ['vaasan palloseura'], 'vysocina jihlava': ['fc vysocina igawa'], 'wil': ['fc wil 1900'],
-    'zakynthos aps': ['zakynthos'], 'zalaegerszeg': ['zalaegerszegi te'],
-    'zalgiris vilnius': ['fk zalgiris wilno'], 'zenit st. petersburg': ['zenit petersburg'],
-    'zhejiang professional': ['zhejiang'],
+    'van spor kulubu': ['van spor'], 'vasas budapest': ['vasas'], 'veres rivne': ['weres rowne'],
+    'viktoria plzen': ['fc viktoria pilzno'], 'vps': ['vaasan palloseura'],
+    'vysocina jihlava': ['fc vysocina igawa'], 'wil': ['fc wil 1900'], 'zakynthos aps': ['zakynthos'],
+    'zalaegerszeg': ['zalaegerszegi te'], 'zalgiris vilnius': ['fk zalgiris wilno'],
+    'zenit st. petersburg': ['zenit petersburg'], 'zhejiang professional': ['zhejiang'],
 }
 
 _DZIEN_ZMIANY_NAZW = TZ_PL.localize(datetime(2026, 10, 31)).timestamp()
