@@ -37,7 +37,7 @@ KODY_KRAJOW_RECZNE = {
     'kazachstan': 'kz', 'gruzja': 'ge', 'białoruś': 'by', 'uzbekistan': 'uz', 'serbia': 'rs', 'estonia': 'ee',
     'izrael': 'il', 'malezja': 'my', 'indie': 'in', 'chile': 'cl', 'macedonia północna': 'mk', 'albania': 'al',
     'czarnogóra': 'me', 'wenezuela': 've', 'nigeria': 'ng', 'sudan': 'sd', 'tadżykistan': 'tj', 'bhutan': 'bt',
-    'mjanma': 'mm', 'timor-leste': 'tl', 'senegal': 'sn', 'chinese taipei': 'tw', 'kambodża': 'kh', 'singapur': 'sg', 'andora': 'ad', 'honduras': 'hn', 'salwador': 'sv',
+    'mjanma': 'mm', 'timor-leste': 'tl', 'senegal': 'sn', 'chinese taipei': 'tw', 'kambodża': 'kh', 'singapur': 'sg', 'andora': 'ad', 'honduras': 'hn', 'salwador': 'sv', 'gwatemala': 'gt',
     'sri lanka': 'lk', 'boliwia': 'bo', 'kostaryka': 'cr', 'panama': 'pa', 'peru': 'pe', 'paragwaj': 'py'
 }
 
@@ -152,6 +152,7 @@ NACJE = {
     "sn": {"nazwa": "Senegal", "land_id": 149, "plik": "zawodnicy_sn.xlsx", "od": "2026-10-31 17:30"},
     "nl": {"nazwa": "Holandia", "land_id": 122, "plik": "zawodnicy_nl.xlsx", "od": "2026-10-31 17:59"},
     "gt": {"nazwa": "Gwatemala", "land_id": 58, "plik": "zawodnicy_gt.xlsx", "od": "2026-10-31 18:10"},
+    "ec": {"nazwa": "Ekwador", "land_id": 44, "plik": "zawodnicy_ec.xlsx", "od": "2026-11-02 18:02"},
 }
 
 
@@ -270,7 +271,11 @@ SLOWA_ODROZNIAJACE_KLUB = {"united", "utd", "city", "town", "athletic", "rovers"
 
 # (nazwa z API, nazwa z bazy) po wyczysc_nazwe_klubu - różne kluby, które dopasowanie przybliżone brałoby za jeden
 INNE_KLUBY_O_PODOBNEJ_NAZWIE = {("cs dinamo bucuresti", "dinamo bucuresti"),  # 3. liga / Liga 1
-                                ("vancouver", "vancouver whitecaps")}  # Vancouver FC (CPL) / MLS
+                                ("vancouver", "vancouver whitecaps"),  # Vancouver FC (CPL) / MLS
+                                ("paris", "paris saint germain"),  # Paris FC / PSG
+                                ("miami", "inter miami cf"),  # Miami FC (USL) / Inter Miami
+                                ("toronto", "inter toronto"),  # Toronto FC (MLS) / Inter Toronto (CPL)
+                                ("atletico go", "atletico mg")}  # Atlético Goianiense / Mineiro (przybliżone 0.91)
 
 def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
     norm_klub_api = wyczysc_nazwe_klubu(nazwa_klubu_z_api)
