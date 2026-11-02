@@ -144,6 +144,8 @@ NAZWY_KLUBOW_JAK_W_API = {
     "Atlético Mineiro": "Atlético-MG", "Club A.B.B.": "ABB",  # "ABB" za krótkie na zawieranie
     "Tobył Kostanaj": "Tobol Kostanay", "Shabab Al-Ahli Club": "Shabab Al-Ahli Dubai FC",
     "Weres Równe": "Veres Rivne", "RFC Lüttich": "FC Liège", "Al-Kahrbaa Club": "Al Kahrabaa",
+    "OFI Kreta": "OFI Crete", "Djurgårdens IF": "Djurgården", "Egersunds IK": "Egersund", "FC Bihor 1902": "FC Bihor Oradea",
+    "Zoria Ługańsk": "Zorya", "FC Viktoria Köln": "Viktoria Köln 1904", "Antigua GFC": "Antigua Guatemala",
     # Przegląd 31.10 - kluby z bazy bez żadnej drużyny API o tej nazwie w lidze swojego kraju
     "Jeunesse Sportive de la Saoura": "JS Saoura", "CA Central Córdoba (SdE)": "Central Córdoba de Santiago",
     "CA Güemes": "Atlético Güemes", "Club de Gimnasia y Esgrima La Plata": "Gimnasia LP",

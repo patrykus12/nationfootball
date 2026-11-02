@@ -162,6 +162,24 @@ NACJE = {
     "so": {"nazwa": "Somalia", "land_id": 156, "plik": "zawodnicy_so.xlsx", "od": "2026-11-02 19:11"},
     "bo": {"nazwa": "Boliwia", "land_id": 23, "plik": "zawodnicy_bo.xlsx", "od": "2026-11-02 19:26"},
     "tn": {"nazwa": "Tunezja", "land_id": 173, "plik": "zawodnicy_tn.xlsx", "od": "2026-11-02 19:42"},
+    "be": {"nazwa": "Belgia", "land_id": 19, "plik": "zawodnicy_be.xlsx", "od": "2026-11-02 20:06"},
+    "ss": {"nazwa": "Sudan Południowy", "land_id": 262, "plik": "zawodnicy_ss.xlsx", "od": "2026-11-02 20:06"},
+    "ht": {"nazwa": "Haiti", "land_id": 62, "plik": "zawodnicy_ht.xlsx", "od": "2026-11-02 20:06"},
+    "cu": {"nazwa": "Kuba", "land_id": 88, "plik": "zawodnicy_cu.xlsx", "od": "2026-11-02 20:06"},
+    "jo": {"nazwa": "Jordania", "land_id": 78, "plik": "zawodnicy_jo.xlsx", "od": "2026-11-02 20:06"},
+    "do": {"nazwa": "Dominikana", "land_id": 43, "plik": "zawodnicy_do.xlsx", "od": "2026-11-02 20:06"},
+    "gr": {"nazwa": "Grecja", "land_id": 56, "plik": "zawodnicy_gr.xlsx", "od": "2026-11-02 20:06"},
+    "se": {"nazwa": "Szwecja", "land_id": 147, "plik": "zawodnicy_se.xlsx", "od": "2026-11-02 20:06"},
+    "az": {"nazwa": "Azerbejdżan", "land_id": 13, "plik": "zawodnicy_az.xlsx", "od": "2026-11-02 20:06"},
+    "pt": {"nazwa": "Portugalia", "land_id": 136, "plik": "zawodnicy_pt.xlsx", "od": "2026-11-02 20:06"},
+    "ae": {"nazwa": "Zjednaczone Emiraty Arabskie", "land_id": 183, "plik": "zawodnicy_ae.xlsx", "od": "2026-11-02 20:06"},  # tak pisze Transfermarkt
+    "il": {"nazwa": "Izrael", "land_id": 74, "plik": "zawodnicy_il.xlsx", "od": "2026-11-02 20:06"},
+    "hu": {"nazwa": "Węgry", "land_id": 178, "plik": "zawodnicy_hu.xlsx", "od": "2026-11-02 20:06"},
+    "pg": {"nazwa": "Papua-Nowa Gwinea", "land_id": 131, "plik": "zawodnicy_pg.xlsx", "od": "2026-11-02 20:06"},
+    "hn": {"nazwa": "Honduras", "land_id": 66, "plik": "zawodnicy_hn.xlsx", "od": "2026-11-02 20:06"},
+    "tj": {"nazwa": "Tadżykistan", "land_id": 165, "plik": "zawodnicy_tj.xlsx", "od": "2026-11-02 20:06"},
+    "at": {"nazwa": "Austria", "land_id": 127, "plik": "zawodnicy_at.xlsx", "od": "2026-11-02 20:06"},
+    "sl": {"nazwa": "Sierra Leone", "land_id": 152, "plik": "zawodnicy_sl.xlsx", "od": "2026-11-02 20:06"},
 }
 
 
@@ -211,6 +229,10 @@ SLOWA_KLUCZOWE_LIGI_KOBIECE = ("women", "female", "ladies", "kobiet", "femin", "
                                "kvinner", "vrouwen", "damallsvenskan", "toppserien", "kvindeliga",
                                "nwsl", "arkema", "iberdrola", "(w)")
 
+
+# Litery, których normalizacja Unicode nie rozkłada na literę + znak (normalizuj_tekst je usuwa)
+LITERY_BEZ_ROZKLADU = str.maketrans({"ł": "l", "Ł": "L", "ı": "i", "ø": "o", "Ø": "O", "đ": "d", "Đ": "D",
+                                     "ß": "ss", "æ": "ae", "Æ": "AE", "œ": "oe", "þ": "th", "ð": "d"})
 
 def normalizuj_tekst(tekst): return unicodedata.normalize('NFKD', str(tekst)).encode('ASCII', 'ignore').decode('utf-8').lower().strip()
 
@@ -285,7 +307,9 @@ INNE_KLUBY_O_PODOBNEJ_NAZWIE = {("cs dinamo bucuresti", "dinamo bucuresti"),  # 
                                 ("miami", "inter miami cf"),  # Miami FC (USL) / Inter Miami
                                 ("toronto", "inter toronto"),  # Toronto FC (MLS) / Inter Toronto (CPL)
                                 ("atletico go", "atletico mg"),  # Atlético Goianiense / Mineiro (przybliżone 0.91)
-                                ("lausanne", "fc stade lausanne ouchy")}  # Lausanne-Sport / Stade Lausanne-Ouchy
+                                ("lausanne", "fc stade lausanne ouchy"),  # Lausanne-Sport / Stade Lausanne-Ouchy
+                                ("ararat", "fc ararat armenia"),  # Ararat Erywań / Ararat-Armenia
+                                ("yokohama", "yokohama f. marinos")}  # Yokohama FC / F. Marinos
 
 def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
     norm_klub_api = wyczysc_nazwe_klubu(nazwa_klubu_z_api)
@@ -331,6 +355,11 @@ def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
             if (wyczysc_nazwe_klubu(norm_klub_api), wyczysc_nazwe_klubu(k_baza)) in INNE_KLUBY_O_PODOBNEJ_NAZWIE: continue
             best_ratio, best_match = r, (k_baza, info)
     if best_ratio > 0.89: return best_match
+    # Litery bez rozkładu Unicode znikają przy normalizacji ("Sumqayıt" -> "sumqayt"), a Transfermarkt
+    # pisze je zwykle po łacińsku ("Sumqayit PFK") - druga próba z zamianą ı->i, ł->l, ø->o...
+    # (klucze bazy bez zmian - od nich zależą daty dopisania zawodników na serwerze)
+    zamieniona = nazwa_klubu_z_api.translate(LITERY_BEZ_ROZKLADU)
+    if zamieniona != nazwa_klubu_z_api: return dopasuj_klub_do_bazy(zamieniona, alpha2_z_api, baza_klubow)
     return None, None
 
 def flaga_ligi_meczu(mecz, nasz_slownik_lig, baza_lig):
