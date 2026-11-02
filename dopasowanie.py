@@ -158,6 +158,7 @@ NACJE = {
     "bj": {"nazwa": "Benin", "land_id": 21, "plik": "zawodnicy_bj.xlsx", "od": "2026-11-02 18:38"},
     "gn": {"nazwa": "Gwinea", "land_id": 59, "plik": "zawodnicy_gn.xlsx", "od": "2026-11-02 18:47"},
     "rw": {"nazwa": "Rwanda", "land_id": 139, "plik": "zawodnicy_rw.xlsx", "od": "2026-11-02 18:58"},
+    "bi": {"nazwa": "Burundi", "land_id": 30, "plik": "zawodnicy_bi.xlsx", "od": "2026-11-02 19:04"},
 }
 
 
@@ -228,7 +229,7 @@ def czy_liga_kobieca(nazwa_ligi):
 def czy_to_niechciana_druzyna(nazwa):
     n = nazwa.lower().strip()
     if "(w)" in n or " (w) " in n or n.endswith(" (w)") or n.endswith(" w") or "women" in n or "kobiety" in n: return True
-    if "willem ii" in n: return False
+    if "willem ii" in n or "juan pablo ii" in n: return False  # Willem II, ADC Juan Pablo II (Peru Liga 1) - nie rezerwy
     if n.endswith((" akatemia", " reserves")) or n.startswith("jong "): return True  # rezerwy: "KuPS Akatemia", "Jong Sparta Rotterdam"
     return bool(re.search(r'\b(b|c|ii|2)\b$', n) or " u2" in n or " u1" in n)
 
@@ -358,7 +359,10 @@ def dopasuj_mecz(mecz, polskie_kluby, nasz_slownik_lig, baza_lig, pamiec_druzyn=
     pamiec_druzyn - słownik na wyniki dopasowania drużyn (ta sama drużyna gra w wielu meczach,
     a porównywanie nazwy z każdym klubem bazy jest kosztowne); czyścić po zmianie bazy."""
     gosp, gosc = mecz.get('home', {}).get('name', ''), mecz.get('away', {}).get('name', '')
-    if czy_to_niechciana_druzyna(gosp) or czy_to_niechciana_druzyna(gosc): return None
+    # Drużyna rezerw / kobieca nigdy nie jest dopasowywana, ale mecz z nią się liczy dla drugiej strony
+    # (Benfica B - Feirense, Genk U23 - Dender, Jong Ajax - ADO w ligach z drużynami rezerw)
+    niechciane = {s for s, n in (('home', gosp), ('away', gosc)) if czy_to_niechciana_druzyna(n)}
+    if len(niechciane) == 2: return None
 
     league_id = str(mecz.get('leagueId', mecz.get('tournament', {}).get('id', '')))
     dane_ze_slownika = nasz_slownik_lig.get(league_id, {})
@@ -384,6 +388,7 @@ def dopasuj_mecz(mecz, polskie_kluby, nasz_slownik_lig, baza_lig, pamiec_druzyn=
     if czy_liga_kobieca(nazwa_ligi): return None
 
     def klub(nazwa, strona):
+        if strona in niechciane: return None, None
         flaga = flaga_ligi
         if flaga == "int": flaga = KRAJE_DRUZYN.get(mecz.get(strona, {}).get('id'), "int")
         def policz():
