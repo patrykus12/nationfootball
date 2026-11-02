@@ -92,6 +92,7 @@ const NACJE = {
   bi: { nazwa: "Burundyjczycy", kraj: "Burundi", flaga: "bi", formy: ["Burundyjczyk", "Burundyjczyków", "Burundyjczyków"], dopelniacz: "Burundyjczyków" },
   so: { nazwa: "Somalijczycy", kraj: "Somalia", flaga: "so", formy: ["Somalijczyk", "Somalijczyków", "Somalijczyków"], dopelniacz: "Somalijczyków" },
   bo: { nazwa: "Boliwijczycy", kraj: "Boliwia", flaga: "bo", formy: ["Boliwijczyk", "Boliwijczyków", "Boliwijczyków"], dopelniacz: "Boliwijczyków" },
+  tn: { nazwa: "Tunezyjczycy", kraj: "Tunezja", flaga: "tn", formy: ["Tunezyjczyk", "Tunezyjczyków", "Tunezyjczyków"], dopelniacz: "Tunezyjczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 
