@@ -2598,5 +2598,33 @@
     "1000001843": {
         "nazwa": "Liga de Expansión MX",
         "flaga": "mx"
+    },
+    "956085": {
+        "nazwa": "Primera Nacional Promotion Playoff",
+        "flaga": "ar"
+    },
+    "1000001425": {
+        "nazwa": "Chile Copa de la Liga",
+        "flaga": "cl"
+    },
+    "942850": {
+        "nazwa": "Liga 3 Zona A",
+        "flaga": "pt"
+    },
+    "943232": {
+        "nazwa": "National League Cup Group A",
+        "flaga": "gb-eng"
+    },
+    "943234": {
+        "nazwa": "National League Cup Group C",
+        "flaga": "gb-eng"
+    },
+    "943235": {
+        "nazwa": "National League Cup Group D",
+        "flaga": "gb-eng"
+    },
+    "951803": {
+        "nazwa": "Cup",
+        "flaga": "ru"
     }
 }
