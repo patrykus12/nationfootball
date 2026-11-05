@@ -169,6 +169,20 @@ const NACJE = {
   tt: { nazwa: "Trynidadczycy", kraj: "Trynidad i Tobago", flaga: "tt", formy: ["Trynidadczyk", "Trynidadczyków", "Trynidadczyków"], dopelniacz: "Trynidadczyków" },
   cy: { nazwa: "Cypryjczycy", kraj: "Cypr", flaga: "cy", formy: ["Cypryjczyk", "Cypryjczyków", "Cypryjczyków"], dopelniacz: "Cypryjczyków" },
   ee: { nazwa: "Estończycy", kraj: "Estonia", flaga: "ee", formy: ["Estończyk", "Estończyków", "Estończyków"], dopelniacz: "Estończyków" },
+  sz: { nazwa: "Suazi", kraj: "Eswatini", flaga: "sz", formy: ["Suazi", "Suazich", "Suazich"], dopelniacz: "Suazich" },
+  dj: { nazwa: "Dżibutyjczycy", kraj: "Dżibuti", flaga: "dj", formy: ["Dżibutyjczyk", "Dżibutyjczyków", "Dżibutyjczyków"], dopelniacz: "Dżibutyjczyków" },
+  fj: { nazwa: "Fidżyjczycy", kraj: "Fidżi", flaga: "fj", formy: ["Fidżyjczyk", "Fidżyjczyków", "Fidżyjczyków"], dopelniacz: "Fidżyjczyków" },
+  km: { nazwa: "Komoryjczycy", kraj: "Komory", flaga: "km", formy: ["Komoryjczyk", "Komoryjczyków", "Komoryjczyków"], dopelniacz: "Komoryjczyków" },
+  gy: { nazwa: "Gujańczycy", kraj: "Gujana", flaga: "gy", formy: ["Gujańczyk", "Gujańczyków", "Gujańczyków"], dopelniacz: "Gujańczyków" },
+  sb: { nazwa: "Salomończycy", kraj: "Wyspy Salomona", flaga: "sb", formy: ["Salomończyk", "Salomończyków", "Salomończyków"], dopelniacz: "Salomończyków" },
+  lu: { nazwa: "Luksemburczycy", kraj: "Luksemburg", flaga: "lu", formy: ["Luksemburczyk", "Luksemburczyków", "Luksemburczyków"], dopelniacz: "Luksemburczyków" },
+  mo: { nazwa: "Makańczycy", kraj: "Makau", flaga: "mo", formy: ["Makańczyk", "Makańczyków", "Makańczyków"], dopelniacz: "Makańczyków" },
+  sr: { nazwa: "Surinamczycy", kraj: "Surinam", flaga: "sr", formy: ["Surinamczyk", "Surinamczyków", "Surinamczyków"], dopelniacz: "Surinamczyków" },
+  me: { nazwa: "Czarnogórcy", kraj: "Czarnogóra", flaga: "me", formy: ["Czarnogórzec", "Czarnogórców", "Czarnogórców"], dopelniacz: "Czarnogórców" },
+  cv: { nazwa: "Kabowerdeńczycy", kraj: "Republika Zielonego Przylądka", flaga: "cv", formy: ["Kabowerdeńczyk", "Kabowerdeńczyków", "Kabowerdeńczyków"], dopelniacz: "Kabowerdeńczyków" },
+  mt: { nazwa: "Maltańczycy", kraj: "Malta", flaga: "mt", formy: ["Maltańczyk", "Maltańczyków", "Maltańczyków"], dopelniacz: "Maltańczyków" },
+  is: { nazwa: "Islandczycy", kraj: "Islandia", flaga: "is", formy: ["Islandczyk", "Islandczyków", "Islandczyków"], dopelniacz: "Islandczyków" },
+  vu: { nazwa: "Vanuatczycy", kraj: "Vanuatu", flaga: "vu", formy: ["Vanuatczyk", "Vanuatczyków", "Vanuatczyków"], dopelniacz: "Vanuatczyków" },
 };
 const KLUCZ_NACJI = "nf-nacja";
 

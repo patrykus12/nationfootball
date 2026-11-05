@@ -240,6 +240,20 @@ NACJE = {
     "tt": {"nazwa": "Trynidad and Tobago", "land_id": 170, "plik": "zawodnicy_tt.xlsx", "od": "2026-11-05 11:01"},  # tak pisze Transfermarkt
     "cy": {"nazwa": "Cypr", "land_id": 188, "plik": "zawodnicy_cy.xlsx", "od": "2026-11-05 11:01"},
     "ee": {"nazwa": "Estonia", "land_id": 47, "plik": "zawodnicy_ee.xlsx", "od": "2026-11-05 11:01"},
+    "sz": {"nazwa": "Eswatini", "land_id": 162, "plik": "zawodnicy_sz.xlsx", "od": "2026-11-05 11:36"},
+    "dj": {"nazwa": "Dżibuti", "land_id": 41, "plik": "zawodnicy_dj.xlsx", "od": "2026-11-05 11:36"},
+    "fj": {"nazwa": "Fidżi", "land_id": 48, "plik": "zawodnicy_fj.xlsx", "od": "2026-11-05 11:36"},
+    "km": {"nazwa": "Komory", "land_id": 35, "plik": "zawodnicy_km.xlsx", "od": "2026-11-05 11:36"},
+    "gy": {"nazwa": "Gujana", "land_id": 61, "plik": "zawodnicy_gy.xlsx", "od": "2026-11-05 11:36"},
+    "sb": {"nazwa": "Wyspy Salomona", "land_id": 69, "plik": "zawodnicy_sb.xlsx", "od": "2026-11-05 11:36"},
+    "lu": {"nazwa": "Luksemburg", "land_id": 99, "plik": "zawodnicy_lu.xlsx", "od": "2026-11-05 11:36"},
+    "mo": {"nazwa": "Makau", "land_id": 219, "plik": "zawodnicy_mo.xlsx", "od": "2026-11-05 11:36"},
+    "sr": {"nazwa": "Surinam", "land_id": 161, "plik": "zawodnicy_sr.xlsx", "od": "2026-11-05 11:36"},
+    "me": {"nazwa": "Czarnogóra", "land_id": 216, "plik": "zawodnicy_me.xlsx", "od": "2026-11-05 11:36"},
+    "cv": {"nazwa": "Republika Zielonego Przylądka", "land_id": 32, "plik": "zawodnicy_cv.xlsx", "od": "2026-11-05 11:36"},
+    "mt": {"nazwa": "Malta", "land_id": 106, "plik": "zawodnicy_mt.xlsx", "od": "2026-11-05 11:36"},
+    "is": {"nazwa": "Islandia", "land_id": 73, "plik": "zawodnicy_is.xlsx", "od": "2026-11-05 11:36"},
+    "vu": {"nazwa": "Vanuatu", "land_id": 181, "plik": "zawodnicy_vu.xlsx", "od": "2026-11-05 11:36"},
 }
 
 
