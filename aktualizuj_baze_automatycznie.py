@@ -87,6 +87,9 @@ def pobierz_slownik_lig():
 
 
 if __name__ == "__main__":
+    if "--nacja" in sys.argv:   # jedna nacja (konsola.pyw skanuje kilka naraz w osobnych procesach)
+        kod = sys.argv[sys.argv.index("--nacja") + 1]
+        sys.exit(0 if kod in NACJE and aktualizuj_zawodnikow(kod) else 1)
     pobierz_slownik_lig()
     if "--tylko-slownik" in sys.argv: sys.exit(0)
     # Każda nacja osobno - nieudany skan jednej nie blokuje aktualizacji pozostałych

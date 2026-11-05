@@ -1,8 +1,8 @@
 name: Cotygodniowa baza zawodnikow
 
+# Harmonogram WYŁĄCZONY (11.2026): Transfermarkt blokuje serwery GitHuba ("Nie udało się pobrać państw"),
+# więc skan idzie ręcznie z domowego internetu - konsola.pyw ("Konsola NationFootball.bat").
 on:
-  schedule:
-    - cron: "0 3 * * 1"   # poniedziałek ~05:00 czasu polskiego (GitHub liczy w UTC)
   workflow_dispatch:       # przycisk "Run workflow" do ręcznego odpalenia
 
 permissions:

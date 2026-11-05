@@ -230,6 +230,10 @@ def pobierz_zawodnikow(nacja="pl"):
 
     soup_kraje = BeautifulSoup(res_kraje.text, 'html.parser')
 
+    if "Human Verification" in res_kraje.text:
+        # Transfermarkt ogranicza zbyt częste wizyty - trzeba odczekać (konsola.pyw przerywa wtedy cały skan)
+        print("[!] WERYFIKACJA: Transfermarkt prosi o potwierdzenie, że to człowiek - odczekaj kilka godzin.")
+        return
     if "Just a moment" in soup_kraje.text or "cloudflare" in soup_kraje.text.lower():
         print("[!] Cloudflare zablokował Krok 1. Użyj Hotspota z telefonu!")
         return
