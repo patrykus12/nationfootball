@@ -200,6 +200,26 @@ NACJE = {
     "cg": {"nazwa": "Kongo", "land_id": 85, "plik": "zawodnicy_cg.xlsx", "od": "2026-11-05 09:45"},
     "cf": {"nazwa": "Republika Środkowoafrykańska", "land_id": 138, "plik": "zawodnicy_cf.xlsx", "od": "2026-11-05 09:45"},
     "sk": {"nazwa": "Słowacja", "land_id": 154, "plik": "zawodnicy_sk.xlsx", "od": "2026-11-05 09:45"},
+    "lr": {"nazwa": "Liberia", "land_id": 95, "plik": "zawodnicy_lr.xlsx", "od": "2026-11-05 10:22"},
+    "lb": {"nazwa": "Liban", "land_id": 94, "plik": "zawodnicy_lb.xlsx", "od": "2026-11-05 10:22"},
+    "ie": {"nazwa": "Irlandia", "land_id": 72, "plik": "zawodnicy_ie.xlsx", "od": "2026-11-05 10:22",
+           "pomin_kluby": ["Derry City"]},  # gra w irlandzkiej League of Ireland
+    "cr": {"nazwa": "Kostaryka", "land_id": 36, "plik": "zawodnicy_cr.xlsx", "od": "2026-11-05 10:22"},
+    "nz": {"nazwa": "Nowa Zelandia", "land_id": 120, "plik": "zawodnicy_nz.xlsx", "od": "2026-11-05 10:22"},
+    "ge": {"nazwa": "Gruzja", "land_id": 53, "plik": "zawodnicy_ge.xlsx", "od": "2026-11-05 10:22"},
+    "pa": {"nazwa": "Panama", "land_id": 130, "plik": "zawodnicy_pa.xlsx", "od": "2026-11-05 10:22"},
+    "hr": {"nazwa": "Chorwacja", "land_id": 37, "plik": "zawodnicy_hr.xlsx", "od": "2026-11-05 10:22"},
+    "mr": {"nazwa": "Mauretania", "land_id": 108, "plik": "zawodnicy_mr.xlsx", "od": "2026-11-05 10:22"},
+    "ba": {"nazwa": "Bośnia i Hercegowina", "land_id": 24, "plik": "zawodnicy_ba.xlsx", "od": "2026-11-05 10:22"},
+    "om": {"nazwa": "Oman", "land_id": 126, "plik": "zawodnicy_om.xlsx", "od": "2026-11-05 10:22"},
+    "uy": {"nazwa": "Urugwaj", "land_id": 179, "plik": "zawodnicy_uy.xlsx", "od": "2026-11-05 10:22",
+           "ligi": LIGI_CZOLOWE},
+    "md": {"nazwa": "Mołdawia", "land_id": 112, "plik": "zawodnicy_md.xlsx", "od": "2026-11-05 10:22"},
+    "mn": {"nazwa": "Mongolia", "land_id": 114, "plik": "zawodnicy_mn.xlsx", "od": "2026-11-05 10:22"},
+    "pr": {"nazwa": "Portoryko", "land_id": 228, "plik": "zawodnicy_pr.xlsx", "od": "2026-11-05 10:22"},
+    "al": {"nazwa": "Albania", "land_id": 3, "plik": "zawodnicy_al.xlsx", "od": "2026-11-05 10:22"},
+    "am": {"nazwa": "Armenia", "land_id": 10, "plik": "zawodnicy_am.xlsx", "od": "2026-11-05 10:22"},
+    "jm": {"nazwa": "Jamajka", "land_id": 76, "plik": "zawodnicy_jm.xlsx", "od": "2026-11-05 10:22"},
 }
 
 
@@ -333,7 +353,9 @@ INNE_KLUBY_O_PODOBNEJ_NAZWIE = {("cs dinamo bucuresti", "dinamo bucuresti"),  # 
                                 ("bogota", "internacional de bogota"),  # Bogotá FC / Internacional de Bogotá
                                 ("independiente", "cs independiente rivadavia"),  # Independiente (Avellaneda) / Rivadavia
                                 ("cerro", "cerro largo"),  # Cerro (Montevideo) / Cerro Largo
-                                ("ha noi", "cong an ha noi"),  # Hà Nội FC / Công An Hà Nội
+                                ("ha noi", "cong an ha noi"),
+                                ("sydney", "sydney olympic"),  # Sydney FC / Sydney Olympic (NPL)
+                                ("salzburg", "sv austria salzburg"),  # RB Salzburg / Austria Salzburg  # Hà Nội FC / Công An Hà Nội
                                 ("atletico", "atletico nacional"),  # Atlético FC (Cali) / Atlético Nacional
                                 ("atletico", "atletico bucaramanga")}  # Atlético FC (Cali) / Bucaramanga
 
