@@ -46,9 +46,21 @@ def pliki_baz():
     return [(n, False) for n in NACJE] + [(n, True) for n in NACJE if ma_szeroka_baze(n)]
 
 
-def plik_bazy(nacja, szeroka=False):
-    """Baza nacji; szeroka=True - wszyscy zawodnicy, bez limitu lig (tylko do składów, które już mamy)."""
+KATALOG_KADR = os.path.join(KATALOG_DANYCH, "serwer_cache", "kadry")   # bazy scalone z API (kadry_api.py)
+
+
+def plik_bazy_tm(nacja, szeroka=False):
+    """Baza z Transfermarktu (z repozytorium)."""
     return os.path.join(KATALOG_DANYCH, plik_szerokiej_bazy(nacja) if szeroka else NACJE[nacja]["plik"])
+
+
+def plik_bazy(nacja, szeroka=False):
+    """Baza nacji, której używa serwer: scalona z API (kadry_api), a dopóki jej nie ma - z Transfermarktu.
+    szeroka=True - wszyscy zawodnicy, bez limitu lig (tylko do składów, które już mamy) - zawsze z Transfermarktu."""
+    if not szeroka:
+        scalona = os.path.join(KATALOG_KADR, NACJE[nacja]["plik"])
+        if os.path.exists(scalona): return scalona
+    return plik_bazy_tm(nacja, szeroka)
 
 
 def _wczytaj_klucz_api():
@@ -144,7 +156,8 @@ def awaria_api():
 
 # --- DZIENNY LICZNIK ZAPYTAŃ (ile aplikacja naprawdę zużywa limitu) ---
 _RODZAJE_ZAPYTAN = {"football-get-matches-by-date": "terminarze", "football-get-hometeam-lineup": "sklady",
-                    "football-get-awayteam-lineup": "sklady", "football-get-match-detail": "ligi"}
+                    "football-get-awayteam-lineup": "sklady", "football-get-match-detail": "ligi",
+                    "football-get-list-player": "kadry", "football-get-all-transfers": "transfery"}
 _licznik = {"dni": None}
 
 
@@ -379,7 +392,7 @@ def synchronizuj_z_repo():
     zmienione = []
     try:
         for nacja, szeroka in pliki_baz():
-            sciezka = plik_bazy(nacja, szeroka)
+            sciezka = plik_bazy_tm(nacja, szeroka)
             nazwa = os.path.basename(sciezka)
             res = _pobierz_z_repo(nazwa)
             if res.status_code == 200 and res.content:
@@ -418,9 +431,9 @@ def synchronizuj_z_repo():
 
 # --- KOPIA ZAPASOWA CACHE ---
 _WZORZEC_KOPII = re.compile(r"^(surowe/\d{8}\.json|sklady/\d+_(home|away)\.json|slownik_lig\.json|znani_zawodnicy\.json|licznik_api\.json"
-                            r"|historia\.json|transfery\.json|push\.enc)$")
+                            r"|historia\.json|transfery\.json|kadry_api\.json|push\.enc)$")
 # Pliki serwer_cache trzymane w kopii 1:1 (odtwarzane, gdy ich brak)
-PLIKI_KOPII_1DO1 = ("znani_zawodnicy.json", "licznik_api.json", "historia.json", "transfery.json")
+PLIKI_KOPII_1DO1 = ("znani_zawodnicy.json", "licznik_api.json", "historia.json", "transfery.json", "kadry_api.json")
 # Pliki kopii z własnym zapisem/odczytem: nazwa -> (funkcja zwracająca bajty albo None, funkcja odtwarzająca z bajtów)
 DODATKOWE_PLIKI_KOPII = {}
 

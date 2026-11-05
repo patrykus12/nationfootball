@@ -42,6 +42,7 @@ from datetime import datetime, timedelta
 from flask import Flask, Response, abort, jsonify, redirect, request, send_from_directory
 
 import historia
+import kadry_api
 import pobieranie_danych as dane
 
 KATALOG_WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
@@ -59,7 +60,7 @@ app = Flask(__name__)
 
 def _przygotuj_pliki_startowe():
     """Gdy dane trzymamy na osobnym wolumenie - skopiuj tam pliki z repozytorium przy pierwszym starcie."""
-    bazy = [os.path.basename(dane.plik_bazy(n, s)) for n, s in dane.pliki_baz()]
+    bazy = [os.path.basename(dane.plik_bazy_tm(n, s)) for n, s in dane.pliki_baz()]
     for nazwa in bazy + ["ligi.json", "slownik_lig.json"]:
         cel = os.path.join(dane.KATALOG_DANYCH, nazwa)
         zrodlo = os.path.join(dane.KATALOG_PROJEKTU, nazwa)
@@ -108,6 +109,7 @@ def status():
         "awaria_api": f"tak - kolejna próba po {_czas(s['awaria_api_do'])[11:]}" if dane.awaria_api() else "nie",
         "ostatni_blad_api": s["ostatni_blad_api"],
         "zuzycie_api": dane.podsumowanie_licznika(),
+        "kadry_z_api": kadry_api.status(),
     })
 
 
@@ -259,6 +261,9 @@ def _uruchom_cykl(wymus_repo=False):
     # Historia występów / transfery / powiadomienia - tylko z danych serwera, bez zapytań do API
     if dane.STATYSTYKI["ostatni_cykl"] and raport not in (["(cykl już trwa)"], ["(trwa odtwarzanie kopii)"]):
         for wpis in historia.po_cyklu(): print(f"[historia] {wpis}", flush=True)
+        # Bazy zawodników z API (kadry klubów + transfery) - z bezpiecznikiem limitu, po meczach
+        if not dane.awaria_api():
+            for wpis in kadry_api.po_cyklu(): print(f"[kadry] {wpis}", flush=True)
 
 
 @app.route("/cron")
