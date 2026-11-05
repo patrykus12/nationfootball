@@ -220,6 +220,26 @@ NACJE = {
     "al": {"nazwa": "Albania", "land_id": 3, "plik": "zawodnicy_al.xlsx", "od": "2026-11-05 10:22"},
     "am": {"nazwa": "Armenia", "land_id": 10, "plik": "zawodnicy_am.xlsx", "od": "2026-11-05 10:22"},
     "jm": {"nazwa": "Jamajka", "land_id": 76, "plik": "zawodnicy_jm.xlsx", "od": "2026-11-05 10:22"},
+    "na": {"nazwa": "Namibia", "land_id": 117, "plik": "zawodnicy_na.xlsx", "od": "2026-11-05 11:01"},
+    "lt": {"nazwa": "Litwa", "land_id": 98, "plik": "zawodnicy_lt.xlsx", "od": "2026-11-05 11:01"},
+    "qa": {"nazwa": "Katar", "land_id": 137, "plik": "zawodnicy_qa.xlsx", "od": "2026-11-05 11:01"},
+    "gm": {"nazwa": "Gambia", "land_id": 52, "plik": "zawodnicy_gm.xlsx", "od": "2026-11-05 11:01"},
+    "bw": {"nazwa": "Botswana", "land_id": 25, "plik": "zawodnicy_bw.xlsx", "od": "2026-11-05 11:01"},
+    "ga": {"nazwa": "Gabon", "land_id": 51, "plik": "zawodnicy_ga.xlsx", "od": "2026-11-05 11:01"},
+    "ls": {"nazwa": "Lesotho", "land_id": 93, "plik": "zawodnicy_ls.xlsx", "od": "2026-11-05 11:01"},
+    "mk": {"nazwa": "Macedonia Północna", "land_id": 100, "plik": "zawodnicy_mk.xlsx", "od": "2026-11-05 11:01"},
+    "si": {"nazwa": "Słowenia", "land_id": 155, "plik": "zawodnicy_si.xlsx", "od": "2026-11-05 11:01"},
+    "gw": {"nazwa": "Gwinea Bissau", "land_id": 60, "plik": "zawodnicy_gw.xlsx", "od": "2026-11-05 11:01"},
+    "ps": {"nazwa": "Palestyna", "land_id": 240, "plik": "zawodnicy_ps.xlsx", "od": "2026-11-05 11:01"},
+    "xk": {"nazwa": "Kosowo", "land_id": 244, "plik": "zawodnicy_xk.xlsx", "od": "2026-11-05 11:01"},
+    "lv": {"nazwa": "Łotwa", "land_id": 92, "plik": "zawodnicy_lv.xlsx", "od": "2026-11-05 11:01"},
+    "gq": {"nazwa": "Gwinea Równikowa", "land_id": 8, "plik": "zawodnicy_gq.xlsx", "od": "2026-11-05 11:01"},
+    "bh": {"nazwa": "Bahrajn", "land_id": 15, "plik": "zawodnicy_bh.xlsx", "od": "2026-11-05 11:01"},
+    "mu": {"nazwa": "Mauritius", "land_id": 109, "plik": "zawodnicy_mu.xlsx", "od": "2026-11-05 11:01"},
+    "tl": {"nazwa": "Timor-Leste", "land_id": 242, "plik": "zawodnicy_tl.xlsx", "od": "2026-11-05 11:01"},
+    "tt": {"nazwa": "Trynidad and Tobago", "land_id": 170, "plik": "zawodnicy_tt.xlsx", "od": "2026-11-05 11:01"},  # tak pisze Transfermarkt
+    "cy": {"nazwa": "Cypr", "land_id": 188, "plik": "zawodnicy_cy.xlsx", "od": "2026-11-05 11:01"},
+    "ee": {"nazwa": "Estonia", "land_id": 47, "plik": "zawodnicy_ee.xlsx", "od": "2026-11-05 11:01"},
 }
 
 
@@ -354,6 +374,8 @@ INNE_KLUBY_O_PODOBNEJ_NAZWIE = {("cs dinamo bucuresti", "dinamo bucuresti"),  # 
                                 ("independiente", "cs independiente rivadavia"),  # Independiente (Avellaneda) / Rivadavia
                                 ("cerro", "cerro largo"),  # Cerro (Montevideo) / Cerro Largo
                                 ("ha noi", "cong an ha noi"),
+                                ("suwon", "suwon samsung bluewings"),  # Suwon FC / Suwon Samsung Bluewings
+                                ("chiangrai united", "chiangmai united"),  # dwa różne tajskie kluby (przybliżone)
                                 ("sydney", "sydney olympic"),  # Sydney FC / Sydney Olympic (NPL)
                                 ("salzburg", "sv austria salzburg"),  # RB Salzburg / Austria Salzburg  # Hà Nội FC / Công An Hà Nội
                                 ("atletico", "atletico nacional"),  # Atlético FC (Cali) / Atlético Nacional
