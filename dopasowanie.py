@@ -180,6 +180,26 @@ NACJE = {
     "tj": {"nazwa": "Tadżykistan", "land_id": 165, "plik": "zawodnicy_tj.xlsx", "od": "2026-11-02 20:06"},
     "at": {"nazwa": "Austria", "land_id": 127, "plik": "zawodnicy_at.xlsx", "od": "2026-11-02 20:06"},
     "sl": {"nazwa": "Sierra Leone", "land_id": 152, "plik": "zawodnicy_sl.xlsx", "od": "2026-11-02 20:06"},
+    "ch": {"nazwa": "Szwajcaria", "land_id": 148, "plik": "zawodnicy_ch.xlsx", "od": "2026-11-05 09:45"},
+    "tg": {"nazwa": "Togo", "land_id": 168, "plik": "zawodnicy_tg.xlsx", "od": "2026-11-05 09:45"},
+    "la": {"nazwa": "Laos", "land_id": 91, "plik": "zawodnicy_la.xlsx", "od": "2026-11-05 09:45"},
+    "py": {"nazwa": "Paragwaj", "land_id": 132, "plik": "zawodnicy_py.xlsx", "od": "2026-11-05 09:45"},
+    "hk": {"nazwa": "Hong Kong", "land_id": 218, "plik": "zawodnicy_hk.xlsx", "od": "2026-11-05 09:45"},
+    "ly": {"nazwa": "Libia", "land_id": 96, "plik": "zawodnicy_ly.xlsx", "od": "2026-11-05 09:45"},
+    "bg": {"nazwa": "Bułgaria", "land_id": 28, "plik": "zawodnicy_bg.xlsx", "od": "2026-11-05 09:45"},
+    "rs": {"nazwa": "Serbia", "land_id": 215, "plik": "zawodnicy_rs.xlsx", "od": "2026-11-05 09:45"},
+    "sv": {"nazwa": "Salwador", "land_id": 45, "plik": "zawodnicy_sv.xlsx", "od": "2026-11-05 09:45"},
+    "nic": {"nazwa": "Nikaragua", "land_id": 121, "plik": "zawodnicy_nic.xlsx", "od": "2026-11-05 09:45"},
+    "kg": {"nazwa": "Kirgistan", "land_id": 90, "plik": "zawodnicy_kg.xlsx", "od": "2026-11-05 09:45"},
+    "er": {"nazwa": "Erytrea", "land_id": 46, "plik": "zawodnicy_er.xlsx", "od": "2026-11-05 09:45"},
+    "sg": {"nazwa": "Singapur", "land_id": 153, "plik": "zawodnicy_sg.xlsx", "od": "2026-11-05 09:45"},
+    "dk": {"nazwa": "Dania", "land_id": 39, "plik": "zawodnicy_dk.xlsx", "od": "2026-11-05 09:45"},
+    "tm": {"nazwa": "Turkmenistan", "land_id": 175, "plik": "zawodnicy_tm.xlsx", "od": "2026-11-05 09:45"},
+    "fi": {"nazwa": "Finlandia", "land_id": 49, "plik": "zawodnicy_fi.xlsx", "od": "2026-11-05 09:45"},
+    "no": {"nazwa": "Norwegia", "land_id": 125, "plik": "zawodnicy_no.xlsx", "od": "2026-11-05 09:45"},
+    "cg": {"nazwa": "Kongo", "land_id": 85, "plik": "zawodnicy_cg.xlsx", "od": "2026-11-05 09:45"},
+    "cf": {"nazwa": "Republika Środkowoafrykańska", "land_id": 138, "plik": "zawodnicy_cf.xlsx", "od": "2026-11-05 09:45"},
+    "sk": {"nazwa": "Słowacja", "land_id": 154, "plik": "zawodnicy_sk.xlsx", "od": "2026-11-05 09:45"},
 }
 
 
@@ -309,7 +329,13 @@ INNE_KLUBY_O_PODOBNEJ_NAZWIE = {("cs dinamo bucuresti", "dinamo bucuresti"),  # 
                                 ("atletico go", "atletico mg"),  # Atlético Goianiense / Mineiro (przybliżone 0.91)
                                 ("lausanne", "fc stade lausanne ouchy"),  # Lausanne-Sport / Stade Lausanne-Ouchy
                                 ("ararat", "fc ararat armenia"),  # Ararat Erywań / Ararat-Armenia
-                                ("yokohama", "yokohama f. marinos")}  # Yokohama FC / F. Marinos
+                                ("yokohama", "yokohama f. marinos"),  # Yokohama FC / F. Marinos
+                                ("bogota", "internacional de bogota"),  # Bogotá FC / Internacional de Bogotá
+                                ("independiente", "cs independiente rivadavia"),  # Independiente (Avellaneda) / Rivadavia
+                                ("cerro", "cerro largo"),  # Cerro (Montevideo) / Cerro Largo
+                                ("ha noi", "cong an ha noi"),  # Hà Nội FC / Công An Hà Nội
+                                ("atletico", "atletico nacional"),  # Atlético FC (Cali) / Atlético Nacional
+                                ("atletico", "atletico bucaramanga")}  # Atlético FC (Cali) / Bucaramanga
 
 def dopasuj_klub_do_bazy(nazwa_klubu_z_api, alpha2_z_api, baza_klubow):
     norm_klub_api = wyczysc_nazwe_klubu(nazwa_klubu_z_api)
