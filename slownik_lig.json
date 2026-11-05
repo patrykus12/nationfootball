@@ -2626,5 +2626,25 @@
     "951803": {
         "nazwa": "Cup",
         "flaga": "ru"
+    },
+    "957031": {
+        "nazwa": "Primera B Metropolitana Promotion Playoff",
+        "flaga": "ar"
+    },
+    "949112": {
+        "nazwa": "Australian Championship Grp. A",
+        "flaga": "au"
+    },
+    "943876": {
+        "nazwa": "Africa Cup of Nations Qualification Grp. A",
+        "flaga": "int"
+    },
+    "956080": {
+        "nazwa": "Primera Nacional Championship Playoff",
+        "flaga": "ar"
+    },
+    "938638": {
+        "nazwa": "2. Division",
+        "flaga": "dk"
     }
 }
