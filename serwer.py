@@ -264,7 +264,11 @@ def zawodnicy():
 def eksport():
     # Dopiero po pełnym cyklu - kopia z serwera tuż po starcie (np. gdy odtworzenie się nie udało)
     # nadpisałaby w repozytorium dobrą kopię prawie pustą
-    if dane.STATYSTYKI["ostatni_cykl"] is None: abort(503, "Serwer dopiero startuje - kopia po pierwszym cyklu")
+    # Po udanym odtworzeniu kopii dane są pełne już przed pierwszym cyklem (który po restarcie trwa długo) -
+    # wcześniej workflow kopii dostawał 503 i kopia potrafiła nie odświeżać się przez pół dnia
+    odtworzono = str(dane.STATYSTYKI["kopia"] or "").startswith("odtworzono")
+    if dane.STATYSTYKI["ostatni_cykl"] is None and not odtworzono:
+        abort(503, "Serwer dopiero startuje - kopia po pierwszym cyklu")
     return Response(dane.eksportuj_kopie(), mimetype="application/gzip")
 
 
@@ -296,6 +300,8 @@ def watek_harmonogramu():
     try: _przygotuj_pliki_startowe()
     except Exception as e: print(f"[start] {e}", flush=True)
     dane.przywroc_kopie()
+    # Historia/rankingi z danych odtworzonych z kopii - od razu, bez czekania na pierwszy (długi) cykl z API
+    threading.Thread(target=lambda: [print(f"[historia] {w}", flush=True) for w in historia.po_cyklu()], daemon=True).start()
     while True:
         _uruchom_cykl()
         time.sleep(INTERWAL_HARMONOGRAMU_MIN * 60)
