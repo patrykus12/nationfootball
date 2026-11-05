@@ -191,7 +191,7 @@ def push_subskrypcja():
     if not historia.push_wlaczony(): abort(503, "Powiadomienia wyłączone na serwerze")
     dane_zad = request.get_json(silent=True) or {}
     try:
-        historia.zapisz_subskrypcje(dane_zad.get("sub"), dane_zad.get("ulubieni") or [])
+        historia.zapisz_subskrypcje(dane_zad.get("sub"), dane_zad.get("ulubieni") or [], str(dane_zad.get("jezyk") or "pl")[:5])
     except ValueError as e:
         abort(400, str(e))
     return jsonify({"ok": True})

@@ -346,3 +346,30 @@ select.chip {
 .staty span { font-size: 11.5px; color: var(--wyciszony); }
 .mecze-lista { padding: 2px 12px; border-radius: 14px; background: var(--karta); border: 1px solid var(--ramka); }
 .kartki { margin: 8px 2px 0; font-size: 13px; }
+
+/* --- USTAWIENIA --- */
+.zakladki i { font-style: normal; }
+.ustawienia-okno .profil-gora { margin-bottom: 6px; }
+.ustawienia-okno .profil-imie { margin: 0; }
+.ustawienie {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 14px 2px; border-top: 1px solid var(--ramka); font-size: 15px;
+}
+.ustawienie .chip { max-width: 60vw; height: 36px; font-size: 14px; }
+.ustawienie .chip .flaga { vertical-align: -2px; margin-right: 4px; }
+.ustawienie-push { align-items: flex-start; }
+.ustawienie-push .drobne { margin: 4px 0 0; }
+#push-stan { color: var(--tekst-2); }
+.przelacznik-wl {
+  flex: 0 0 auto; position: relative; width: 50px; height: 30px; margin-top: 2px; border-radius: 15px; cursor: pointer;
+  border: 1px solid var(--ramka); background: var(--karta-2); transition: background .2s;
+}
+.przelacznik-wl span {
+  position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--tekst-2); transition: transform .2s, background .2s;
+}
+.przelacznik-wl.wl { background: var(--zloto); border-color: var(--zloto); }
+.przelacznik-wl.wl span { transform: translateX(20px); background: #0d1b2a; }
+.przelacznik-wl:disabled { opacity: .45; cursor: default; }
+.o-aplikacji { border-top: 1px solid var(--ramka); padding-top: 12px; margin-top: 4px; }
+.jezyk-start { margin: 0 auto 12px; display: block; }

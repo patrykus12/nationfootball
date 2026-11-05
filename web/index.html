@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NationFootball">
-<meta name="description" content="Mecze piłkarzy grających za granicą (Polaków, Turków, Amerykanów i innych) - minuty, gole, asysty i oceny.">
+<meta name="description" content="Matches of footballers playing abroad - minutes, goals, assists and ratings. Mecze piłkarzy grających za granicą.">
 <title>NationFootball</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="favicon.png">
@@ -21,14 +21,17 @@
   <div class="pasek">
     <div class="logo"><img src="favicon.png" alt=""><span>NATION <b>FOOTBALL</b></span></div>
     <div class="akcje">
-      <button id="instaluj" class="instaluj" hidden>Zainstaluj</button>
-      <button id="zmien-nacje" class="ikona-btn nacja-btn" aria-label="Zmień kraj" hidden></button>
-      <button id="odswiez" class="ikona-btn" aria-label="Odśwież">
+      <button id="instaluj" class="instaluj" data-i18n="zainstaluj" hidden>Zainstaluj</button>
+      <button id="zmien-nacje" class="ikona-btn nacja-btn" data-i18n-aria="zmien_kraj" hidden></button>
+      <button id="odswiez" class="ikona-btn" data-i18n-aria="odswiez">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+      </button>
+      <button id="otworz-ustawienia" class="ikona-btn" data-i18n-aria="ustawienia">
+        <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94a7.07 7.07 0 0 0 .06-.94c0-.32-.02-.63-.06-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.03 7.03 0 0 0-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.48.48 0 0 0 .12.61l2.03 1.58c-.04.31-.07.63-.07.94s.02.63.06.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.48.48 0 0 0-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>
       </button>
     </div>
   </div>
-  <nav id="dni" class="dni" aria-label="Wybór dnia"></nav>
+  <nav id="dni" class="dni" data-i18n-aria="wybor_dnia"></nav>
 </header>
 
 <main id="glowna" class="widok">
@@ -37,58 +40,85 @@
     <p id="podsumowanie" class="podsumowanie"></p>
   </div>
   <div class="filtry">
-    <button id="filtr-ulubieni" class="chip" aria-pressed="false">★ Tylko ulubieni</button>
-    <select id="filtr-kraj" class="chip" aria-label="Kraj ligi"><option value="">Wszystkie ligi</option></select>
+    <button id="filtr-ulubieni" class="chip" aria-pressed="false" data-i18n="tylko_ulubieni">★ Tylko ulubieni</button>
+    <select id="filtr-kraj" class="chip" data-i18n-aria="kraj_ligi"><option value=""></option></select>
   </div>
   <div id="lista" class="lista" aria-live="polite"></div>
 </main>
 
 <section id="widok-rankingi" class="widok" hidden>
-  <div class="naglowek-dnia"><h1>Rankingi</h1><p id="rankingi-opis" class="podsumowanie"></p></div>
+  <div class="naglowek-dnia"><h1 data-i18n="rankingi">Rankingi</h1><p id="rankingi-opis" class="podsumowanie"></p></div>
   <div class="przelacznik" id="rankingi-okres">
-    <button data-dni="7" class="wybrany">7 dni</button><button data-dni="30">30 dni</button><button data-dni="0">Sezon</button>
+    <button data-dni="7" class="wybrany" data-i18n="dni7">7 dni</button><button data-dni="30" data-i18n="dni30">30 dni</button><button data-dni="0" data-i18n="sezon">Sezon</button>
   </div>
   <div id="rankingi-tresc"></div>
 </section>
 
 <section id="widok-transfery" class="widok" hidden>
-  <div class="naglowek-dnia"><h1>Transfery</h1><p class="podsumowanie">Zmiany klubów i nowi zawodnicy w bazie (z cotygodniowej aktualizacji).</p></div>
+  <div class="naglowek-dnia"><h1 data-i18n="transfery">Transfery</h1><p class="podsumowanie" data-i18n="transfery_opis"></p></div>
   <div id="transfery-tresc"></div>
 </section>
 
 <section id="widok-ulubieni" class="widok" hidden>
-  <div class="naglowek-dnia"><h1>Ulubieni</h1><p class="podsumowanie">Dotknij zawodnika w meczu albo znajdź go niżej i dodaj gwiazdką.</p></div>
+  <div class="naglowek-dnia"><h1 data-i18n="ulubieni">Ulubieni</h1><p class="podsumowanie" data-i18n="ulubieni_opis"></p></div>
   <button id="push-przycisk" class="push-btn" hidden></button>
   <div id="ulubieni-tresc"></div>
-  <h2 class="sekcja">Szukaj zawodnika</h2>
-  <input id="szukaj-gracza" class="szukaj" type="search" placeholder="Nazwisko…" autocomplete="off">
+  <h2 class="sekcja" data-i18n="szukaj_zawodnika">Szukaj zawodnika</h2>
+  <input id="szukaj-gracza" class="szukaj" type="search" data-i18n-ph="nazwisko" autocomplete="off">
   <div id="wyniki-szukania"></div>
 </section>
 
-<nav class="zakladki" aria-label="Widoki">
-  <button data-widok="glowna" class="wybrana"><span>⚽</span>Mecze</button>
-  <button data-widok="widok-rankingi"><span>🏆</span>Rankingi</button>
-  <button data-widok="widok-transfery"><span>🔄</span>Transfery</button>
-  <button data-widok="widok-ulubieni"><span>★</span>Ulubieni</button>
+<nav class="zakladki" aria-label="Menu">
+  <button data-widok="glowna" class="wybrana"><span>⚽</span><i data-i18n="zak_mecze">Mecze</i></button>
+  <button data-widok="widok-rankingi"><span>🏆</span><i data-i18n="zak_rankingi">Rankingi</i></button>
+  <button data-widok="widok-transfery"><span>🔄</span><i data-i18n="zak_transfery">Transfery</i></button>
+  <button data-widok="widok-ulubieni"><span>★</span><i data-i18n="zak_ulubieni">Ulubieni</i></button>
 </nav>
 
 <div id="profil" class="profil" hidden>
   <div class="profil-okno" role="dialog" aria-modal="true">
     <div class="profil-gora">
-      <button id="zamknij-profil" class="zamknij" aria-label="Zamknij">✕</button>
-      <button id="gwiazdka-profilu" class="gwiazdka" aria-pressed="false" aria-label="Ulubiony">☆</button>
+      <button id="zamknij-profil" class="zamknij" data-i18n-aria="zamknij">✕</button>
+      <button id="gwiazdka-profilu" class="gwiazdka" aria-pressed="false" data-i18n-aria="zak_ulubieni">☆</button>
     </div>
     <div id="profil-tresc"></div>
   </div>
 </div>
 
+<div id="ustawienia" class="profil" hidden>
+  <div class="profil-okno ustawienia-okno" role="dialog" aria-modal="true" aria-labelledby="ustawienia-tytul">
+    <div class="profil-gora">
+      <h2 id="ustawienia-tytul" class="profil-imie" data-i18n="ustawienia">Ustawienia</h2>
+      <button id="zamknij-ustawienia" class="zamknij" data-i18n-aria="zamknij">✕</button>
+    </div>
+    <div class="ustawienie">
+      <label for="wybor-jezyka" data-i18n="jezyk">Język</label>
+      <select id="wybor-jezyka" class="chip"></select>
+    </div>
+    <div class="ustawienie">
+      <span data-i18n="kraj_zaw">Kraj zawodników</span>
+      <button id="ustaw-nacje" class="chip"></button>
+    </div>
+    <div class="ustawienie ustawienie-push">
+      <div>
+        <span data-i18n="powiadomienia">Powiadomienia</span>
+        <p class="drobne" data-i18n="push_opis"></p>
+        <p id="push-stan" class="drobne"></p>
+      </div>
+      <button id="push-przelacznik" class="przelacznik-wl" role="switch" aria-checked="false" data-i18n-aria="powiadomienia"><span></span></button>
+    </div>
+    <p class="drobne o-aplikacji">NationFootball · <span data-i18n="o_aplikacji"></span></p>
+  </div>
+</div>
+
 <div id="wybor-nacji" class="wybor-nacji" hidden>
   <div class="wybor-okno" role="dialog" aria-modal="true" aria-labelledby="wybor-tytul">
-    <button id="zamknij-wybor" class="zamknij" aria-label="Zamknij" hidden>✕</button>
+    <button id="zamknij-wybor" class="zamknij" data-i18n-aria="zamknij" hidden>✕</button>
     <img class="wybor-logo" src="ikona-192.png" alt="">
-    <h2 id="wybor-tytul">Piłkarzy z jakiego kraju śledzisz?</h2>
-    <p>Pokażemy mecze i występy zawodników z wybranego kraju grających za granicą. Zmienisz to w każdej chwili przyciskiem z flagą u góry.</p>
-    <input id="szukaj-nacji" class="szukaj" type="search" placeholder="Szukaj kraju…" autocomplete="off">
+    <h2 id="wybor-tytul" data-i18n="wybor_tytul">Piłkarzy z jakiego kraju śledzisz?</h2>
+    <p data-i18n="wybor_opis"></p>
+    <select id="wybor-jezyka-start" class="chip jezyk-start" aria-label="Language"></select>
+    <input id="szukaj-nacji" class="szukaj" type="search" data-i18n-ph="szukaj_kraju" autocomplete="off">
     <div id="nacje" class="nacje"></div>
   </div>
 </div>
@@ -97,16 +127,17 @@
   <div class="wskazowka-tresc">
     <img src="ikona-192.png" alt="">
     <div>
-      <b>Zainstaluj NationFootball</b>
-      Dotknij
-      <svg viewBox="0 0 24 24" width="18" height="18" aria-label="Udostępnij"><path fill="currentColor" d="M12 2.5 7.8 6.7l1.06 1.06 2.39-2.39V15h1.5V5.37l2.39 2.39 1.06-1.06L12 2.5zM6 10v10.5h12V10h-3V8.5h4.5v13.5h-15V8.5H9V10H6z"/></svg>
-      <b class="w-linii">Udostępnij</b>, a potem <b class="w-linii">Do ekranu początkowego</b>.
-      <span class="drobne">Nie widzisz przycisku? Dotknij <b>⋯</b> na dole Safari.</span>
+      <b data-i18n="ios_tytul">Zainstaluj NationFootball</b>
+      <span data-i18n="ios_dotknij">Dotknij</span>
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2.5 7.8 6.7l1.06 1.06 2.39-2.39V15h1.5V5.37l2.39 2.39 1.06-1.06L12 2.5zM6 10v10.5h12V10h-3V8.5h4.5v13.5h-15V8.5H9V10H6z"/></svg>
+      <b class="w-linii" data-i18n="ios_udostepnij">Udostępnij</b><span data-i18n="ios_potem">, a potem</span> <b class="w-linii" data-i18n="ios_ekran">Do ekranu początkowego</b>.
+      <span class="drobne" data-i18n="ios_drobne"></span>
     </div>
   </div>
-  <button id="zamknij-wskazowke" class="zamknij" aria-label="Zamknij">✕</button>
+  <button id="zamknij-wskazowke" class="zamknij" data-i18n-aria="zamknij">✕</button>
 </div>
 
+<script src="i18n.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

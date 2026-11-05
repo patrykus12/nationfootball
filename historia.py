@@ -482,7 +482,7 @@ def _zapisz_subskrypcje():
     dane.zapisz_json_atomowo(PUSH_PLIK, _subskrypcje())
 
 
-def zapisz_subskrypcje(sub, lista_ulubionych):
+def zapisz_subskrypcje(sub, lista_ulubionych, jezyk="pl"):
     if not isinstance(sub, dict): raise ValueError("brak subskrypcji")
     endpoint = str(sub.get("endpoint", ""))
     klucze = sub.get("keys") or {}
@@ -496,7 +496,8 @@ def zapisz_subskrypcje(sub, lista_ulubionych):
         subs = _subskrypcje()
         if endpoint not in subs and len(subs) >= MAX_SUBSKRYPCJI: raise ValueError("za dużo subskrypcji")
         subs[endpoint] = {"sub": {"endpoint": endpoint, "keys": {"p256dh": str(klucze["p256dh"])[:200], "auth": str(klucze["auth"])[:100]}},
-                          "ulubieni": sorted(set(ulub)), "t": time.time()}
+                          "ulubieni": sorted(set(ulub)), "t": time.time(),
+                          "jezyk": jezyk if jezyk in TEKSTY_PUSH else "en"}
         _zapisz_subskrypcje()
 
 
@@ -505,16 +506,31 @@ def usun_subskrypcje(endpoint):
         if _subskrypcje().pop(str(endpoint), None) is not None: _zapisz_subskrypcje()
 
 
-def _tresc_powiadomienia(w):
+# Treść powiadomienia w języku telefonu: (gol 1, gole 2-4, gole 5+), (asysta ...), "i", "ocena"
+TEKSTY_PUSH = {
+    "pl": (("gol", "{n} gole", "{n} goli"), ("asysta", "{n} asysty", "{n} asyst"), "i", "ocena"),
+    "en": (("a goal", "{n} goals", "{n} goals"), ("an assist", "{n} assists", "{n} assists"), "and", "rating"),
+    "de": (("ein Tor", "{n} Tore", "{n} Tore"), ("eine Vorlage", "{n} Vorlagen", "{n} Vorlagen"), "und", "Note"),
+    "es": (("un gol", "{n} goles", "{n} goles"), ("una asistencia", "{n} asistencias", "{n} asistencias"), "y", "nota"),
+    "fr": (("un but", "{n} buts", "{n} buts"), ("une passe décisive", "{n} passes décisives", "{n} passes décisives"), "et", "note"),
+    "pt": (("um golo", "{n} golos", "{n} golos"), ("uma assistência", "{n} assistências", "{n} assistências"), "e", "nota"),
+    "it": (("un gol", "{n} gol", "{n} gol"), ("un assist", "{n} assist", "{n} assist"), "e", "voto"),
+    "tr": (("gol", "{n} gol", "{n} gol"), ("asist", "{n} asist", "{n} asist"), "ve", "puan"),
+}
+
+
+def _tresc_powiadomienia(w, jezyk="pl"):
+    gole_f, asysty_f, i_, ocena_s = TEKSTY_PUSH.get(jezyk, TEKSTY_PUSH["en"])
+    forma = lambda n, f: f[0] if n == 1 else (f[1] if n < 5 else f[2]).format(n=n)
     g, a = w["gole"], w["asysty"]
     czesci = []
-    if g: czesci.append("gol" if g == 1 else f"{g} gole" if g < 5 else f"{g} goli")
-    if a: czesci.append("asysta" if a == 1 else f"{a} asysty" if a < 5 else f"{a} asyst")
+    if g: czesci.append(forma(g, gole_f))
+    if a: czesci.append(forma(a, asysty_f))
     m = w["mecz"]
     wynik = f" {m['w']} " if m.get("w") else " - "
-    ocena = f" · ocena {w['ocena']:.1f}" if isinstance(w.get("ocena"), (int, float)) else ""
+    ocena = f" · {ocena_s} {w['ocena']:.1f}" if isinstance(w.get("ocena"), (int, float)) else ""
     ikona = "⚽" if g else "🅰️"
-    return {"tytul": f"{ikona} {w['nazwa']}: {' i '.join(czesci)}",
+    return {"tytul": f"{ikona} {w['nazwa']}: {f' {i_} '.join(czesci)}",
             "tresc": f"{m['g']}{wynik}{m['a']}{ocena}",
             "tag": f"nf-{w['id']}-{w['klucz']}",
             "url": f"/app/#zawodnik={w['nacja']}|{w['nazwa']}"}
@@ -531,7 +547,7 @@ def _wyslij_powiadomienia(wyczyny):
         for w in wyczyny:
             if w["klucz"] not in ulub: continue
             try:
-                webpush(subscription_info=s["sub"], data=json.dumps(_tresc_powiadomienia(w), ensure_ascii=False),
+                webpush(subscription_info=s["sub"], data=json.dumps(_tresc_powiadomienia(w, s.get("jezyk", "pl")), ensure_ascii=False),
                         vapid_private_key=VAPID_PRYWATNY, vapid_claims={"sub": VAPID_KONTAKT}, ttl=6 * 3600, timeout=15)
                 wyslane += 1
             except WebPushException as e:

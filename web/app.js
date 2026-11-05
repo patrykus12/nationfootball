@@ -238,12 +238,16 @@ const przesun = (data, dni) => new Date(data.getTime() + dni * 86400000);
 
 function tytulDnia(k) {
   const data = zKlucza(k), roznica = Math.round((data - dzisPL()) / 86400000);
-  const opis = `${data.getUTCDate()} ${MIESIACE[data.getUTCMonth()]}`;
-  if (roznica === 0) return `Dziś, ${opis}`;
-  if (roznica === -1) return `Wczoraj, ${opis}`;
-  if (roznica === 1) return `Jutro, ${opis}`;
-  return `${DNI_TYG_PELNE[data.getUTCDay()]}, ${opis}`;
+  const opis = new Intl.DateTimeFormat(jezyk, { day: "numeric", month: "long", timeZone: "UTC" }).format(data);
+  const dzien = roznica === 0 ? t("dzis") : roznica === -1 ? t("wczoraj") : roznica === 1 ? t("jutro")
+    : new Intl.DateTimeFormat(jezyk, { weekday: "long", timeZone: "UTC" }).format(data);
+  return `${dzien[0].toUpperCase()}${dzien.slice(1)}, ${opis}`;
 }
+const dzienKrotko = (d) => new Intl.DateTimeFormat(jezyk, { weekday: "short", timeZone: "UTC" }).format(d).replace(/\.$/, "");
+
+// Nazwa kraju nacji w wybranym języku; po polsku nazwa nacji ("Polacy"), w innych językach nazwa kraju
+function nazwaKrajuNacji(n) { return jezyk === "pl" ? NACJE[n].kraj : (nazwaRegionu(NACJE[n].flaga) || NACJE[n].kraj); }
+function nazwaNacji(n) { return jezyk === "pl" ? NACJE[n].nazwa : nazwaKrajuNacji(n); }
 
 // --- PASEK DNI ---
 function zbudujDni() {
@@ -254,7 +258,7 @@ function zbudujDni() {
     const b = document.createElement("button");
     b.className = "dzien" + (k === kDzis ? " dzis" : "") + (k === wybrany ? " wybrany" : "");
     b.dataset.k = k;
-    b.innerHTML = `<span class="dt">${k === kDzis ? "dziś" : DNI_TYG[d.getUTCDay()]}</span><span class="dn">${d.getUTCDate()}</span>`;
+    b.innerHTML = `<span class="dt">${k === kDzis ? t("dzis_krotko") : dzienKrotko(d)}</span><span class="dn">${d.getUTCDate()}</span>`;
     b.addEventListener("click", () => wybierzDzien(k));
     nav.appendChild(b);
   }
@@ -282,7 +286,7 @@ async function pobierz(k) {
   try {
     const res = await fetch(`/api/dzien/${k}?nacja=${n}`, { cache: "no-store" });
     if (res.status === 404) {
-      if (nr === zapytanie) pokazKomunikat("⏳", "Serwer nie ma jeszcze danych dla tego dnia", "Spróbuj ponownie za kilka minut.");
+      if (nr === zapytanie) pokazKomunikat("⏳", t("brak_dnia"), t("sprobuj"));
       return;
     }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -291,7 +295,7 @@ async function pobierz(k) {
     pamiec[klucz] = dane;
     if (nr === zapytanie && k === wybrany && n === nacja) pokaz(dane);
   } catch (e) {
-    if (nr === zapytanie && !pamiec[klucz]) pokazKomunikat("📡", "Brak połączenia z serwerem", "Sprawdź internet i dotknij przycisku odświeżania.");
+    if (nr === zapytanie && !pamiec[klucz]) pokazKomunikat("📡", t("brak_polaczenia"), t("sprawdz_internet"));
   } finally {
     if (nr === zapytanie) $("odswiez").classList.remove("kreci");
   }
@@ -322,7 +326,7 @@ function graczHTML(klub, g) {
   if (g.gole) wyczyny += g.gole > 1 ? `${g.gole}×⚽` : "⚽";
   if (g.asysty) wyczyny += (wyczyny ? " " : "") + (g.asysty > 1 ? `${g.asysty}×🅰️` : "🅰️");
   const szczegoly = [`<span class="klub">${esc(skrotKlubu(klub))}</span>`];
-  if (g.minuty_tekst) szczegoly.push(esc(g.minuty_tekst));
+  if (g.minuty_tekst) szczegoly.push(esc(tlumaczMinuty(g.minuty_tekst)));
   const ocena = g.ocena != null ? `<span class="ocena ${klasaOceny(g.ocena)}">${Number(g.ocena).toFixed(1)}</span>` : "";
   const ulub = czyUlubiony(nacja, g.nazwa);
   return `<div class="gracz${g.aktywny === false ? " nie-gral" : ""}" data-gracz="${esc(g.nazwa)}" role="button" tabindex="0">
@@ -332,9 +336,9 @@ function graczHTML(klub, g) {
 
 function kartaHTML(m) {
   let status, klasa = "";
-  if (m.odwolany) { status = "odwołany"; klasa = "odwolany"; }
-  else if (m.zakonczony) status = "koniec";
-  else if (m.rozpoczety) { status = "w trakcie"; klasa = "trwa"; }
+  if (m.odwolany) { status = t("st_odwolany"); klasa = "odwolany"; }
+  else if (m.zakonczony) status = t("st_koniec");
+  else if (m.rozpoczety) { status = t("st_trwa"); klasa = "trwa"; }
   else status = m.godzina;
 
   const [gg, gs] = (m.wynik || "").split(":").map((x) => x.trim());
@@ -345,7 +349,7 @@ function kartaHTML(m) {
 
   const gracze = m.gracze_gosp.map((g) => graczHTML(m.gosp, g)).concat(m.gracze_gosc.map((g) => graczHTML(m.gosc, g)));
   return `<article class="karta">
-    <div class="karta-liga">${flagaHTML(m.flaga)}<span class="nazwa">${esc(m.liga)}</span>
+    <div class="karta-liga">${flagaHTML(m.flaga)}<span class="nazwa">${esc(tlumaczLige(m.liga))}</span>
       <span class="status ${klasa}">${m.zakonczony || m.rozpoczety ? esc(m.godzina) + " · " : ""}${esc(status)}</span></div>
     <div class="druzyny">${druzyna(m.gosp, gg, gs, m.gracze_gosp.length)}${druzyna(m.gosc, gs, gg, m.gracze_gosc.length)}</div>
     <div class="gracze">${gracze.join("")}</div>
@@ -357,20 +361,21 @@ function pokaz(dane) {
   odswiezListeKrajow(dane.mecze || []);
   const gracze = mecze.reduce((s, m) => s + m.gracze_gosp.length + m.gracze_gosc.length, 0), formy = NACJE[nacja].formy;
   const odmiana = (n, a, b, c) => n === 1 ? a : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? b : c;
-  const stan = dane.stan_na ? ` · stan z ${dane.stan_na.slice(11)}` : "";
+  const stan = dane.stan_na ? ` · ${t("stan_z", { g: dane.stan_na.slice(11) })}` : "";
+  const ileGraczy = jezyk === "pl" ? odmiana(gracze, ...formy) : lm(gracze, "zawodnicy_l");
   $("podsumowanie").innerHTML = mecze.length
-    ? `${mecze.length} ${odmiana(mecze.length, "mecz", "mecze", "meczów")} · ${gracze} ${odmiana(gracze, ...formy)}${stan}` +
-      (dane.offline ? ` <span class="offline">· bez internetu</span>` : "")
+    ? `${mecze.length} ${lm(mecze.length, "mecze_l")} · ${gracze} ${ileGraczy}${stan}` +
+      (dane.offline ? ` <span class="offline">· ${t("bez_internetu")}</span>` : "")
     : "";
   const filtrowane = filtr.ulubieni || filtr.kraj;
   $("lista").innerHTML = mecze.length ? mecze.map(kartaHTML).join("")
     : filtrowane && (dane.mecze || []).length
-      ? `<div class="komunikat"><div class="duza">🔎</div><b>Nic nie pasuje do filtrów</b>Zmień albo wyłącz filtr u góry.</div>`
-      : `<div class="komunikat"><div class="duza">🏟️</div><b>Brak meczów ${NACJE[nacja].dopelniacz}</b>Tego dnia żaden z nich nie gra.</div>`;
+      ? komunikatHTML("🔎", t("nic_nie_pasuje"), t("zmien_filtr"))
+      : komunikatHTML("🏟️", t("brak_meczow", { kto: NACJE[nacja].dopelniacz, kraj: nazwaKrajuNacji(nacja) }), t("nikt_nie_gra"));
 }
 
 function pokazSzkielet() {
-  $("podsumowanie").textContent = "Wczytywanie…";
+  $("podsumowanie").textContent = t("wczytywanie");
   $("lista").innerHTML = '<div class="szkielet"></div>'.repeat(4);
 }
 
@@ -406,7 +411,7 @@ function ustawNacje(n) {
   try { localStorage.setItem(KLUCZ_NACJI, n); } catch (e) {}
   const b = $("zmien-nacje");
   b.innerHTML = flagaNacji(n);
-  b.setAttribute("aria-label", `Zmień kraj (teraz: ${NACJE[n].kraj})`);
+  b.setAttribute("aria-label", t("zmien_kraj_teraz", { kraj: nazwaKrajuNacji(n) }));
   b.hidden = false;
   zamknijWyborNacji();
   if (zmiana) {
@@ -418,10 +423,12 @@ function ustawNacje(n) {
 
 function otworzWyborNacji() {
   // Alfabetycznie po polsku (207 krajów), wybrana nacja na górze
-  const lista = Object.entries(NACJE).sort((a, b) => (b[0] === nacja) - (a[0] === nacja) || a[1].kraj.localeCompare(b[1].kraj, "pl"));
-  $("nacje").innerHTML = lista.map(([k, n]) =>
-    `<button class="nacja${k === nacja ? " obecna" : ""}" data-n="${k}" data-szukaj="${esc(norm(n.kraj + " " + n.nazwa))}">${flagaNacji(k)}` +
-    `<span><b>${esc(n.kraj)}</b><small>${esc(n.nazwa)}</small></span></button>`).join("");
+  const lista = Object.keys(NACJE).map((k) => [k, nazwaKrajuNacji(k)])
+    .sort((a, b) => (b[0] === nacja) - (a[0] === nacja) || a[1].localeCompare(b[1], jezyk));
+  $("nacje").innerHTML = lista.map(([k, kraj]) =>
+    `<button class="nacja${k === nacja ? " obecna" : ""}" data-n="${k}" data-szukaj="${esc(norm(kraj + " " + NACJE[k].kraj + " " + NACJE[k].nazwa))}">${flagaNacji(k)}` +
+    `<span><b>${esc(kraj)}</b>${jezyk === "pl" ? `<small>${esc(NACJE[k].nazwa)}</small>` : ""}</span></button>`).join("");
+  wypelnijJezyki($("wybor-jezyka-start"));
   $("nacje").querySelectorAll(".nacja").forEach((b) => b.addEventListener("click", () => ustawNacje(b.dataset.n)));
   $("szukaj-nacji").value = "";
   $("zamknij-wybor").hidden = !nacja;     // przy pierwszym uruchomieniu wybór jest obowiązkowy
@@ -475,19 +482,14 @@ function filtrujMecze(mecze) {
   return wynik;
 }
 
-const NAZWY_KRAJOW_LIG = (() => { try { return new Intl.DisplayNames(["pl"], { type: "region" }); } catch (e) { return null; } })();
-const SPECJALNE_KRAJE = { "gb-eng": "Anglia", "gb-sct": "Szkocja", "gb-wls": "Walia", "gb-nir": "Irlandia Płn.", int: "Puchary / międzynarodowe" };
-function nazwaKrajuLigi(kod) {
-  if (SPECJALNE_KRAJE[kod]) return SPECJALNE_KRAJE[kod];
-  try { return (NAZWY_KRAJOW_LIG && NAZWY_KRAJOW_LIG.of(kod.toUpperCase())) || kod.toUpperCase(); } catch (e) { return kod.toUpperCase(); }
-}
+function nazwaKrajuLigi(kod) { return kod === "int" ? t("puchary") : (nazwaRegionu(kod) || kod.toUpperCase()); }
 
 function odswiezListeKrajow(mecze) {
   const licz = {};
   mecze.forEach((m) => { const k = krajMeczu(m); licz[k] = (licz[k] || 0) + 1; });
   if (filtr.kraj && !licz[filtr.kraj]) licz[filtr.kraj] = 0;
-  const opcje = Object.keys(licz).sort((a, b) => nazwaKrajuLigi(a).localeCompare(nazwaKrajuLigi(b), "pl"));
-  $("filtr-kraj").innerHTML = `<option value="">Wszystkie ligi</option>` +
+  const opcje = Object.keys(licz).sort((a, b) => nazwaKrajuLigi(a).localeCompare(nazwaKrajuLigi(b), jezyk));
+  $("filtr-kraj").innerHTML = `<option value="">${esc(t("wszystkie_ligi"))}</option>` +
     opcje.map((k) => `<option value="${esc(k)}"${k === filtr.kraj ? " selected" : ""}>${esc(nazwaKrajuLigi(k))} (${licz[k]})</option>`).join("");
   $("filtr-kraj").classList.toggle("aktywny", !!filtr.kraj);
   $("filtr-ulubieni").setAttribute("aria-pressed", filtr.ulubieni ? "true" : "false");
@@ -526,9 +528,9 @@ async function pobierzJSON(adres) {
   return res.json();
 }
 const komunikatHTML = (ikona, tytul, tekst) => `<div class="komunikat"><div class="duza">${ikona}</div><b>${esc(tytul)}</b>${esc(tekst)}</div>`;
-const BLAD_SIECI = () => komunikatHTML("📡", "Brak połączenia z serwerem", "Sprawdź internet i dotknij przycisku odświeżania.");
-const POZYCJE = ["BR", "OBR", "POM", "NAP"];
-const POZYCJE_PELNE = ["Bramkarz", "Obrońca", "Pomocnik", "Napastnik"];
+const BLAD_SIECI = () => komunikatHTML("📡", t("brak_polaczenia"), t("sprawdz_internet"));
+const pozycja = (p) => (p == null ? "" : t("poz")[p] || "");
+const pozycjaPelna = (p) => (p == null ? "" : t("poz_pelne")[p] || "");
 const dataKrotka = (d) => `${+d.slice(6, 8)}.${d.slice(4, 6)}`;
 const ocenaHTML = (o) => o != null ? `<span class="ocena ${klasaOceny(o)}">${Number(o).toFixed(1)}</span>` : "";
 const graczLink = (n, nazwa, tresc) => `<button class="link-gracza" data-n="${esc(n)}" data-gracz="${esc(nazwa)}">${tresc ?? esc(nazwa)}</button>`;
@@ -547,12 +549,12 @@ function wyczynyHTML(g, a) {
 function meczWierszHTML(m, naszaStrona) {
   const nasza = naszaStrona === "gosp" ? m.gosp : m.gosc, rywal = naszaStrona === "gosp" ? m.gosc : m.gosp;
   const wynik = m.wynik ? (naszaStrona === "gosp" ? m.wynik : m.wynik.split(":").reverse().join(":")) : "–";
-  const minuty = m.status === 1 ? (m.minuty != null ? `${m.minuty}'` : "grał") + (m.wyjsciowy ? "" : " z ławki")
-    : m.status === 0 ? "nie grał" : "brak danych";
+  const minuty = m.status === 1 ? (m.minuty != null ? `${m.minuty}'` : t("gral")) + (m.wyjsciowy ? "" : t("z_lawki"))
+    : m.status === 0 ? t("nie_gral") : t("brak_danych");
   const kartki = (m.kartki || "").replace(/y/g, "🟨").replace(/r/g, "🟥");
   return `<div class="mecz-wiersz${m.status === 1 ? "" : " nie-gral"}">
     <span class="data">${dataKrotka(m.data)}</span>${flagaHTML(m.flaga)}
-    <span class="opis"><b>${esc(nasza)}</b> ${esc(wynik)} ${esc(rywal)}<small>${esc(m.liga)} · ${minuty}</small></span>
+    <span class="opis"><b>${esc(nasza)}</b> ${esc(wynik)} ${esc(rywal)}<small>${esc(tlumaczLige(m.liga))} · ${minuty}</small></span>
     <span class="wyczyny">${wyczynyHTML(m.gole, m.asysty)}${kartki}</span>${ocenaHTML(m.ocena)}</div>`;
 }
 
@@ -582,26 +584,26 @@ function ustawGwiazdke() {
 
 function rysujProfil() {
   const p = profilOtwarty.dane, s = p.sumy[okresProfilu];
-  const forma = p.forma.length ? p.forma.map((o) => ocenaHTML(o)).join("") : `<span class="wyciszony">brak ocen</span>`;
+  const forma = p.forma.length ? p.forma.map((o) => ocenaHTML(o)).join("") : `<span class="wyciszony">${t("brak_ocen")}</span>`;
   const nastepny = p.najblizszy
-    ? `<div class="najblizszy">Najbliższy mecz: <b>${dataKrotka(p.najblizszy.data)} ${esc(p.najblizszy.godzina)}</b> ${flagaHTML(p.najblizszy.flaga)}
+    ? `<div class="najblizszy">${t("najblizszy")} <b>${dataKrotka(p.najblizszy.data)} ${esc(p.najblizszy.godzina)}</b> ${flagaHTML(p.najblizszy.flaga)}
          ${esc(p.najblizszy.gosp)} – ${esc(p.najblizszy.gosc)}</div>` : "";
-  const staty = [["Mecze", s.mecze], ["Minuty", s.minuty], ["Gole", s.gole], ["Asysty", s.asysty],
-                 ["Śr. ocena", s.srednia_ocena != null ? s.srednia_ocena.toFixed(2) : "–"], ["W podstawie", s.w_podstawie]];
+  const staty = [[t("st_mecze"), s.mecze], [t("st_minuty"), s.minuty], [t("st_gole"), s.gole], [t("st_asysty"), s.asysty],
+                 [t("st_ocena"), s.srednia_ocena != null ? s.srednia_ocena.toFixed(2) : "–"], [t("st_podstawa"), s.w_podstawie]];
   $("profil-tresc").innerHTML = `
     <h2 class="profil-imie">${flagaNacji(p.nacja)} ${esc(p.nazwa)}</h2>
-    <p class="profil-klub">${p.klub ? `${p.flaga_kraju ? flagaHTML(p.flaga_kraju) : ""} ${esc(p.klub)}` : "poza bazą (np. powrót do kraju)"}${p.pozycja != null ? ` · ${POZYCJE_PELNE[p.pozycja]}` : ""}</p>
-    <div class="forma"><span>Forma</span>${forma}</div>
+    <p class="profil-klub">${p.klub ? `${p.flaga_kraju ? flagaHTML(p.flaga_kraju) : ""} ${esc(p.klub)}` : t("poza_baza")}${p.pozycja != null ? ` · ${pozycjaPelna(p.pozycja)}` : ""}</p>
+    <div class="forma"><span>${t("forma")}</span>${forma}</div>
     ${nastepny}
     <div class="przelacznik" id="profil-okres">
-      ${[["7", "7 dni"], ["30", "30 dni"], ["wszystko", "Sezon"]].map(([k, t]) => `<button data-o="${k}"${k === okresProfilu ? ' class="wybrany"' : ""}>${t}</button>`).join("")}
+      ${[["7", t("dni7")], ["30", t("dni30")], ["wszystko", t("sezon")]].map(([k, t]) => `<button data-o="${k}"${k === okresProfilu ? ' class="wybrany"' : ""}>${t}</button>`).join("")}
     </div>
     <div class="staty">${staty.map(([t, w]) => `<div><b>${w}</b><span>${t}</span></div>`).join("")}</div>
-    ${s.zolte || s.czerwone ? `<p class="wyciszony kartki">Kartki: ${"🟨".repeat(Math.min(s.zolte, 10))}${"🟥".repeat(s.czerwone)}</p>` : ""}
-    <h3 class="sekcja">Ostatnie mecze</h3>
+    ${s.zolte || s.czerwone ? `<p class="wyciszony kartki">${t("kartki")}: ${"🟨".repeat(Math.min(s.zolte, 10))}${"🟥".repeat(s.czerwone)}</p>` : ""}
+    <h3 class="sekcja">${t("ostatnie_mecze")}</h3>
     ${p.mecze.length ? `<div class="mecze-lista">${p.mecze.map((m) => meczWierszHTML(m, m.strona)).join("")}</div>`
-      : `<p class="wyciszony">Historia meczów zbiera się od listopada 2026 - pojawi się po pierwszym meczu.</p>`}
-    ${p.od ? `<p class="drobne">Dane od ${dataKrotka(p.od)}.${p.od.slice(0, 4)}</p>` : ""}`;
+      : `<p class="wyciszony">${t("historia_pusta")}</p>`}
+    ${p.od ? `<p class="drobne">${t("dane_od", { d: `${dataKrotka(p.od)}.${p.od.slice(0, 4)}` })}</p>` : ""}`;
   $("profil-okres").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { okresProfilu = b.dataset.o; rysujProfil(); }));
 }
 
@@ -642,25 +644,25 @@ async function wczytajRankingi() {
   try { r = await pobierzJSON(`/api/rankingi?nacja=${n}&dni=${dni}`); } catch (e) { $("rankingi-tresc").innerHTML = BLAD_SIECI(); return; }
   if (n !== nacja || dni !== okresRankingow) return;
   const p = r.podsumowanie;
-  $("rankingi-opis").textContent = p.mecze ? `${NACJE[n].nazwa}: ${p.zawodnikow} grało · ${p.gole} goli · ${p.asysty} asyst` : "";
-  if (!p.mecze) { $("rankingi-tresc").innerHTML = komunikatHTML("📊", "Jeszcze brak danych", "Rankingi liczą się z zakończonych meczów - pojawią się po najbliższej kolejce."); return; }
+  $("rankingi-opis").textContent = p.mecze ? `${nazwaNacji(n)}: ${t("rank_opis", { z: p.zawodnikow, g: p.gole, a: p.asysty })}` : "";
+  if (!p.mecze) { $("rankingi-tresc").innerHTML = komunikatHTML("📊", t("rank_brak"), t("rank_brak_opis")); return; }
   const legion = r.legion.map((linia) => `<div class="linia">${linia.gracze.map((g) =>
     `<button class="link-gracza zawodnik-legionu" data-n="${esc(n)}" data-gracz="${esc(g.nazwa)}">
        ${ocenaHTML(g.mecz.ocena)}<b>${esc(g.nazwa.split(" ").slice(-1)[0])}</b>
-       <small>${POZYCJE[g.pozycja] ?? ""} ${wyczynyHTML(g.mecz.gole, g.mecz.asysty)}</small></button>`).join("")}</div>`).join("");
+       <small>${pozycja(g.pozycja)} ${wyczynyHTML(g.mecz.gole, g.mecz.asysty)}</small></button>`).join("")}</div>`).join("");
   const nacjeR = r.nacje.top.concat(r.nacje.wybrana ? [r.nacje.wybrana] : []);
   $("rankingi-tresc").innerHTML = `
-    <h2 class="sekcja">${dni === 7 ? "Legion tygodnia" : dni === 30 ? "Legion miesiąca" : "Legion sezonu"}</h2>
+    <h2 class="sekcja">${t(dni === 7 ? "legion7" : dni === 30 ? "legion30" : "legion0")}</h2>
     <div class="boisko">${legion}</div>
-    <p class="drobne">Najlepszy mecz każdego zawodnika wg oceny, ustawienie 4-3-3.</p>
-    ${tabelaHTML("Strzelcy", r.strzelcy, (w) => `${w.gole} ⚽`, (w) => `${w.mecze} m. · ${w.minuty}'`)}
-    ${tabelaHTML("Asystenci", r.asystenci, (w) => `${w.asysty} 🅰️`, (w) => `${w.mecze} m. · ${w.minuty}'`)}
-    ${tabelaHTML("Klasyfikacja kanadyjska", r.kanadyjska, (w) => `${w.gole + w.asysty}`, (w) => `${w.gole} G + ${w.asysty} A`)}
-    ${tabelaHTML("Najwięcej minut", r.minuty, (w) => `${w.minuty}'`, (w) => `${w.mecze} m. · ${w.w_podstawie} w podst.`)}
-    ${tabelaHTML(`Średnia ocen (min. ${r.min_meczow_oceny} m.)`, r.oceny, (w) => w.srednia_ocena.toFixed(2), (w) => `${w.mecze} m.`)}
-    <h2 class="sekcja">Nacje: ilu zawodników zagrało</h2>
+    <p class="drobne">${t("legion_opis")}</p>
+    ${tabelaHTML(t("strzelcy"), r.strzelcy, (w) => `${w.gole} ⚽`, (w) => `${w.mecze} ${t("m_skrot")} · ${w.minuty}'`)}
+    ${tabelaHTML(t("asystenci"), r.asystenci, (w) => `${w.asysty} 🅰️`, (w) => `${w.mecze} ${t("m_skrot")} · ${w.minuty}'`)}
+    ${tabelaHTML(t("kanadyjska"), r.kanadyjska, (w) => `${w.gole + w.asysty}`, (w) => `${w.gole} G + ${w.asysty} A`)}
+    ${tabelaHTML(t("najw_minut"), r.minuty, (w) => `${w.minuty}'`, (w) => `${w.mecze} ${t("m_skrot")} · ${w.w_podstawie} ${t("w_podst")}`)}
+    ${tabelaHTML(t("srednia", { n: r.min_meczow_oceny }), r.oceny, (w) => w.srednia_ocena.toFixed(2), (w) => `${w.mecze} ${t("m_skrot")}`)}
+    <h2 class="sekcja">${t("nacje_ilu")}</h2>
     <ol class="tabela">${nacjeR.map((w) => `<li class="${w.nacja === n ? "moja" : ""}"><span class="miejsce">${w.miejsce}.</span>${flagaNacji(w.nacja)}
-      <span class="nazwa-nacji">${esc(NACJE[w.nacja] ? NACJE[w.nacja].nazwa : w.nacja)}</span><span class="wyciszony">${w.gole} goli</span><b>${w.grali}</b></li>`).join("")}</ol>`;
+      <span class="nazwa-nacji">${esc(NACJE[w.nacja] ? nazwaNacji(w.nacja) : w.nacja)}</span><span class="wyciszony">${t("goli_n", { n: w.gole })}</span><b>${w.grali}</b></li>`).join("")}</ol>`;
 }
 
 // --- TRANSFERY ---
@@ -671,14 +673,14 @@ async function wczytajTransfery() {
   try { r = await pobierzJSON(`/api/transfery?nacja=${n}`); } catch (e) { $("transfery-tresc").innerHTML = BLAD_SIECI(); return; }
   if (n !== nacja) return;
   if (!r.zdarzenia.length) {
-    $("transfery-tresc").innerHTML = komunikatHTML("🔄", "Brak zmian", "Transfery pojawią się po najbliższej aktualizacji bazy zawodników.");
+    $("transfery-tresc").innerHTML = komunikatHTML("🔄", t("brak_zmian"), t("transfery_pojawia"));
     return;
   }
   let ostatniaData = "";
   $("transfery-tresc").innerHTML = r.zdarzenia.map((z) => {
     const naglowek = z.data !== ostatniaData ? `<h2 class="sekcja">${tytulDnia(z.data)}</h2>` : "";
     ostatniaData = z.data;
-    const skad = z.typ === "transfer" ? `${z.flaga_z ? flagaHTML(z.flaga_z) : ""} ${esc(z.z)} → ` : "nowy w bazie → ";
+    const skad = z.typ === "transfer" ? `${z.flaga_z ? flagaHTML(z.flaga_z) : ""} ${esc(z.z)} → ` : `${t("nowy_w_bazie")} → `;
     return `${naglowek}<div class="transfer">${graczLink(n, z.nazwa)}<div class="wyciszony">${skad}${z.flaga_do ? flagaHTML(z.flaga_do) : ""} <b>${esc(z.do)}</b></div></div>`;
   }).join("");
 }
@@ -687,7 +689,7 @@ async function wczytajTransfery() {
 async function wczytajUlubionych() {
   odswiezPrzyciskPush();
   if (!ulubieni.length) {
-    $("ulubieni-tresc").innerHTML = komunikatHTML("★", "Nie masz jeszcze ulubionych", "Dotknij zawodnika w meczu i gwiazdkę w jego profilu albo wyszukaj go poniżej.");
+    $("ulubieni-tresc").innerHTML = komunikatHTML("★", t("brak_ulub"), t("brak_ulub_opis"));
     return;
   }
   $("ulubieni-tresc").innerHTML = '<div class="szkielet"></div>';
@@ -699,9 +701,9 @@ async function wczytajUlubionych() {
     return `<div class="karta ulubiony">
       <div class="ulubiony-gora">${graczLink(u.nacja, u.nazwa, `${flagaNacji(u.nacja)} <b>${esc(u.nazwa)}</b>`)}
         <span class="wyciszony">${esc(u.klub || "")}</span></div>
-      ${o ? meczWierszHTML(o, o.strona) : `<p class="wyciszony">Brak zapisanych meczów.</p>`}
-      ${u.najblizszy ? `<div class="najblizszy">Następny: <b>${dataKrotka(u.najblizszy.data)} ${esc(u.najblizszy.godzina)}</b> ${esc(u.najblizszy.gosp)} – ${esc(u.najblizszy.gosc)}</div>` : ""}
-      <div class="wyciszony drobne">30 dni: ${s.mecze} m. · ${s.gole} G · ${s.asysty} A${s.srednia_ocena != null ? ` · śr. ${s.srednia_ocena.toFixed(2)}` : ""}</div>
+      ${o ? meczWierszHTML(o, o.strona) : `<p class="wyciszony">${t("brak_zapisanych")}</p>`}
+      ${u.najblizszy ? `<div class="najblizszy">${t("nastepny")} <b>${dataKrotka(u.najblizszy.data)} ${esc(u.najblizszy.godzina)}</b> ${esc(u.najblizszy.gosp)} – ${esc(u.najblizszy.gosc)}</div>` : ""}
+      <div class="wyciszony drobne">${t("dni30_krotko")} ${s.mecze} ${t("m_skrot")} · ${s.gole} G · ${s.asysty} A${s.srednia_ocena != null ? ` · ${t("sr")} ${s.srednia_ocena.toFixed(2)}` : ""}</div>
     </div>`;
   }).join("");
 }
@@ -720,7 +722,7 @@ async function szukajGracza() {
     const u = czyUlubiony(nacja, g.nazwa);
     return `<div class="wynik-szukania">${graczLink(nacja, g.nazwa)}<span class="wyciszony">${g.flaga_kraju ? flagaHTML(g.flaga_kraju) : ""} ${esc(g.klub)}</span>
        <button class="gwiazdka mala${u ? " wlaczona" : ""}" data-gracz="${esc(g.nazwa)}" aria-label="Ulubiony">${u ? "★" : "☆"}</button></div>`;
-  }).join("") : `<p class="wyciszony">Brak zawodników ${NACJE[nacja].dopelniacz} o takim nazwisku.</p>`;
+  }).join("") : `<p class="wyciszony">${t("brak_nazwiska")}</p>`;
 }
 let czasSzukania = null;
 $("szukaj-gracza").addEventListener("input", () => { clearTimeout(czasSzukania); czasSzukania = setTimeout(szukajGracza, 200); });
@@ -757,9 +759,7 @@ async function odswiezPrzyciskPush() {
   b.hidden = false;
   const wl = pushWlaczony() && Notification.permission === "granted";
   b.classList.toggle("wlaczony", wl);
-  b.innerHTML = wl ? "🔕 Ciche powiadomienia o golach i asystach: <b>włączone</b>"
-    : Notification.permission === "denied" ? "Powiadomienia są zablokowane w ustawieniach telefonu"
-    : "🔔 Włącz ciche powiadomienia o golach i asystach ulubionych";
+  b.innerHTML = wl ? t("push_wl_btn") : Notification.permission === "denied" ? esc(t("push_zablok")) : esc(t("push_wlacz_btn"));
 }
 
 async function wyslijSubskrypcje() {
@@ -769,11 +769,11 @@ async function wyslijSubskrypcje() {
     const sub = await reg.pushManager.getSubscription();
     if (!sub) return;
     await fetch("/api/push/subskrypcja", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sub: sub.toJSON(), ulubieni }) });
+      body: JSON.stringify({ sub: sub.toJSON(), ulubieni, jezyk }) });
   } catch (e) {}
 }
 
-$("push-przycisk").addEventListener("click", async () => {
+async function przelaczPush() {
   if (!pushSerwer || !pushSerwer.wlaczone) return;
   const reg = await navigator.serviceWorker.ready;
   if (pushWlaczony() && Notification.permission === "granted") {     // wyłączanie
@@ -784,20 +784,23 @@ $("push-przycisk").addEventListener("click", async () => {
     }
     try { localStorage.setItem("nf-push", "0"); } catch (e) {}
     odswiezPrzyciskPush();
+    rysujUstawienia();
     return;
   }
   const zgoda = await Notification.requestPermission();
-  if (zgoda !== "granted") { odswiezPrzyciskPush(); return; }
+  if (zgoda !== "granted") { odswiezPrzyciskPush(); rysujUstawienia(); return; }
   try {
     let sub = await reg.pushManager.getSubscription();
     if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: kluczVapid(pushSerwer.klucz) });
     try { localStorage.setItem("nf-push", "1"); } catch (e) {}
     await wyslijSubskrypcje();
   } catch (e) {
-    alert("Nie udało się włączyć powiadomień. Na iPhonie działają tylko w aplikacji dodanej do ekranu początkowego.");
+    alert(t("push_blad"));
   }
   odswiezPrzyciskPush();
-});
+  rysujUstawienia();
+}
+$("push-przycisk").addEventListener("click", przelaczPush);
 
 // Powiadomienie otwiera profil zawodnika (#zawodnik=nacja|nazwa)
 function profilZAdresu() {
@@ -807,7 +810,74 @@ function profilZAdresu() {
 }
 window.addEventListener("hashchange", profilZAdresu);
 
+// --- USTAWIENIA: język, kraj zawodników, powiadomienia ---
+const czyIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const czyZainstalowana = () => navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches;
+
+function wypelnijJezyki(sel) {
+  sel.innerHTML = Object.entries(JEZYKI).map(([k, n]) => `<option value="${k}"${k === jezyk ? " selected" : ""}>${n}</option>`).join("");
+}
+
+async function rysujUstawienia() {
+  if ($("ustawienia").hidden) return;
+  wypelnijJezyki($("wybor-jezyka"));
+  $("ustaw-nacje").innerHTML = nacja ? `${flagaNacji(nacja)} ${esc(nazwaKrajuNacji(nacja))}` : esc(t("zmien"));
+  const prz = $("push-przelacznik"), stan = $("push-stan");
+  let wl = false, aktywny = true, opis;
+  if (!pushMozliwy) { aktywny = false; opis = czyIOS && !czyZainstalowana() ? t("push_ios") : t("push_brak_przegl"); }
+  else {
+    if (pushSerwer === null) { try { pushSerwer = await pobierzJSON("/api/push/klucz"); } catch (e) { pushSerwer = { wlaczone: false }; } }
+    if (!pushSerwer.wlaczone) { aktywny = false; opis = t("push_brak_serwer"); }
+    else if (Notification.permission === "denied") { aktywny = false; opis = t("push_zablok"); }
+    else {
+      wl = pushWlaczony() && Notification.permission === "granted";
+      opis = ulubieni.length ? t("push_ulubionych", { n: ulubieni.length }) : t("push_bez_ulub");
+    }
+  }
+  prz.disabled = !aktywny;
+  prz.classList.toggle("wl", wl);
+  prz.setAttribute("aria-checked", wl ? "true" : "false");
+  stan.textContent = opis;
+}
+
+function otworzUstawienia() {
+  $("ustawienia").hidden = false;
+  document.body.classList.add("bez-przewijania");
+  rysujUstawienia();
+}
+function zamknijUstawienia() {
+  $("ustawienia").hidden = true;
+  if (!profilOtwarty) document.body.classList.remove("bez-przewijania");
+}
+$("otworz-ustawienia").addEventListener("click", otworzUstawienia);
+$("zamknij-ustawienia").addEventListener("click", zamknijUstawienia);
+$("ustawienia").addEventListener("click", (e) => { if (e.target === e.currentTarget) zamknijUstawienia(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("ustawienia").hidden) zamknijUstawienia(); });
+$("ustaw-nacje").addEventListener("click", () => { zamknijUstawienia(); otworzWyborNacji(); });
+$("push-przelacznik").addEventListener("click", przelaczPush);
+
+function ustawJezyk(j) {
+  if (!JEZYKI[j] || j === jezyk) return;
+  jezyk = j;
+  try { localStorage.setItem("nf-jezyk", j); } catch (e) {}
+  przetlumaczStrone();
+  zbudujDni();
+  zaznaczDzien(false);
+  $("tytul-dnia").textContent = tytulDnia(wybrany);
+  if (nacja) $("zmien-nacje").setAttribute("aria-label", t("zmien_kraj_teraz", { kraj: nazwaKrajuNacji(nacja) }));
+  if (!$("wybor-nacji").hidden) otworzWyborNacji();
+  if (widok === "glowna") { const z = pamiec[`${nacja}:${wybrany}`]; if (z) pokaz(z); }
+  else if (nacja) pokazWidok(widok);
+  if (profilOtwarty && profilOtwarty.dane) rysujProfil();
+  odswiezPrzyciskPush();
+  rysujUstawienia();
+  wyslijSubskrypcje();      // powiadomienia przychodzą w wybranym języku
+}
+$("wybor-jezyka").addEventListener("change", (e) => ustawJezyk(e.target.value));
+$("wybor-jezyka-start").addEventListener("change", (e) => ustawJezyk(e.target.value));
+
 // --- START ---
+przetlumaczStrone();
 $("odswiez").addEventListener("click", () => { if (nacja) { if (widok === "glowna") pobierz(wybrany); else pokazWidok(widok); } });
 
 function czyAktualnyDzien() {
