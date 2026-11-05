@@ -31,13 +31,56 @@
   <nav id="dni" class="dni" aria-label="Wybór dnia"></nav>
 </header>
 
-<main id="glowna">
+<main id="glowna" class="widok">
   <div class="naglowek-dnia">
     <h1 id="tytul-dnia"></h1>
     <p id="podsumowanie" class="podsumowanie"></p>
   </div>
+  <div class="filtry">
+    <button id="filtr-ulubieni" class="chip" aria-pressed="false">★ Tylko ulubieni</button>
+    <select id="filtr-kraj" class="chip" aria-label="Kraj ligi"><option value="">Wszystkie ligi</option></select>
+  </div>
   <div id="lista" class="lista" aria-live="polite"></div>
 </main>
+
+<section id="widok-rankingi" class="widok" hidden>
+  <div class="naglowek-dnia"><h1>Rankingi</h1><p id="rankingi-opis" class="podsumowanie"></p></div>
+  <div class="przelacznik" id="rankingi-okres">
+    <button data-dni="7" class="wybrany">7 dni</button><button data-dni="30">30 dni</button><button data-dni="0">Sezon</button>
+  </div>
+  <div id="rankingi-tresc"></div>
+</section>
+
+<section id="widok-transfery" class="widok" hidden>
+  <div class="naglowek-dnia"><h1>Transfery</h1><p class="podsumowanie">Zmiany klubów i nowi zawodnicy w bazie (z cotygodniowej aktualizacji).</p></div>
+  <div id="transfery-tresc"></div>
+</section>
+
+<section id="widok-ulubieni" class="widok" hidden>
+  <div class="naglowek-dnia"><h1>Ulubieni</h1><p class="podsumowanie">Dotknij zawodnika w meczu albo znajdź go niżej i dodaj gwiazdką.</p></div>
+  <button id="push-przycisk" class="push-btn" hidden></button>
+  <div id="ulubieni-tresc"></div>
+  <h2 class="sekcja">Szukaj zawodnika</h2>
+  <input id="szukaj-gracza" class="szukaj" type="search" placeholder="Nazwisko…" autocomplete="off">
+  <div id="wyniki-szukania"></div>
+</section>
+
+<nav class="zakladki" aria-label="Widoki">
+  <button data-widok="glowna" class="wybrana"><span>⚽</span>Mecze</button>
+  <button data-widok="widok-rankingi"><span>🏆</span>Rankingi</button>
+  <button data-widok="widok-transfery"><span>🔄</span>Transfery</button>
+  <button data-widok="widok-ulubieni"><span>★</span>Ulubieni</button>
+</nav>
+
+<div id="profil" class="profil" hidden>
+  <div class="profil-okno" role="dialog" aria-modal="true">
+    <div class="profil-gora">
+      <button id="zamknij-profil" class="zamknij" aria-label="Zamknij">✕</button>
+      <button id="gwiazdka-profilu" class="gwiazdka" aria-pressed="false" aria-label="Ulubiony">☆</button>
+    </div>
+    <div id="profil-tresc"></div>
+  </div>
+</div>
 
 <div id="wybor-nacji" class="wybor-nacji" hidden>
   <div class="wybor-okno" role="dialog" aria-modal="true" aria-labelledby="wybor-tytul">
@@ -45,6 +88,7 @@
     <img class="wybor-logo" src="ikona-192.png" alt="">
     <h2 id="wybor-tytul">Piłkarzy z jakiego kraju śledzisz?</h2>
     <p>Pokażemy mecze i występy zawodników z wybranego kraju grających za granicą. Zmienisz to w każdej chwili przyciskiem z flagą u góry.</p>
+    <input id="szukaj-nacji" class="szukaj" type="search" placeholder="Szukaj kraju…" autocomplete="off">
     <div id="nacje" class="nacje"></div>
   </div>
 </div>

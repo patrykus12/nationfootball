@@ -1,6 +1,6 @@
 // Service worker: aplikacja otwiera się także bez internetu (ostatnio oglądane dni z pamięci).
 // Zawsze najpierw sieć - nowa wersja strony i świeże wyniki trafiają do telefonu od razu.
-const PAMIEC = "nationfootball-v75";
+const PAMIEC = "nationfootball-v76";
 const POWLOKA = ["./", "index.html", "styl.css", "app.js", "manifest.webmanifest", "favicon.png", "ikona-192.png"];
 
 self.addEventListener("install", (e) => {
@@ -44,4 +44,24 @@ self.addEventListener("fetch", (e) => {
     naglowki.set("X-Z-Pamieci", "1");
     return z.blob().then((b) => new Response(b, { status: z.status, headers: naglowki }));
   })));
+});
+
+// Ciche powiadomienie o golu/asyście ulubionego zawodnika (bez dźwięku i wibracji)
+self.addEventListener("push", (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = { tytul: "NationFootball", tresc: e.data ? e.data.text() : "" }; }
+  e.waitUntil(self.registration.showNotification(d.tytul || "NationFootball", {
+    body: d.tresc || "", icon: "ikona-192.png", badge: "favicon.png", tag: d.tag, silent: true, renotify: false,
+    data: { url: d.url || "/app/" },
+  }));
+});
+
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const url = new URL((e.notification.data && e.notification.data.url) || "/app/", self.location.origin).href;
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((okna) => {
+    const okno = okna.find((o) => o.url.includes("/app/"));
+    if (okno) return okno.navigate(url).then((o) => (o || okno).focus()).catch(() => okno.focus());
+    return self.clients.openWindow(url);
+  }));
 });

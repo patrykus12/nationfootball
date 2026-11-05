@@ -30,9 +30,10 @@ def aktualizuj_zawodnikow(nacja):
     # Baza do pobierania składów i szeroka baza (wszystkie ligi) - każda sprawdzana osobno
     pliki = [os.path.join(KATALOG, NACJE[nacja]["plik"])]
     if ma_szeroka_baze(nacja): pliki.append(os.path.join(KATALOG, plik_szerokiej_bazy(nacja)))
-    stare = {}
+    stare, czasy = {}, {}
     for plik in pliki:
         stare[plik] = policz_zawodnikow(plik) if os.path.exists(plik) else 0
+        czasy[plik] = os.path.getmtime(plik) if os.path.exists(plik) else 0
         if os.path.exists(plik): shutil.copy2(plik, plik + ".przed_skanem")
 
     try:
@@ -48,6 +49,13 @@ def aktualizuj_zawodnikow(nacja):
             nowa_liczba = policz_zawodnikow(plik) if os.path.exists(plik) else 0
         except Exception:
             nowa_liczba = 0
+        # Skaner przerwany na starcie (np. Transfermarkt blokuje serwery GitHuba) nie zapisuje pliku -
+        # wcześniej wyglądało to jak "OK" (stara baza, ta sama liczba zawodników)
+        if (os.path.getmtime(plik) if os.path.exists(plik) else 0) == czasy[plik]:
+            if os.path.exists(kopia): os.remove(kopia)
+            print(f"[{nacja}] BŁĄD {os.path.basename(plik)}: skan nie zapisał nowej bazy (blokada/brak odpowiedzi Transfermarktu). Zostaje stara.")
+            wynik = False
+            continue
         if nowa_liczba == 0 or nowa_liczba < stara_liczba * MIN_UDZIAL_STAREJ_BAZY:
             if os.path.exists(kopia): shutil.move(kopia, plik)
             print(f"[{nacja}] ODRZUCONO nową bazę {os.path.basename(plik)}: {nowa_liczba} zawodników (było {stara_liczba}). Zostaje stara baza.")

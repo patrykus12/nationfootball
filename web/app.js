@@ -324,8 +324,9 @@ function graczHTML(klub, g) {
   const szczegoly = [`<span class="klub">${esc(skrotKlubu(klub))}</span>`];
   if (g.minuty_tekst) szczegoly.push(esc(g.minuty_tekst));
   const ocena = g.ocena != null ? `<span class="ocena ${klasaOceny(g.ocena)}">${Number(g.ocena).toFixed(1)}</span>` : "";
-  return `<div class="gracz${g.aktywny === false ? " nie-gral" : ""}">
-    <div class="opis"><div class="imie">${esc(g.nazwa)}</div><div class="szczegoly">${szczegoly.join(" · ")}</div></div>
+  const ulub = czyUlubiony(nacja, g.nazwa);
+  return `<div class="gracz${g.aktywny === false ? " nie-gral" : ""}" data-gracz="${esc(g.nazwa)}" role="button" tabindex="0">
+    <div class="opis"><div class="imie">${ulub ? '<span class="gw">★</span>' : ""}${esc(g.nazwa)}</div><div class="szczegoly">${szczegoly.join(" · ")}</div></div>
     ${wyczyny ? `<span class="wyczyny">${wyczyny}</span>` : ""}${ocena}</div>`;
 }
 
@@ -352,7 +353,8 @@ function kartaHTML(m) {
 }
 
 function pokaz(dane) {
-  const mecze = dane.mecze || [];
+  const mecze = filtrujMecze(dane.mecze || []);
+  odswiezListeKrajow(dane.mecze || []);
   const gracze = mecze.reduce((s, m) => s + m.gracze_gosp.length + m.gracze_gosc.length, 0), formy = NACJE[nacja].formy;
   const odmiana = (n, a, b, c) => n === 1 ? a : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? b : c;
   const stan = dane.stan_na ? ` · stan z ${dane.stan_na.slice(11)}` : "";
@@ -360,8 +362,11 @@ function pokaz(dane) {
     ? `${mecze.length} ${odmiana(mecze.length, "mecz", "mecze", "meczów")} · ${gracze} ${odmiana(gracze, ...formy)}${stan}` +
       (dane.offline ? ` <span class="offline">· bez internetu</span>` : "")
     : "";
+  const filtrowane = filtr.ulubieni || filtr.kraj;
   $("lista").innerHTML = mecze.length ? mecze.map(kartaHTML).join("")
-    : `<div class="komunikat"><div class="duza">🏟️</div><b>Brak meczów ${NACJE[nacja].dopelniacz}</b>Tego dnia żaden z nich nie gra.</div>`;
+    : filtrowane && (dane.mecze || []).length
+      ? `<div class="komunikat"><div class="duza">🔎</div><b>Nic nie pasuje do filtrów</b>Zmień albo wyłącz filtr u góry.</div>`
+      : `<div class="komunikat"><div class="duza">🏟️</div><b>Brak meczów ${NACJE[nacja].dopelniacz}</b>Tego dnia żaden z nich nie gra.</div>`;
 }
 
 function pokazSzkielet() {
@@ -404,14 +409,21 @@ function ustawNacje(n) {
   b.setAttribute("aria-label", `Zmień kraj (teraz: ${NACJE[n].kraj})`);
   b.hidden = false;
   zamknijWyborNacji();
-  if (zmiana) wybierzDzien(wybrany, false);
+  if (zmiana) {
+    filtr.kraj = "";
+    wybierzDzien(wybrany, false);
+    if (widok !== "glowna") pokazWidok(widok);
+  }
 }
 
 function otworzWyborNacji() {
-  $("nacje").innerHTML = Object.entries(NACJE).map(([k, n]) =>
-    `<button class="nacja${k === nacja ? " obecna" : ""}" data-n="${k}">${flagaNacji(k)}` +
-    `<span><b>${esc(n.kraj)}</b></span></button>`).join("");
+  // Alfabetycznie po polsku (207 krajów), wybrana nacja na górze
+  const lista = Object.entries(NACJE).sort((a, b) => (b[0] === nacja) - (a[0] === nacja) || a[1].kraj.localeCompare(b[1].kraj, "pl"));
+  $("nacje").innerHTML = lista.map(([k, n]) =>
+    `<button class="nacja${k === nacja ? " obecna" : ""}" data-n="${k}" data-szukaj="${esc(norm(n.kraj + " " + n.nazwa))}">${flagaNacji(k)}` +
+    `<span><b>${esc(n.kraj)}</b><small>${esc(n.nazwa)}</small></span></button>`).join("");
   $("nacje").querySelectorAll(".nacja").forEach((b) => b.addEventListener("click", () => ustawNacje(b.dataset.n)));
+  $("szukaj-nacji").value = "";
   $("zamknij-wybor").hidden = !nacja;     // przy pierwszym uruchomieniu wybór jest obowiązkowy
   $("wybor-nacji").hidden = false;
 }
@@ -423,14 +435,386 @@ $("zamknij-wybor").addEventListener("click", zamknijWyborNacji);
 $("wybor-nacji").addEventListener("click", (e) => { if (e.target === e.currentTarget && nacja) zamknijWyborNacji(); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && nacja) zamknijWyborNacji(); });
 
+// --- ULUBIENI (w telefonie; ten sam zawodnik mimo różnej pisowni znaków) ---
+const KLUCZ_ULUBIONYCH = "nf-ulubieni";
+const norm = (t) => String(t || "").replace(/[łŁ]/g, "l").replace(/ı/g, "i").replace(/[øØ]/g, "o").replace(/[đĐ]/g, "d")
+  .normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+let ulubieni = [];
+try { ulubieni = JSON.parse(localStorage.getItem(KLUCZ_ULUBIONYCH) || "[]").filter((u) => typeof u === "string"); } catch (e) { ulubieni = []; }
+const kluczUlub = (n, nazwa) => `${n}|${norm(nazwa)}`;
+const kluczZWpisu = (u) => { const [n, ...r] = u.split("|"); return kluczUlub(n, r.join("|")); };
+let zbiorUlubionych = new Set(ulubieni.map(kluczZWpisu));
+const czyUlubiony = (n, nazwa) => zbiorUlubionych.has(kluczUlub(n, nazwa));
+
+function przelaczUlubionego(n, nazwa) {
+  const k = kluczUlub(n, nazwa);
+  if (zbiorUlubionych.has(k)) ulubieni = ulubieni.filter((u) => kluczZWpisu(u) !== k);
+  else ulubieni.push(`${n}|${nazwa}`);
+  zbiorUlubionych = new Set(ulubieni.map(kluczZWpisu));
+  try { localStorage.setItem(KLUCZ_ULUBIONYCH, JSON.stringify(ulubieni)); } catch (e) {}
+  wyslijSubskrypcje();                       // serwer musi wiedzieć, o kim powiadamiać
+  const zapamietane = pamiec[`${nacja}:${wybrany}`];
+  if (zapamietane && widok === "glowna") pokaz(zapamietane);
+  return zbiorUlubionych.has(k);
+}
+
+// --- FILTRY DNIA ---
+const filtr = { ulubieni: false, kraj: "" };
+try { filtr.ulubieni = localStorage.getItem("nf-filtr-ulubieni") === "1"; } catch (e) {}
+
+function krajMeczu(m) { const f = (m.flaga || "").toLowerCase(); return !f || ["int", "none", "world", "international"].includes(f) ? "int" : f; }
+
+function filtrujMecze(mecze) {
+  let wynik = mecze;
+  if (filtr.kraj) wynik = wynik.filter((m) => krajMeczu(m) === filtr.kraj);
+  if (filtr.ulubieni) {
+    wynik = wynik.map((m) => ({ ...m, gracze_gosp: m.gracze_gosp.filter((g) => czyUlubiony(nacja, g.nazwa)),
+                                gracze_gosc: m.gracze_gosc.filter((g) => czyUlubiony(nacja, g.nazwa)) }))
+                 .filter((m) => m.gracze_gosp.length + m.gracze_gosc.length);
+  }
+  return wynik;
+}
+
+const NAZWY_KRAJOW_LIG = (() => { try { return new Intl.DisplayNames(["pl"], { type: "region" }); } catch (e) { return null; } })();
+const SPECJALNE_KRAJE = { "gb-eng": "Anglia", "gb-sct": "Szkocja", "gb-wls": "Walia", "gb-nir": "Irlandia Płn.", int: "Puchary / międzynarodowe" };
+function nazwaKrajuLigi(kod) {
+  if (SPECJALNE_KRAJE[kod]) return SPECJALNE_KRAJE[kod];
+  try { return (NAZWY_KRAJOW_LIG && NAZWY_KRAJOW_LIG.of(kod.toUpperCase())) || kod.toUpperCase(); } catch (e) { return kod.toUpperCase(); }
+}
+
+function odswiezListeKrajow(mecze) {
+  const licz = {};
+  mecze.forEach((m) => { const k = krajMeczu(m); licz[k] = (licz[k] || 0) + 1; });
+  if (filtr.kraj && !licz[filtr.kraj]) licz[filtr.kraj] = 0;
+  const opcje = Object.keys(licz).sort((a, b) => nazwaKrajuLigi(a).localeCompare(nazwaKrajuLigi(b), "pl"));
+  $("filtr-kraj").innerHTML = `<option value="">Wszystkie ligi</option>` +
+    opcje.map((k) => `<option value="${esc(k)}"${k === filtr.kraj ? " selected" : ""}>${esc(nazwaKrajuLigi(k))} (${licz[k]})</option>`).join("");
+  $("filtr-kraj").classList.toggle("aktywny", !!filtr.kraj);
+  $("filtr-ulubieni").setAttribute("aria-pressed", filtr.ulubieni ? "true" : "false");
+}
+
+$("filtr-ulubieni").addEventListener("click", () => {
+  filtr.ulubieni = !filtr.ulubieni;
+  try { localStorage.setItem("nf-filtr-ulubieni", filtr.ulubieni ? "1" : "0"); } catch (e) {}
+  const z = pamiec[`${nacja}:${wybrany}`]; if (z) pokaz(z);
+});
+$("filtr-kraj").addEventListener("change", (e) => { filtr.kraj = e.target.value; const z = pamiec[`${nacja}:${wybrany}`]; if (z) pokaz(z); });
+
+// Dotknięcie zawodnika w meczu otwiera jego profil
+$("lista").addEventListener("click", (e) => { const g = e.target.closest(".gracz"); if (g) otworzProfil(nacja, g.dataset.gracz); });
+$("lista").addEventListener("keydown", (e) => { const g = e.target.closest(".gracz"); if (g && e.key === "Enter") otworzProfil(nacja, g.dataset.gracz); });
+
+// --- ZAKŁADKI ---
+let widok = "glowna";
+function pokazWidok(id) {
+  widok = id;
+  document.querySelectorAll(".widok").forEach((w) => { w.hidden = w.id !== id; });
+  document.querySelectorAll(".zakladki button").forEach((b) => b.classList.toggle("wybrana", b.dataset.widok === id));
+  $("dni").hidden = id !== "glowna";
+  window.scrollTo(0, 0);
+  if (!nacja) return;
+  if (id === "glowna") wybierzDzien(wybrany, false);
+  else if (id === "widok-rankingi") wczytajRankingi();
+  else if (id === "widok-transfery") wczytajTransfery();
+  else if (id === "widok-ulubieni") wczytajUlubionych();
+}
+document.querySelectorAll(".zakladki button").forEach((b) => b.addEventListener("click", () => pokazWidok(b.dataset.widok)));
+
+async function pobierzJSON(adres) {
+  const res = await fetch(adres, { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+const komunikatHTML = (ikona, tytul, tekst) => `<div class="komunikat"><div class="duza">${ikona}</div><b>${esc(tytul)}</b>${esc(tekst)}</div>`;
+const BLAD_SIECI = () => komunikatHTML("📡", "Brak połączenia z serwerem", "Sprawdź internet i dotknij przycisku odświeżania.");
+const POZYCJE = ["BR", "OBR", "POM", "NAP"];
+const POZYCJE_PELNE = ["Bramkarz", "Obrońca", "Pomocnik", "Napastnik"];
+const dataKrotka = (d) => `${+d.slice(6, 8)}.${d.slice(4, 6)}`;
+const ocenaHTML = (o) => o != null ? `<span class="ocena ${klasaOceny(o)}">${Number(o).toFixed(1)}</span>` : "";
+const graczLink = (n, nazwa, tresc) => `<button class="link-gracza" data-n="${esc(n)}" data-gracz="${esc(nazwa)}">${tresc ?? esc(nazwa)}</button>`;
+document.addEventListener("click", (e) => {
+  const l = e.target.closest(".link-gracza");
+  if (l) { e.stopPropagation(); otworzProfil(l.dataset.n, l.dataset.gracz); }
+});
+
+function wyczynyHTML(g, a) {
+  let w = "";
+  if (g) w += g > 1 ? `${g}×⚽` : "⚽";
+  if (a) w += (w ? " " : "") + (a > 1 ? `${a}×🅰️` : "🅰️");
+  return w;
+}
+
+function meczWierszHTML(m, naszaStrona) {
+  const nasza = naszaStrona === "gosp" ? m.gosp : m.gosc, rywal = naszaStrona === "gosp" ? m.gosc : m.gosp;
+  const wynik = m.wynik ? (naszaStrona === "gosp" ? m.wynik : m.wynik.split(":").reverse().join(":")) : "–";
+  const minuty = m.status === 1 ? (m.minuty != null ? `${m.minuty}'` : "grał") + (m.wyjsciowy ? "" : " z ławki")
+    : m.status === 0 ? "nie grał" : "brak danych";
+  const kartki = (m.kartki || "").replace(/y/g, "🟨").replace(/r/g, "🟥");
+  return `<div class="mecz-wiersz${m.status === 1 ? "" : " nie-gral"}">
+    <span class="data">${dataKrotka(m.data)}</span>${flagaHTML(m.flaga)}
+    <span class="opis"><b>${esc(nasza)}</b> ${esc(wynik)} ${esc(rywal)}<small>${esc(m.liga)} · ${minuty}</small></span>
+    <span class="wyczyny">${wyczynyHTML(m.gole, m.asysty)}${kartki}</span>${ocenaHTML(m.ocena)}</div>`;
+}
+
+// --- PROFIL ZAWODNIKA ---
+let profilOtwarty = null, okresProfilu = "30";
+async function otworzProfil(n, nazwa) {
+  if (!NACJE[n] || !nazwa) return;
+  profilOtwarty = { n, nazwa };
+  $("profil").hidden = false;
+  document.body.classList.add("bez-przewijania");
+  ustawGwiazdke();
+  $("profil-tresc").innerHTML = `<h2 class="profil-imie">${esc(nazwa)}</h2><div class="szkielet"></div>`;
+  try {
+    const p = await pobierzJSON(`/api/zawodnik?nacja=${n}&nazwa=${encodeURIComponent(nazwa)}`);
+    if (profilOtwarty && profilOtwarty.nazwa === nazwa) { profilOtwarty.dane = p; rysujProfil(); }
+  } catch (e) {
+    if (profilOtwarty && profilOtwarty.nazwa === nazwa) $("profil-tresc").innerHTML = BLAD_SIECI();
+  }
+}
+
+function ustawGwiazdke() {
+  const u = profilOtwarty && czyUlubiony(profilOtwarty.n, profilOtwarty.nazwa);
+  $("gwiazdka-profilu").textContent = u ? "★" : "☆";
+  $("gwiazdka-profilu").classList.toggle("wlaczona", !!u);
+  $("gwiazdka-profilu").setAttribute("aria-pressed", u ? "true" : "false");
+}
+
+function rysujProfil() {
+  const p = profilOtwarty.dane, s = p.sumy[okresProfilu];
+  const forma = p.forma.length ? p.forma.map((o) => ocenaHTML(o)).join("") : `<span class="wyciszony">brak ocen</span>`;
+  const nastepny = p.najblizszy
+    ? `<div class="najblizszy">Najbliższy mecz: <b>${dataKrotka(p.najblizszy.data)} ${esc(p.najblizszy.godzina)}</b> ${flagaHTML(p.najblizszy.flaga)}
+         ${esc(p.najblizszy.gosp)} – ${esc(p.najblizszy.gosc)}</div>` : "";
+  const staty = [["Mecze", s.mecze], ["Minuty", s.minuty], ["Gole", s.gole], ["Asysty", s.asysty],
+                 ["Śr. ocena", s.srednia_ocena != null ? s.srednia_ocena.toFixed(2) : "–"], ["W podstawie", s.w_podstawie]];
+  $("profil-tresc").innerHTML = `
+    <h2 class="profil-imie">${flagaNacji(p.nacja)} ${esc(p.nazwa)}</h2>
+    <p class="profil-klub">${p.klub ? `${p.flaga_kraju ? flagaHTML(p.flaga_kraju) : ""} ${esc(p.klub)}` : "poza bazą (np. powrót do kraju)"}${p.pozycja != null ? ` · ${POZYCJE_PELNE[p.pozycja]}` : ""}</p>
+    <div class="forma"><span>Forma</span>${forma}</div>
+    ${nastepny}
+    <div class="przelacznik" id="profil-okres">
+      ${[["7", "7 dni"], ["30", "30 dni"], ["wszystko", "Sezon"]].map(([k, t]) => `<button data-o="${k}"${k === okresProfilu ? ' class="wybrany"' : ""}>${t}</button>`).join("")}
+    </div>
+    <div class="staty">${staty.map(([t, w]) => `<div><b>${w}</b><span>${t}</span></div>`).join("")}</div>
+    ${s.zolte || s.czerwone ? `<p class="wyciszony kartki">Kartki: ${"🟨".repeat(Math.min(s.zolte, 10))}${"🟥".repeat(s.czerwone)}</p>` : ""}
+    <h3 class="sekcja">Ostatnie mecze</h3>
+    ${p.mecze.length ? `<div class="mecze-lista">${p.mecze.map((m) => meczWierszHTML(m, m.strona)).join("")}</div>`
+      : `<p class="wyciszony">Historia meczów zbiera się od listopada 2026 - pojawi się po pierwszym meczu.</p>`}
+    ${p.od ? `<p class="drobne">Dane od ${dataKrotka(p.od)}.${p.od.slice(0, 4)}</p>` : ""}`;
+  $("profil-okres").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { okresProfilu = b.dataset.o; rysujProfil(); }));
+}
+
+function zamknijProfil() {
+  $("profil").hidden = true;
+  profilOtwarty = null;
+  document.body.classList.remove("bez-przewijania");
+  if (location.hash.startsWith("#zawodnik=")) history.replaceState(null, "", location.pathname);
+  if (widok === "widok-ulubieni") wczytajUlubionych();
+}
+$("zamknij-profil").addEventListener("click", zamknijProfil);
+$("profil").addEventListener("click", (e) => { if (e.target === e.currentTarget) zamknijProfil(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && profilOtwarty) zamknijProfil(); });
+$("gwiazdka-profilu").addEventListener("click", () => {
+  if (!profilOtwarty) return;
+  przelaczUlubionego(profilOtwarty.n, profilOtwarty.dane ? profilOtwarty.dane.nazwa : profilOtwarty.nazwa);
+  ustawGwiazdke();
+});
+
+// --- RANKINGI ---
+let okresRankingow = 7;
+$("rankingi-okres").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+  okresRankingow = +b.dataset.dni;
+  $("rankingi-okres").querySelectorAll("button").forEach((x) => x.classList.toggle("wybrany", x === b));
+  wczytajRankingi();
+}));
+
+function tabelaHTML(tytul, wiersze, wartosc, opis) {
+  if (!wiersze.length) return "";
+  return `<h2 class="sekcja">${tytul}</h2><ol class="tabela">${wiersze.map((w, i) =>
+    `<li><span class="miejsce">${i + 1}.</span>${graczLink(nacja, w.nazwa)}<span class="wyciszony">${opis(w)}</span><b>${wartosc(w)}</b></li>`).join("")}</ol>`;
+}
+
+async function wczytajRankingi() {
+  const n = nacja, dni = okresRankingow;
+  $("rankingi-tresc").innerHTML = '<div class="szkielet"></div>'.repeat(2);
+  let r;
+  try { r = await pobierzJSON(`/api/rankingi?nacja=${n}&dni=${dni}`); } catch (e) { $("rankingi-tresc").innerHTML = BLAD_SIECI(); return; }
+  if (n !== nacja || dni !== okresRankingow) return;
+  const p = r.podsumowanie;
+  $("rankingi-opis").textContent = p.mecze ? `${NACJE[n].nazwa}: ${p.zawodnikow} grało · ${p.gole} goli · ${p.asysty} asyst` : "";
+  if (!p.mecze) { $("rankingi-tresc").innerHTML = komunikatHTML("📊", "Jeszcze brak danych", "Rankingi liczą się z zakończonych meczów - pojawią się po najbliższej kolejce."); return; }
+  const legion = r.legion.map((linia) => `<div class="linia">${linia.gracze.map((g) =>
+    `<button class="link-gracza zawodnik-legionu" data-n="${esc(n)}" data-gracz="${esc(g.nazwa)}">
+       ${ocenaHTML(g.mecz.ocena)}<b>${esc(g.nazwa.split(" ").slice(-1)[0])}</b>
+       <small>${POZYCJE[g.pozycja] ?? ""} ${wyczynyHTML(g.mecz.gole, g.mecz.asysty)}</small></button>`).join("")}</div>`).join("");
+  const nacjeR = r.nacje.top.concat(r.nacje.wybrana ? [r.nacje.wybrana] : []);
+  $("rankingi-tresc").innerHTML = `
+    <h2 class="sekcja">${dni === 7 ? "Legion tygodnia" : dni === 30 ? "Legion miesiąca" : "Legion sezonu"}</h2>
+    <div class="boisko">${legion}</div>
+    <p class="drobne">Najlepszy mecz każdego zawodnika wg oceny, ustawienie 4-3-3.</p>
+    ${tabelaHTML("Strzelcy", r.strzelcy, (w) => `${w.gole} ⚽`, (w) => `${w.mecze} m. · ${w.minuty}'`)}
+    ${tabelaHTML("Asystenci", r.asystenci, (w) => `${w.asysty} 🅰️`, (w) => `${w.mecze} m. · ${w.minuty}'`)}
+    ${tabelaHTML("Klasyfikacja kanadyjska", r.kanadyjska, (w) => `${w.gole + w.asysty}`, (w) => `${w.gole} G + ${w.asysty} A`)}
+    ${tabelaHTML("Najwięcej minut", r.minuty, (w) => `${w.minuty}'`, (w) => `${w.mecze} m. · ${w.w_podstawie} w podst.`)}
+    ${tabelaHTML(`Średnia ocen (min. ${r.min_meczow_oceny} m.)`, r.oceny, (w) => w.srednia_ocena.toFixed(2), (w) => `${w.mecze} m.`)}
+    <h2 class="sekcja">Nacje: ilu zawodników zagrało</h2>
+    <ol class="tabela">${nacjeR.map((w) => `<li class="${w.nacja === n ? "moja" : ""}"><span class="miejsce">${w.miejsce}.</span>${flagaNacji(w.nacja)}
+      <span class="nazwa-nacji">${esc(NACJE[w.nacja] ? NACJE[w.nacja].nazwa : w.nacja)}</span><span class="wyciszony">${w.gole} goli</span><b>${w.grali}</b></li>`).join("")}</ol>`;
+}
+
+// --- TRANSFERY ---
+async function wczytajTransfery() {
+  const n = nacja;
+  $("transfery-tresc").innerHTML = '<div class="szkielet"></div>';
+  let r;
+  try { r = await pobierzJSON(`/api/transfery?nacja=${n}`); } catch (e) { $("transfery-tresc").innerHTML = BLAD_SIECI(); return; }
+  if (n !== nacja) return;
+  if (!r.zdarzenia.length) {
+    $("transfery-tresc").innerHTML = komunikatHTML("🔄", "Brak zmian", "Transfery pojawią się po najbliższej aktualizacji bazy zawodników.");
+    return;
+  }
+  let ostatniaData = "";
+  $("transfery-tresc").innerHTML = r.zdarzenia.map((z) => {
+    const naglowek = z.data !== ostatniaData ? `<h2 class="sekcja">${tytulDnia(z.data)}</h2>` : "";
+    ostatniaData = z.data;
+    const skad = z.typ === "transfer" ? `${z.flaga_z ? flagaHTML(z.flaga_z) : ""} ${esc(z.z)} → ` : "nowy w bazie → ";
+    return `${naglowek}<div class="transfer">${graczLink(n, z.nazwa)}<div class="wyciszony">${skad}${z.flaga_do ? flagaHTML(z.flaga_do) : ""} <b>${esc(z.do)}</b></div></div>`;
+  }).join("");
+}
+
+// --- WIDOK ULUBIONYCH + WYSZUKIWARKA ---
+async function wczytajUlubionych() {
+  odswiezPrzyciskPush();
+  if (!ulubieni.length) {
+    $("ulubieni-tresc").innerHTML = komunikatHTML("★", "Nie masz jeszcze ulubionych", "Dotknij zawodnika w meczu i gwiazdkę w jego profilu albo wyszukaj go poniżej.");
+    return;
+  }
+  $("ulubieni-tresc").innerHTML = '<div class="szkielet"></div>';
+  let r;
+  try { r = await pobierzJSON(`/api/ulubieni?${ulubieni.map((u) => "z=" + encodeURIComponent(u)).join("&")}`); }
+  catch (e) { $("ulubieni-tresc").innerHTML = BLAD_SIECI(); return; }
+  $("ulubieni-tresc").innerHTML = r.zawodnicy.map((u) => {
+    const o = u.ostatni, s = u.sumy30;
+    return `<div class="karta ulubiony">
+      <div class="ulubiony-gora">${graczLink(u.nacja, u.nazwa, `${flagaNacji(u.nacja)} <b>${esc(u.nazwa)}</b>`)}
+        <span class="wyciszony">${esc(u.klub || "")}</span></div>
+      ${o ? meczWierszHTML(o, o.strona) : `<p class="wyciszony">Brak zapisanych meczów.</p>`}
+      ${u.najblizszy ? `<div class="najblizszy">Następny: <b>${dataKrotka(u.najblizszy.data)} ${esc(u.najblizszy.godzina)}</b> ${esc(u.najblizszy.gosp)} – ${esc(u.najblizszy.gosc)}</div>` : ""}
+      <div class="wyciszony drobne">30 dni: ${s.mecze} m. · ${s.gole} G · ${s.asysty} A${s.srednia_ocena != null ? ` · śr. ${s.srednia_ocena.toFixed(2)}` : ""}</div>
+    </div>`;
+  }).join("");
+}
+
+let kadra = { n: null, lista: [] };
+async function szukajGracza() {
+  const fraza = norm($("szukaj-gracza").value);
+  if (fraza.length < 2) { $("wyniki-szukania").innerHTML = ""; return; }
+  if (kadra.n !== nacja) {
+    try { kadra = { n: nacja, lista: (await pobierzJSON(`/api/kadra?nacja=${nacja}`)).zawodnicy }; }
+    catch (e) { $("wyniki-szukania").innerHTML = BLAD_SIECI(); return; }
+    kadra.lista.forEach((g) => { g._s = norm(g.nazwa); });
+  }
+  const trafienia = kadra.lista.filter((g) => g._s.includes(fraza)).slice(0, 30);
+  $("wyniki-szukania").innerHTML = trafienia.length ? trafienia.map((g) => {
+    const u = czyUlubiony(nacja, g.nazwa);
+    return `<div class="wynik-szukania">${graczLink(nacja, g.nazwa)}<span class="wyciszony">${g.flaga_kraju ? flagaHTML(g.flaga_kraju) : ""} ${esc(g.klub)}</span>
+       <button class="gwiazdka mala${u ? " wlaczona" : ""}" data-gracz="${esc(g.nazwa)}" aria-label="Ulubiony">${u ? "★" : "☆"}</button></div>`;
+  }).join("") : `<p class="wyciszony">Brak zawodników ${NACJE[nacja].dopelniacz} o takim nazwisku.</p>`;
+}
+let czasSzukania = null;
+$("szukaj-gracza").addEventListener("input", () => { clearTimeout(czasSzukania); czasSzukania = setTimeout(szukajGracza, 200); });
+$("wyniki-szukania").addEventListener("click", (e) => {
+  const b = e.target.closest(".gwiazdka");
+  if (!b) return;
+  const teraz = przelaczUlubionego(nacja, b.dataset.gracz);
+  b.textContent = teraz ? "★" : "☆";
+  b.classList.toggle("wlaczona", teraz);
+  wczytajUlubionych();
+});
+
+// Wyszukiwarka krajów w oknie wyboru nacji
+$("szukaj-nacji").addEventListener("input", () => {
+  const f = norm($("szukaj-nacji").value);
+  $("nacje").querySelectorAll(".nacja").forEach((b) => { b.hidden = !!f && !b.dataset.szukaj.includes(f); });
+});
+
+// --- CICHE POWIADOMIENIA O GOLACH I ASYSTACH ULUBIONYCH ---
+const pushMozliwy = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+let pushSerwer = null;   // {wlaczone, klucz}
+const pushWlaczony = () => { try { return localStorage.getItem("nf-push") === "1"; } catch (e) { return false; } };
+
+function kluczVapid(b64) {
+  const s = (b64 + "=".repeat((4 - b64.length % 4) % 4)).replace(/-/g, "+").replace(/_/g, "/");
+  return Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+}
+
+async function odswiezPrzyciskPush() {
+  const b = $("push-przycisk");
+  if (!pushMozliwy) { b.hidden = true; return; }
+  if (pushSerwer === null) { try { pushSerwer = await pobierzJSON("/api/push/klucz"); } catch (e) { pushSerwer = { wlaczone: false }; } }
+  if (!pushSerwer.wlaczone) { b.hidden = true; return; }
+  b.hidden = false;
+  const wl = pushWlaczony() && Notification.permission === "granted";
+  b.classList.toggle("wlaczony", wl);
+  b.innerHTML = wl ? "🔕 Ciche powiadomienia o golach i asystach: <b>włączone</b>"
+    : Notification.permission === "denied" ? "Powiadomienia są zablokowane w ustawieniach telefonu"
+    : "🔔 Włącz ciche powiadomienia o golach i asystach ulubionych";
+}
+
+async function wyslijSubskrypcje() {
+  if (!pushMozliwy || !pushWlaczony() || Notification.permission !== "granted") return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) return;
+    await fetch("/api/push/subskrypcja", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sub: sub.toJSON(), ulubieni }) });
+  } catch (e) {}
+}
+
+$("push-przycisk").addEventListener("click", async () => {
+  if (!pushSerwer || !pushSerwer.wlaczone) return;
+  const reg = await navigator.serviceWorker.ready;
+  if (pushWlaczony() && Notification.permission === "granted") {     // wyłączanie
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) {
+      fetch("/api/push/usun", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ endpoint: sub.endpoint }) }).catch(() => {});
+      await sub.unsubscribe().catch(() => {});
+    }
+    try { localStorage.setItem("nf-push", "0"); } catch (e) {}
+    odswiezPrzyciskPush();
+    return;
+  }
+  const zgoda = await Notification.requestPermission();
+  if (zgoda !== "granted") { odswiezPrzyciskPush(); return; }
+  try {
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: kluczVapid(pushSerwer.klucz) });
+    try { localStorage.setItem("nf-push", "1"); } catch (e) {}
+    await wyslijSubskrypcje();
+  } catch (e) {
+    alert("Nie udało się włączyć powiadomień. Na iPhonie działają tylko w aplikacji dodanej do ekranu początkowego.");
+  }
+  odswiezPrzyciskPush();
+});
+
+// Powiadomienie otwiera profil zawodnika (#zawodnik=nacja|nazwa)
+function profilZAdresu() {
+  if (!location.hash.startsWith("#zawodnik=")) return;
+  const [n, ...r] = decodeURIComponent(location.hash.slice(10)).split("|");
+  if (NACJE[n]) otworzProfil(n, r.join("|"));
+}
+window.addEventListener("hashchange", profilZAdresu);
+
 // --- START ---
-$("odswiez").addEventListener("click", () => { if (nacja) pobierz(wybrany); });
+$("odswiez").addEventListener("click", () => { if (nacja) { if (widok === "glowna") pobierz(wybrany); else pokazWidok(widok); } });
 
 function czyAktualnyDzien() {
   const roznica = Math.round((zKlucza(wybrany) - dzisPL()) / 86400000);
   return roznica === 0 || roznica === -1;
 }
-setInterval(() => { if (nacja && document.visibilityState === "visible" && czyAktualnyDzien()) pobierz(wybrany); }, ODSWIEZANIE_MS);
+setInterval(() => { if (nacja && widok === "glowna" && document.visibilityState === "visible" && czyAktualnyDzien()) pobierz(wybrany); }, ODSWIEZANIE_MS);
 let ostatniDzien = klucz(dzisPL());
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState !== "visible" || !nacja) return;
@@ -439,7 +823,7 @@ document.addEventListener("visibilitychange", () => {
     ostatniDzien = teraz;
     zbudujDni();
     wybierzDzien(teraz, false);
-  } else {
+  } else if (widok === "glowna") {
     pobierz(wybrany);
   }
 });
@@ -483,3 +867,5 @@ zaznaczDzien(false);
 $("tytul-dnia").textContent = tytulDnia(wybrany);
 const zapisana = wczytajNacje();
 if (zapisana) ustawNacje(zapisana); else { pokazSzkielet(); otworzWyborNacji(); }
+wyslijSubskrypcje();   // odświeża subskrypcję na serwerze (np. po jego restarcie)
+profilZAdresu();

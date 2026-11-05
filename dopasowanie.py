@@ -581,6 +581,12 @@ def jest_w_skladzie(sklady_api, gracz):
     g = normalizuj_tekst(gracz)
     return any(z == g or podobienstwo(z, g) > 0.8 for z in _zawodnicy_skladu(sklady_api or []))
 
+def _minuta(czas):
+    """Minuta zmiany z API (zwykle int; na wszelki wypadek też "45+2")."""
+    m = re.match(r"\d+", str(czas))
+    return min(int(m.group()), 120) if m else 0
+
+
 def wyodrebnij_wystepy_polakow(sklady_api, lista_polakow, oczekiwano_danych=False):
     """Występy Polaków w meczu na podstawie składów z API: dla każdego gracza słownik z kluczami
     nazwa, gole, asysty, minuty_tekst, ocena, aktywny (True grał / False nie grał / None nie wiadomo)."""
@@ -610,9 +616,11 @@ def wyodrebnij_wystepy_polakow(sklady_api, lista_polakow, oczekiwano_danych=Fals
                     sub_in = next((e.get('time') for e in perf.get('substitutionEvents', []) if e.get('type') == 'subIn'), None)
                     sub_out = next((e.get('time') for e in perf.get('substitutionEvents', []) if e.get('type') == 'subOut'), None)
 
-                    if z in zespol.get('starters', []):
+                    minuty, wyjsciowy = None, z in zespol.get('starters', [])
+                    if wyjsciowy:
                         minuty_tekst = f"do {sub_out}'" if sub_out else ("90'" if api_podaje_zmiany else "w podstawie")
                         aktywny = True
+                        minuty = _minuta(sub_out) if sub_out else (90 if api_podaje_zmiany else None)
                     elif z in zespol.get('subs', []) and not api_podaje_zmiany:
                         minuty_tekst = "rezerwowy, brak danych o zmianach"
                         aktywny = None
@@ -620,16 +628,23 @@ def wyodrebnij_wystepy_polakow(sklady_api, lista_polakow, oczekiwano_danych=Fals
                         if sub_in:
                             minuty_tekst = f"od {sub_in}' do {sub_out}'" if sub_out else f"od {sub_in}'"
                             aktywny = True
+                            minuty = max(1, (_minuta(sub_out) if sub_out else 90) - _minuta(sub_in))
                         else:
                             minuty_tekst = "nie grał"
                             aktywny = False
+                            minuty = 0
                     else:
                         minuty_tekst = "nie grał"
                         aktywny = False
+                        minuty = 0
 
                     wyniki.append({
                         'nazwa': p_org, 'gole': g, 'asysty': a, 'minuty_tekst': minuty_tekst,
-                        'ocena': perf.get('rating'), 'aktywny': aktywny
+                        'ocena': perf.get('rating'), 'aktywny': aktywny,
+                        # do historii zawodnika (profil, rankingi): minuty liczbą, pozycja z API
+                        # (0 bramkarz, 1 obrońca, 2 pomocnik, 3 napastnik), wyjściowy skład, kartki
+                        'minuty': minuty, 'pozycja': z.get('usualPlayingPositionId'), 'wyjsciowy': wyjsciowy,
+                        'kartki': [e.get('type') for e in events if e.get('type') in ('yellowCard', 'redCard', 'secondYellow')],
                     })
                     break
             if znaleziono: break

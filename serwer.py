@@ -15,6 +15,12 @@ Endpointy (wszystkie GET, JSON skompresowany gzipem jeśli klient to obsługuje)
   /ligi                               ligi.json (ręczne nadpisania / ignorowane ligi)
   /zawodnicy                          zawodnicy.xlsx
   /api/dzien/<YYYYMMDD>[?nacja=tr]    gotowe mecze Polaków (albo innej nacji) z występami (aplikacja na telefon)
+  /api/zawodnik?nacja=&nazwa=         profil zawodnika: historia meczów, forma, statystyki, najbliższy mecz
+  /api/rankingi?nacja=&dni=7|30|0     legion (najlepsza jedenastka), strzelcy, asystenci, minuty, oceny, nacje
+  /api/transfery?nacja=               zmiany klubów i nowi zawodnicy w bazie
+  /api/kadra?nacja=                   wszyscy zawodnicy nacji (wyszukiwarka)
+  /api/ulubieni?z=nacja|nazwa&z=...   skrócone profile ulubionych
+  /api/push/klucz, POST /api/push/subskrypcja, POST /api/push/usun   ciche powiadomienia o golach/asystach
   /app/                               aplikacja na telefon (PWA, pliki z katalogu web/)
   /cron                               budzi serwer i uruchamia cykl harmonogramu w tle
                                       (?repo=1 - od razu pobierz bazy z repozytorium, np. po aktualizacji)
@@ -35,6 +41,7 @@ from datetime import datetime, timedelta
 
 from flask import Flask, Response, abort, jsonify, redirect, request, send_from_directory
 
+import historia
 import pobieranie_danych as dane
 
 KATALOG_WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
@@ -133,6 +140,67 @@ def dzien_polakow(data_str):
     return odpowiedz_json({"dzien": data_str, "stan_na": _czas(time.time()), "mecze": lista})
 
 
+def _nacja_z_adresu():
+    nacja = request.args.get("nacja", "pl")
+    if nacja not in dane.NACJE: abort(400, "Nieznana nacja")
+    dane.kopia_gotowa.wait(timeout=60)
+    return nacja
+
+
+@app.route("/api/zawodnik")
+def zawodnik():
+    nacja, nazwa = _nacja_z_adresu(), request.args.get("nazwa", "").strip()[:100]
+    if not nazwa: abort(400, "Brak nazwy zawodnika")
+    return odpowiedz_json(historia.profil(nacja, nazwa))
+
+
+@app.route("/api/rankingi")
+def rankingi():
+    nacja = _nacja_z_adresu()
+    try: dni = int(request.args.get("dni", 7))
+    except ValueError: abort(400, "dni = 7, 30 albo 0 (cały sezon)")
+    if dni not in (0, 7, 30): abort(400, "dni = 7, 30 albo 0 (cały sezon)")
+    return odpowiedz_json(historia.rankingi(nacja, dni or None))
+
+
+@app.route("/api/transfery")
+def transfery():
+    return odpowiedz_json({"zdarzenia": historia.transfery(_nacja_z_adresu())})
+
+
+@app.route("/api/kadra")
+def kadra():
+    return odpowiedz_json({"zawodnicy": historia.kadra(_nacja_z_adresu())})
+
+
+@app.route("/api/ulubieni")
+def ulubieni():
+    dane.kopia_gotowa.wait(timeout=60)
+    return odpowiedz_json({"zawodnicy": historia.ulubieni(request.args.getlist("z")[:historia.MAX_ULUBIONYCH])})
+
+
+@app.route("/api/push/klucz")
+def push_klucz():
+    return jsonify({"wlaczone": historia.push_wlaczony(), "klucz": historia.VAPID_PUBLICZNY if historia.push_wlaczony() else None})
+
+
+@app.route("/api/push/subskrypcja", methods=["POST"])
+def push_subskrypcja():
+    if not historia.push_wlaczony(): abort(503, "Powiadomienia wyłączone na serwerze")
+    dane_zad = request.get_json(silent=True) or {}
+    try:
+        historia.zapisz_subskrypcje(dane_zad.get("sub"), dane_zad.get("ulubieni") or [])
+    except ValueError as e:
+        abort(400, str(e))
+    return jsonify({"ok": True})
+
+
+@app.route("/api/push/usun", methods=["POST"])
+def push_usun():
+    historia.usun_subskrypcje((request.get_json(silent=True) or {}).get("endpoint", ""))
+    return jsonify({"ok": True})
+
+
 @app.route("/app")
 def aplikacja_bez_ukosnika():
     return redirect("/app/")
@@ -183,9 +251,14 @@ def eksport():
 
 def _uruchom_cykl(wymus_repo=False):
     try:
-        for wpis in dane.cykl_harmonogramu(wymus_repo): print(f"[harmonogram] {wpis}", flush=True)
+        raport = dane.cykl_harmonogramu(wymus_repo)
+        for wpis in raport: print(f"[harmonogram] {wpis}", flush=True)
     except Exception as e:
         print(f"[harmonogram] błąd: {e}", flush=True)
+        return
+    # Historia występów / transfery / powiadomienia - tylko z danych serwera, bez zapytań do API
+    if dane.STATYSTYKI["ostatni_cykl"] and raport not in (["(cykl już trwa)"], ["(trwa odtwarzanie kopii)"]):
+        for wpis in historia.po_cyklu(): print(f"[historia] {wpis}", flush=True)
 
 
 @app.route("/cron")

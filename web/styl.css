@@ -215,4 +215,134 @@ body.z-wskazowka main { padding-bottom: calc(150px + env(safe-area-inset-bottom)
 .nacja .flaga { width: 32px; height: 24px; border-radius: 3px; }
 .nacja span { display: flex; flex-direction: column; }
 .nacja b { font-size: 16px; }
-.nacja small { color: var(--wyciszony); font-size: 12px; margin-top: 1px; }
+.nacja small { color: var(--wyciszony); font-size: 12px; margin-top: 1px; font-weight: 400; }
+.wybor-okno .szukaj { margin-bottom: 12px; }
+
+/* --- ZAKŁADKI, FILTRY, PROFIL, RANKINGI, ULUBIENI --- */
+[hidden] { display: none !important; }
+main, .widok { padding: 0 16px calc(84px + env(safe-area-inset-bottom)); max-width: 720px; margin: 0 auto; }
+body.z-wskazowka main, body.z-wskazowka .widok { padding-bottom: calc(210px + env(safe-area-inset-bottom)); }
+body.z-wskazowka .wskazowka-ios { bottom: calc(76px + env(safe-area-inset-bottom)); }
+body.bez-przewijania { overflow: hidden; }
+.wyciszony { color: var(--wyciszony); }
+.zakladki {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 15;
+  display: flex; justify-content: space-around;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  background: rgba(13, 27, 42, .97); border-top: 1px solid var(--ramka); backdrop-filter: blur(8px);
+}
+.zakladki button {
+  flex: 1; max-width: 140px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 4px 0; border: 0; background: none; cursor: pointer; font-size: 11.5px; color: var(--wyciszony);
+}
+.zakladki button span { font-size: 19px; line-height: 1.1; filter: grayscale(1); opacity: .7; }
+.zakladki button.wybrana { color: var(--zloto); font-weight: 700; }
+.zakladki button.wybrana span { filter: none; opacity: 1; }
+
+.filtry { display: flex; gap: 8px; margin: 0 0 10px; overflow-x: auto; scrollbar-width: none; }
+.chip {
+  flex: 0 0 auto; height: 32px; padding: 0 12px; border-radius: 16px; cursor: pointer;
+  border: 1px solid var(--ramka); background: var(--karta); color: var(--tekst-2); font-size: 13px; max-width: 70vw;
+}
+.chip[aria-pressed="true"], .chip.aktywny { border-color: var(--zloto); color: var(--zloto); font-weight: 700; }
+select.chip {
+  appearance: none; -webkit-appearance: none; padding-right: 26px;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 15px) 14px, calc(100% - 10px) 14px; background-size: 5px 5px; background-repeat: no-repeat;
+}
+
+.gracz { cursor: pointer; }
+.gracz:active { background: rgba(255, 255, 255, .08); }
+.gracz .gw { color: var(--zloto); margin-right: 4px; }
+
+.przelacznik { display: flex; gap: 4px; padding: 3px; margin: 4px 0 12px; border-radius: 12px; background: var(--karta); border: 1px solid var(--ramka); }
+.przelacznik button { flex: 1; padding: 7px 0; border: 0; border-radius: 9px; background: none; cursor: pointer; font-size: 13.5px; color: var(--tekst-2); }
+.przelacznik button.wybrany { background: var(--zloto); color: #0d1b2a; font-weight: 700; }
+
+.sekcja { font-size: 15px; font-weight: 800; margin: 18px 2px 8px; color: var(--tekst); }
+.drobne { font-size: 12px; color: var(--wyciszony); margin: 6px 2px; }
+.link-gracza {
+  border: 0; background: none; padding: 0; cursor: pointer; text-align: left; font-weight: 700; color: var(--tekst);
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.tabela { list-style: none; margin: 0; padding: 0; border-radius: 14px; overflow: hidden; border: 1px solid var(--ramka); }
+.tabela li { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--karta); border-top: 1px solid var(--ramka); font-size: 14px; }
+.tabela li:first-child { border-top: 0; }
+.tabela li .link-gracza, .tabela li .nazwa-nacji { flex: 1; min-width: 0; }
+.tabela li .wyciszony { font-size: 12px; white-space: nowrap; }
+.tabela li b { min-width: 44px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tabela li.moja { background: var(--karta-2); box-shadow: inset 3px 0 0 var(--zloto); }
+.miejsce { width: 24px; flex: 0 0 auto; color: var(--wyciszony); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.boisko {
+  display: flex; flex-direction: column; gap: 14px; padding: 16px 6px; border-radius: 14px;
+  background: repeating-linear-gradient(180deg, #145a32 0 34px, #17663a 34px 68px); border: 1px solid #1e7a46;
+}
+.linia { display: flex; justify-content: space-evenly; gap: 4px; }
+.zawodnik-legionu {
+  flex: 0 1 88px; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 6px 2px; border-radius: 10px; background: rgba(0, 0, 0, .28); white-space: normal; text-align: center;
+}
+.zawodnik-legionu b { font-size: 12.5px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zawodnik-legionu small { font-size: 10.5px; color: #cfe8d6; font-weight: 500; }
+
+.transfer { padding: 10px 12px; margin-bottom: 6px; border-radius: 12px; background: var(--karta); border: 1px solid var(--ramka); }
+.transfer .wyciszony { font-size: 13px; margin-top: 3px; }
+.transfer .flaga, .najblizszy .flaga, .ulubiony-gora .flaga, .profil-klub .flaga { vertical-align: -2px; }
+
+.ulubiony { padding: 10px 12px; margin-bottom: 10px; }
+.ulubiony-gora { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.ulubiony-gora .flaga { margin-right: 4px; }
+.najblizszy { font-size: 13px; color: var(--tekst-2); margin: 6px 0; }
+.push-btn {
+  width: 100%; margin: 0 0 12px; padding: 11px 12px; border-radius: 12px; cursor: pointer; text-align: left;
+  border: 1px dashed var(--zloto); background: transparent; color: var(--zloto); font-size: 13.5px;
+}
+.push-btn.wlaczony { border-style: solid; color: var(--tekst-2); }
+.szukaj {
+  width: 100%; height: 42px; padding: 0 14px; margin-bottom: 10px; border-radius: 12px; font: inherit; font-size: 15px;
+  border: 1px solid var(--ramka); background: var(--karta-2); color: var(--tekst);
+}
+.wynik-szukania { display: flex; align-items: center; gap: 8px; padding: 9px 4px; border-bottom: 1px solid var(--ramka); }
+.wynik-szukania .link-gracza { flex: 0 1 auto; }
+.wynik-szukania .wyciszony { flex: 1; min-width: 0; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gwiazdka {
+  width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--ramka); background: var(--karta-2);
+  color: var(--tekst-2); font-size: 20px; cursor: pointer;
+}
+.gwiazdka.mala { width: 34px; height: 34px; font-size: 17px; flex: 0 0 auto; }
+.gwiazdka.wlaczona { color: var(--zloto); border-color: var(--zloto); }
+
+.mecz-wiersz { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid rgba(255, 255, 255, .06); font-size: 13.5px; }
+.mecz-wiersz:first-child { border-top: 0; }
+.mecz-wiersz .data { width: 36px; flex: 0 0 auto; color: var(--wyciszony); font-size: 12px; font-variant-numeric: tabular-nums; }
+.mecz-wiersz .opis { flex: 1; min-width: 0; }
+.mecz-wiersz .opis small { display: block; color: var(--wyciszony); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mecz-wiersz.nie-gral .opis { color: var(--wyciszony); }
+.mecz-wiersz .wyczyny { font-size: 13px; white-space: nowrap; }
+
+.profil {
+  position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(5, 12, 20, .78); backdrop-filter: blur(4px);
+}
+.profil-okno {
+  width: 100%; max-width: 720px; max-height: 92vh; overflow-y: auto; overscroll-behavior: contain;
+  padding: 12px 16px calc(20px + env(safe-area-inset-bottom)); border-radius: 18px 18px 0 0;
+  background: var(--tlo); border: 1px solid var(--ramka); animation: wjazd .25s ease-out;
+}
+.profil-gora {
+  display: flex; justify-content: space-between; align-items: center;
+  position: sticky; top: -12px; padding: 4px 0; background: var(--tlo); z-index: 1;
+}
+.profil-imie { margin: 4px 0 2px; font-size: 21px; font-weight: 800; }
+.profil-imie .flaga { width: 24px; height: 18px; vertical-align: -1px; }
+.profil-klub { margin: 0 0 10px; color: var(--tekst-2); font-size: 14px; }
+.forma { display: flex; align-items: center; gap: 6px; margin: 8px 0; }
+.forma > span:first-child { font-size: 12.5px; color: var(--wyciszony); margin-right: 4px; }
+.staty { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.staty div { padding: 10px 6px; border-radius: 12px; background: var(--karta); border: 1px solid var(--ramka); text-align: center; }
+.staty b { display: block; font-size: 20px; font-variant-numeric: tabular-nums; }
+.staty span { font-size: 11.5px; color: var(--wyciszony); }
+.mecze-lista { padding: 2px 12px; border-radius: 14px; background: var(--karta); border: 1px solid var(--ramka); }
+.kartki { margin: 8px 2px 0; font-size: 13px; }

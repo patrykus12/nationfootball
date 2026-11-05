@@ -411,12 +411,18 @@ def synchronizuj_z_repo():
     except Exception as e:
         print(f"[repo] blad synchronizacji: {e}")
     STATYSTYKI["ostatnia_synchronizacja_repo"] = time.time()
+    _wersja["wartosc"] = None
     if zmienione: _gotowe_mecze.clear()  # nowa baza zawodników -> przejrzyj mecze od nowa
     return zmienione
 
 
 # --- KOPIA ZAPASOWA CACHE ---
-_WZORZEC_KOPII = re.compile(r"^(surowe/\d{8}\.json|sklady/\d+_(home|away)\.json|slownik_lig\.json|znani_zawodnicy\.json|licznik_api\.json)$")
+_WZORZEC_KOPII = re.compile(r"^(surowe/\d{8}\.json|sklady/\d+_(home|away)\.json|slownik_lig\.json|znani_zawodnicy\.json|licznik_api\.json"
+                            r"|historia\.json|transfery\.json|push\.enc)$")
+# Pliki serwer_cache trzymane w kopii 1:1 (odtwarzane, gdy ich brak)
+PLIKI_KOPII_1DO1 = ("znani_zawodnicy.json", "licznik_api.json", "historia.json", "transfery.json")
+# Pliki kopii z własnym zapisem/odczytem: nazwa -> (funkcja zwracająca bajty albo None, funkcja odtwarzająca z bajtów)
+DODATKOWE_PLIKI_KOPII = {}
 
 
 def eksportuj_kopie():
@@ -428,8 +434,19 @@ def eksportuj_kopie():
                 if _WZORZEC_KOPII.match(f"{podkatalog}/{nazwa}"):
                     tar.add(os.path.join(katalog, nazwa), arcname=f"{podkatalog}/{nazwa}")
         if os.path.exists(SLOWNIK_PLIK): tar.add(SLOWNIK_PLIK, arcname="slownik_lig.json")
-        if os.path.exists(ZNANI_PLIK): tar.add(ZNANI_PLIK, arcname="znani_zawodnicy.json")
-        if os.path.exists(LICZNIK_PLIK): tar.add(LICZNIK_PLIK, arcname="licznik_api.json")
+        for nazwa in PLIKI_KOPII_1DO1:
+            sciezka = os.path.join(KATALOG_DANYCH, "serwer_cache", nazwa)
+            if os.path.exists(sciezka): tar.add(sciezka, arcname=nazwa)
+        for nazwa, (eksport, _) in DODATKOWE_PLIKI_KOPII.items():
+            try:
+                tresc = eksport()
+            except Exception as e:
+                print(f"[kopia] {nazwa}: {e}", flush=True)
+                tresc = None
+            if tresc:
+                info = tarfile.TarInfo(nazwa)
+                info.size, info.mtime = len(tresc), int(time.time())
+                tar.addfile(info, io.BytesIO(tresc))
     return bufor.getvalue()
 
 
@@ -461,11 +478,16 @@ def przywroc_kopie():
                 # Tylko znane nazwy plików, zapisywane przez nas - żadnych ścieżek z archiwum
                 if not czlon.isfile() or not _WZORZEC_KOPII.match(czlon.name): continue
                 dane_pliku = tar.extractfile(czlon).read()
-                if czlon.name in ("znani_zawodnicy.json", "licznik_api.json"):
-                    cel = ZNANI_PLIK if czlon.name == "znani_zawodnicy.json" else LICZNIK_PLIK
+                if czlon.name in PLIKI_KOPII_1DO1:
+                    cel = os.path.join(KATALOG_DANYCH, "serwer_cache", czlon.name)
                     if not os.path.exists(cel):
-                        with open(cel, "wb") as f: f.write(dane_pliku)
+                        with open(cel + ".tmp", "wb") as f: f.write(dane_pliku)
+                        os.replace(cel + ".tmp", cel)
                     _licznik["dni"] = None  # wczytaj licznik z odtworzonego pliku
+                    continue
+                if czlon.name in DODATKOWE_PLIKI_KOPII:
+                    try: DODATKOWE_PLIKI_KOPII[czlon.name][1](dane_pliku)
+                    except Exception as e: print(f"[kopia] {czlon.name}: {e}", flush=True)
                     continue
                 if czlon.name == "slownik_lig.json":
                     znane = wczytaj_nasz_slownik()
@@ -493,47 +515,62 @@ def mecze_polakow_dnia(data_pl, nacja="pl"):
     """Mecze z udziałem zawodników danej nacji (domyślnie Polaków) z danego dnia (czas polski) z ich
     występami - to samo, co liczy aplikacja na komputer, ale po stronie serwera. None, gdy serwer
     nie ma jeszcze tego dnia."""
-    from dopasowanie import czas_rozpoczecia_utc, wyodrebnij_wystepy_polakow
     wszystkie = mecze_dnia_z_cache(data_pl)
     if wszystkie is None: return None
-    kluby = _kluby_z_bazy(nacja)
-    if not kluby: return None
-    wersja_baz = _wersja_baz()
-    slownik, ligi = wczytaj_nasz_slownik(), wczytaj_json(LIGI_PLIK, {}) or {}
-    _ucz_kraje_druzyn(slownik, ligi)
-    teraz = datetime.now(pytz.utc)
-
+    kontekst = kontekst_dopasowania(nacja)
+    if not kontekst: return None
     wyniki = []
     for mecz in wszystkie:
-        dop = _dopasuj(mecz, nacja, kluby, slownik, ligi, wersja_baz)
-        if dop: dop = _bez_dopisanych_pozniej(dop, nacja, mecz)
-        dop = _z_szerokiej_bazy(mecz, nacja, dop, slownik, ligi, wersja_baz)
-        if not dop: continue
-        start = czas_rozpoczecia_utc(mecz)
-        if start is None: continue
-        start_pl = start.astimezone(TZ_PL)
-        if start_pl.date() != data_pl: continue
-
-        status = mecz.get('status', {})
-        zakonczony = bool(status.get('finished'))
-        oczekiwano_danych = zakonczony or (teraz - start) > timedelta(hours=2)
-        sklady = []
-        if oczekiwano_danych:
-            for strona, polacy in (("home", dop['polacy_gosp']), ("away", dop['polacy_gosc'])):
-                sklad = sklad_z_cache(mecz.get('id'), strona) if polacy else None
-                if sklad: sklady.append(sklad)
-
-        wyniki.append({
-            'id': mecz.get('id'), 'godzina': start_pl.strftime("%H:%M"), 'start': start.isoformat(),
-            'liga': dop['nazwa_ligi'], 'flaga': dop['flaga_ligi'].lower(),
-            'gosp': dop['gosp'], 'gosc': dop['gosc'],
-            'wynik': status.get('scoreStr', "").replace(" - ", ":") if zakonczony else None,
-            'zakonczony': zakonczony, 'rozpoczety': teraz >= start, 'odwolany': bool(status.get('cancelled')),
-            'gracze_gosp': wyodrebnij_wystepy_polakow(sklady, dop['polacy_gosp'], oczekiwano_danych) if dop['polacy_gosp'] else [],
-            'gracze_gosc': wyodrebnij_wystepy_polakow(sklady, dop['polacy_gosc'], oczekiwano_danych) if dop['polacy_gosc'] else [],
-        })
+        m = mecz_nacji(mecz, nacja, kontekst)
+        if m and m['data'] == data_pl.strftime("%Y%m%d"): wyniki.append(m)
     wyniki.sort(key=lambda m: m['start'])
     return wyniki
+
+
+def kontekst_dopasowania(nacja, wspolny=None):
+    """To, czego mecz_nacji potrzebuje do dopasowania (liczone raz na wiele meczów). None - brak bazy.
+    wspolny - kontekst innej nacji, z którego bierzemy słownik lig (żeby nie czytać go z dysku 200 razy)."""
+    kluby = _kluby_z_bazy(nacja)
+    if not kluby: return None
+    if wspolny:
+        return dict(wspolny, kluby=kluby)
+    slownik, ligi = wczytaj_nasz_slownik(), wczytaj_json(LIGI_PLIK, {}) or {}
+    _ucz_kraje_druzyn(slownik, ligi)
+    return {"kluby": kluby, "slownik": slownik, "ligi": ligi, "wersja": _wersja_baz(), "teraz": datetime.now(pytz.utc)}
+
+
+def mecz_nacji(mecz, nacja, kontekst):
+    """Jeden mecz z występami zawodników nacji (jak w widoku dnia) albo None, gdy nikt z nich nie gra.
+    'data' to dzień meczu w czasie polskim (YYYYMMDD)."""
+    from dopasowanie import czas_rozpoczecia_utc, wyodrebnij_wystepy_polakow
+    k = kontekst
+    dop = _dopasuj(mecz, nacja, k["kluby"], k["slownik"], k["ligi"], k["wersja"])
+    if dop: dop = _bez_dopisanych_pozniej(dop, nacja, mecz)
+    dop = _z_szerokiej_bazy(mecz, nacja, dop, k["slownik"], k["ligi"], k["wersja"])
+    if not dop: return None
+    start = czas_rozpoczecia_utc(mecz)
+    if start is None: return None
+    start_pl, teraz = start.astimezone(TZ_PL), k["teraz"]
+
+    status = mecz.get('status', {})
+    zakonczony = bool(status.get('finished'))
+    oczekiwano_danych = zakonczony or (teraz - start) > timedelta(hours=2)
+    sklady = []
+    if oczekiwano_danych:
+        for strona, polacy in (("home", dop['polacy_gosp']), ("away", dop['polacy_gosc'])):
+            sklad = sklad_z_cache(mecz.get('id'), strona) if polacy else None
+            if sklad: sklady.append(sklad)
+
+    return {
+        'id': mecz.get('id'), 'data': start_pl.strftime("%Y%m%d"),
+        'godzina': start_pl.strftime("%H:%M"), 'start': start.isoformat(),
+        'liga': dop['nazwa_ligi'], 'flaga': dop['flaga_ligi'].lower(),
+        'gosp': dop['gosp'], 'gosc': dop['gosc'],
+        'wynik': status.get('scoreStr', "").replace(" - ", ":") if zakonczony else None,
+        'zakonczony': zakonczony, 'rozpoczety': teraz >= start, 'odwolany': bool(status.get('cancelled')),
+        'gracze_gosp': wyodrebnij_wystepy_polakow(sklady, dop['polacy_gosp'], oczekiwano_danych) if dop['polacy_gosp'] else [],
+        'gracze_gosc': wyodrebnij_wystepy_polakow(sklady, dop['polacy_gosc'], oczekiwano_danych) if dop['polacy_gosc'] else [],
+    }
 
 
 def _z_szerokiej_bazy(mecz, nacja, dop, slownik, ligi, wersja_baz):
@@ -567,10 +604,17 @@ _gotowe_mecze = set()      # id meczów już załatwionych (bez naszych zawodnik
 _cache_klubow = {}         # nacja -> {"wersja": ..., "kluby": {...}, "druzyny": {(nazwa, flaga): dopasowany klub}}
 
 
+_wersja = {"czas": 0, "wartosc": None}
+
+
 def _wersja_baz():
-    """Zmienia się, gdy podmieniono którąś bazę zawodników albo ligi.json - wtedy dopasowania liczymy od nowa."""
+    """Zmienia się, gdy podmieniono którąś bazę zawodników albo ligi.json - wtedy dopasowania liczymy od nowa.
+    Sprawdzanie dat ~400 plików przy każdym meczu trwało dłużej niż samo dopasowanie - wynik pamiętamy kilka
+    sekund (synchronizacja z repozytorium unieważnia go od razu)."""
+    if _wersja["wartosc"] is not None and time.time() - _wersja["czas"] < 5: return _wersja["wartosc"]
     pliki = [plik_bazy(n, s) for n, s in pliki_baz()] + [LIGI_PLIK]
-    return tuple(os.path.getmtime(p) if os.path.exists(p) else 0 for p in pliki)
+    _wersja.update(czas=time.time(), wartosc=tuple(os.path.getmtime(p) if os.path.exists(p) else 0 for p in pliki))
+    return _wersja["wartosc"]
 
 
 def _klucz_bazy(nacja, szeroka=False):
