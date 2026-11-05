@@ -132,7 +132,9 @@ kopia_gotowa = threading.Event()
 
 
 def zapisz_json_atomowo(sciezka, dane, wciecia=None):
-    tymczasowy = sciezka + ".tmp"
+    # Osobny plik tymczasowy dla każdego wątku - dwa wątki zapisujące naraz ten sam plik (np. harmonogram
+    # i zapytanie z telefonu tuż po starcie) podbierały sobie wspólny ".tmp" -> błąd 500
+    tymczasowy = f"{sciezka}.{os.getpid()}.{threading.get_ident()}.tmp"
     with open(tymczasowy, "w", encoding="utf-8") as f: json.dump(dane, f, ensure_ascii=False, indent=wciecia)
     os.replace(tymczasowy, sciezka)
 
@@ -761,6 +763,15 @@ def _znani_od():
     klubu sprzed transferu. Pierwszy raz (brak pliku) - wszyscy obecni są w bazie od zawsze."""
     wersja = _wersja_baz()
     if _znani["wersja"] == wersja: return _znani["od"]
+    with _blokada_znanych:   # liczy jeden wątek, pozostałe czekają na wynik (zamiast liczyć i zapisywać naraz)
+        if _znani["wersja"] == wersja: return _znani["od"]
+        return _znani_od_licz(wersja)
+
+
+_blokada_znanych = threading.Lock()
+
+
+def _znani_od_licz(wersja):
     zapisane = wczytaj_json(ZNANI_PLIK)
     od_teraz = time.time() if zapisane is not None else 0
     zapisane = {_klucz_znanego(k): v for k, v in (zapisane or {}).items()}
@@ -971,9 +982,10 @@ def po_starcie_procesu():
     """Świeże blokady w nowym procesie. Gunicorn potrafi wczytać kod w procesie głównym i dopiero
     potem go sklonować - klon dostaje kopię pamięci (np. blokadę zajętą przez wątek, który w klonie
     nie istnieje), a wątki nie przechodzą do klonu."""
-    global _blokada_harmonogramu, _blokada_slownika, kopia_gotowa
+    global _blokada_harmonogramu, _blokada_slownika, kopia_gotowa, _blokada_znanych
     _blokada_harmonogramu = threading.Lock()
     _blokada_slownika = threading.Lock()
+    _blokada_znanych = threading.Lock()
     kopia_gotowa = threading.Event()
     STATYSTYKI.update({"start": time.time(), "zapytania_api": 0, "etap": "oczekiwanie", "ostatni_blad": None,
                        "ostatni_cykl": None, "ostatnia_synchronizacja_repo": None, "kopia": None,

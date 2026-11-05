@@ -57,6 +57,22 @@ PODTRZYMANIE_MIN = 5
 
 app = Flask(__name__)
 
+# Błędy 500 z zapytań aplikacji - ślad trafia do logu i na stronę statusu ("/"), bo logów Rendera nie widać od ręki
+_bledy_zapytan = []
+
+
+@app.errorhandler(Exception)
+def _blad_zapytania(e):
+    from werkzeug.exceptions import HTTPException
+    if isinstance(e, HTTPException): return e
+    import traceback
+    slad = traceback.format_exc()
+    print(f"[blad zapytania] {request.path}\n{slad}", flush=True)
+    _bledy_zapytan.append({"czas": datetime.now(dane.TZ_PL).strftime("%Y-%m-%d %H:%M:%S"), "adres": request.full_path[:200],
+                           "blad": slad[-1200:]})
+    del _bledy_zapytan[:-20]
+    return jsonify({"blad": "Błąd serwera - spróbuj ponownie za chwilę"}), 500
+
 
 def _przygotuj_pliki_startowe():
     """Gdy dane trzymamy na osobnym wolumenie - skopiuj tam pliki z repozytorium przy pierwszym starcie."""
@@ -110,6 +126,7 @@ def status():
         "ostatni_blad_api": s["ostatni_blad_api"],
         "zuzycie_api": dane.podsumowanie_licznika(),
         "kadry_z_api": kadry_api.status(),
+        "ostatnie_bledy_zapytan": _bledy_zapytan[-5:],
     })
 
 

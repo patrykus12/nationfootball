@@ -280,11 +280,24 @@ function wybierzDzien(k, plynnie = true) {
 }
 
 // --- POBIERANIE ---
+// Chwilowy błąd serwera (np. tuż po jego restarcie) albo sieci - ponów sam po chwili, zanim pokażesz błąd
+async function fetchZPonowieniem(adres, opcje, proby = 3) {
+  for (let i = 0; ; i++) {
+    try {
+      const r = await fetch(adres, opcje);
+      if (r.status < 500 || i >= proby - 1) return r;
+    } catch (e) {
+      if (i >= proby - 1) throw e;
+    }
+    await new Promise((ok) => setTimeout(ok, 2500 * (i + 1)));
+  }
+}
+
 async function pobierz(k) {
   const nr = ++zapytanie, n = nacja, klucz = `${n}:${k}`;
   $("odswiez").classList.add("kreci");
   try {
-    const res = await fetch(`/api/dzien/${k}?nacja=${n}`, { cache: "no-store" });
+    const res = await fetchZPonowieniem(`/api/dzien/${k}?nacja=${n}`, { cache: "no-store" });
     if (res.status === 404) {
       if (nr === zapytanie) pokazKomunikat("⏳", t("brak_dnia"), t("sprobuj"));
       return;
@@ -523,7 +536,7 @@ function pokazWidok(id) {
 document.querySelectorAll(".zakladki button").forEach((b) => b.addEventListener("click", () => pokazWidok(b.dataset.widok)));
 
 async function pobierzJSON(adres) {
-  const res = await fetch(adres, { cache: "no-store" });
+  const res = await fetchZPonowieniem(adres, { cache: "no-store" });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
