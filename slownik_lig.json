@@ -2646,5 +2646,9 @@
     "938638": {
         "nazwa": "2. Division",
         "flaga": "dk"
+    },
+    "1000001656": {
+        "nazwa": "Copa Sudamericana",
+        "flaga": "int"
     }
 }
