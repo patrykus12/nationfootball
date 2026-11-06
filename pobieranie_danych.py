@@ -542,6 +542,33 @@ def mecze_polakow_dnia(data_pl, nacja="pl"):
     return wyniki
 
 
+def mecze_nacji_od_teraz(nacja, dni=10):
+    """Jeszcze nierozpoczęte mecze nacji od teraz do końca dnia dzis+dni-1 (czas polski) - jednym przebiegiem.
+    mecze_polakow_dnia dla każdego dnia skleja 3 dni API, więc 10 dni osobno to ~30 wczytań plików
+    i każdy mecz dopasowywany ~3 razy; tu każdy plik czytamy raz, a mecze już rozpoczęte pomijamy od razu."""
+    from dopasowanie import czas_rozpoczecia_utc
+    kontekst = kontekst_dopasowania(nacja)
+    if not kontekst: return []
+    teraz = kontekst["teraz"]
+    dzis = teraz.astimezone(TZ_PL).date()
+    koniec = dzis + timedelta(days=dni)
+    mecze = {}
+    for offset in range(-1, dni + 1):
+        cache = surowe_z_cache(dzis + timedelta(days=offset))
+        for m in (cache or {}).get("mecze", []):
+            if "id" in m: mecze[m["id"]] = m
+    wyniki = []
+    for mecz in mecze.values():
+        status = mecz.get('status') or {}
+        if status.get('cancelled') or status.get('finished') or status.get('started'): continue
+        start = czas_rozpoczecia_utc(mecz)
+        if start is None or start <= teraz or start.astimezone(TZ_PL).date() >= koniec: continue
+        m = mecz_nacji(mecz, nacja, kontekst)
+        if m: wyniki.append(m)
+    wyniki.sort(key=lambda m: m['start'])
+    return wyniki
+
+
 def kontekst_dopasowania(nacja, wspolny=None):
     """To, czego mecz_nacji potrzebuje do dopasowania (liczone raz na wiele meczów). None - brak bazy.
     wspolny - kontekst innej nacji, z którego bierzemy słownik lig (żeby nie czytać go z dysku 200 razy)."""

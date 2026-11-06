@@ -18,7 +18,7 @@ import re
 import threading
 import time
 from collections import Counter
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import openpyxl
 
@@ -234,21 +234,69 @@ def _od_dnia(dni):
     return (_teraz_pl().date() - timedelta(days=dni - 1)).strftime("%Y%m%d") if dni else "00000000"
 
 
-_przyszle = {}   # (nacja, dzień) -> (czas, lista meczów) - najbliższe mecze, pamiętane 10 min
+# Najbliższe mecze nacji (10 dni) - liczenie to dopasowanie tysięcy meczów do bazy, na darmowym serwerze
+# kilkanaście sekund. Dlatego: wynik pamiętany per nacja, po 10 min podawany dalej i odświeżany w tle
+# (nikt nie czeka), liczony z wyprzedzeniem po otwarciu nacji w aplikacji, a dwa zapytania o tę samą
+# nację czekają na jedno liczenie.
+DNI_PRZYSZLYCH = 10
+WAZNOSC_PRZYSZLYCH = 600          # po tym czasie odświeżane w tle
+MAX_WIEK_PRZYSZLYCH = 6 * 3600    # starsze nie są już podawane (np. serwer stał całą noc)
+_przyszle = {}                    # nacja -> (czas policzenia, lista meczów)
+_przyszle_w_toku = {}             # nacja -> threading.Event, gdy ktoś właśnie liczy
+_przyszle_w_kolejce = set()
+_blokada_przyszlych = threading.Lock()
+_kolejka_w_tle = threading.Semaphore(1)   # w tle po jednej nacji naraz - nie zagłodzi zapytań aplikacji
 
 
-def _najblizsze_mecze(nacja, dni=10):
-    """Mecze nacji od dziś na kilka dni do przodu (te, które się jeszcze nie zaczęły)."""
-    wynik = []
-    dzis = _teraz_pl().date()
-    for o in range(dni):
-        d = dzis + timedelta(days=o)
-        klucz = (nacja, d)
-        if klucz not in _przyszle or time.time() - _przyszle[klucz][0] > 600:
-            _przyszle[klucz] = (time.time(), dane.mecze_polakow_dnia(d, nacja) or [])
-        wynik += [m for m in _przyszle[klucz][1] if not m['rozpoczety'] and not m['odwolany']]
-    if len(_przyszle) > 5000: _przyszle.clear()
-    return wynik
+def _policz_przyszle(nacja):
+    with _blokada_przyszlych:
+        zdarzenie = _przyszle_w_toku.get(nacja)
+        licze = zdarzenie is None
+        if licze: zdarzenie = _przyszle_w_toku[nacja] = threading.Event()
+    if not licze:
+        zdarzenie.wait(timeout=180)
+    else:
+        try:
+            _przyszle[nacja] = (time.time(), dane.mecze_nacji_od_teraz(nacja, DNI_PRZYSZLYCH))
+        except Exception as e:
+            print(f"[najbliższe] {nacja}: {e}", flush=True)
+        finally:
+            with _blokada_przyszlych: _przyszle_w_toku.pop(nacja, None)
+            zdarzenie.set()
+    return _przyszle.get(nacja)
+
+
+def rozgrzej_najblizsze(nacja):
+    """Liczy najbliższe mecze nacji w tle, jeśli nie ma świeżych (nie blokuje)."""
+    wpis = _przyszle.get(nacja)
+    if wpis and time.time() - wpis[0] < WAZNOSC_PRZYSZLYCH: return
+    with _blokada_przyszlych:
+        if nacja in _przyszle_w_toku or nacja in _przyszle_w_kolejce: return
+        _przyszle_w_kolejce.add(nacja)
+
+    def praca():
+        try:
+            with _kolejka_w_tle:
+                wpis = _przyszle.get(nacja)
+                if not wpis or time.time() - wpis[0] >= WAZNOSC_PRZYSZLYCH: _policz_przyszle(nacja)
+        finally:
+            with _blokada_przyszlych: _przyszle_w_kolejce.discard(nacja)
+    threading.Thread(target=praca, daemon=True).start()
+
+
+def _najblizsze_mecze(nacja, czekaj=True):
+    """Nierozpoczęte mecze nacji na najbliższe dni. czekaj=False: None, gdy jeszcze nie policzone
+    (liczenie rusza wtedy w tle)."""
+    wpis = _przyszle.get(nacja)
+    if wpis and time.time() - wpis[0] > MAX_WIEK_PRZYSZLYCH: wpis = None
+    if wpis: rozgrzej_najblizsze(nacja)          # nieświeże - odśwież w tle, a teraz podaj, co jest
+    elif czekaj: wpis = _policz_przyszle(nacja)
+    else:
+        rozgrzej_najblizsze(nacja)
+        return None
+    if not wpis: return []
+    teraz = datetime.now(timezone.utc)
+    return [m for m in wpis[1] if datetime.fromisoformat(m['start']) > teraz]
 
 
 def _najblizszy_mecz(nacja, kg, przyszle):
@@ -277,29 +325,43 @@ def profil(nacja, nazwa, ile_meczow=40):
                  "30": _sumy([m for m in mecze if m["data"] >= _od_dnia(30)]),
                  "wszystko": _sumy(mecze)},
         "od": mecze[-1]["data"] if mecze else None,
-        "najblizszy": _najblizszy_mecz(nacja, kg, _najblizsze_mecze(nacja)),
+        **_najblizszy_bez_czekania(nacja, kg),
         "mecze": mecze[:ile_meczow],
     }
 
 
+def _najblizszy_bez_czekania(nacja, kg):
+    przyszle = _najblizsze_mecze(nacja, czekaj=False)
+    if przyszle is None: return {"najblizszy": None, "najblizszy_liczony": True}
+    return {"najblizszy": _najblizszy_mecz(nacja, kg, przyszle)}
+
+
+def najblizszy(nacja, nazwa):
+    """Najbliższy mecz zawodnika (czeka na policzenie meczów nacji) - doczytywany przez profil."""
+    return {"najblizszy": _najblizszy_mecz(nacja, klucz_gracza(nacja, nazwa), _najblizsze_mecze(nacja))}
+
+
 def ulubieni(lista):
-    """Skrócone profile ulubionych (lista "nacja|nazwa") - ostatni i najbliższy mecz, forma, 30 dni."""
+    """Skrócone profile ulubionych (lista "nacja|nazwa") - ostatni i najbliższy mecz, forma, 30 dni.
+    Zwraca (lista, doliczanie) - doliczanie=True, gdy najbliższe mecze którejś nacji liczą się jeszcze w tle."""
     h = _historia()
-    wynik, przyszle = [], {}
+    wynik, przyszle, doliczanie = [], {}, False
     for wpis in lista[:MAX_ULUBIONYCH]:
         nacja, _, nazwa = wpis.partition("|")
         if nacja not in NACJE or not nazwa: continue
         kg = klucz_gracza(nacja, nazwa)
         mecze = sorted((m for m in (_mecz_wystepu(w, h) for w in h["wystepy"].get(kg, [])) if m),
                        key=lambda m: (m["data"], m["id"]), reverse=True)
-        if nacja not in przyszle: przyszle[nacja] = _najblizsze_mecze(nacja, 8)
+        if nacja not in przyszle:
+            przyszle[nacja] = _najblizsze_mecze(nacja, czekaj=False)
+            if przyszle[nacja] is None: przyszle[nacja], doliczanie = [], True
         w_kadrze = _kadra(nacja).get(kg)
         wynik.append({"nazwa": h["nazwy"].get(kg) or (w_kadrze[0] if w_kadrze else nazwa), "nacja": nacja,
                       "klub": w_kadrze[1] if w_kadrze else None, "ostatni": mecze[0] if mecze else None,
                       "najblizszy": _najblizszy_mecz(nacja, kg, przyszle[nacja]),
                       "forma": [m["ocena"] for m in mecze if m["status"] == 1][:5],
                       "sumy30": _sumy([m for m in mecze if m["data"] >= _od_dnia(30)])})
-    return wynik
+    return wynik, doliczanie
 
 
 # ---------------------------------------------------------------- RANKINGI I LEGION TYGODNIA

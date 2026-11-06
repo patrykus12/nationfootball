@@ -16,6 +16,7 @@ Endpointy (wszystkie GET, JSON skompresowany gzipem jeśli klient to obsługuje)
   /zawodnicy                          zawodnicy.xlsx
   /api/dzien/<YYYYMMDD>[?nacja=tr]    gotowe mecze Polaków (albo innej nacji) z występami (aplikacja na telefon)
   /api/zawodnik?nacja=&nazwa=         profil zawodnika: historia meczów, forma, statystyki, najbliższy mecz
+  /api/zawodnik/najblizszy?nacja=&nazwa=  najbliższy mecz (gdy profil podał najblizszy_liczony)
   /api/rankingi?nacja=&dni=7|30|0     legion (najlepsza jedenastka), strzelcy, asystenci, minuty, oceny, nacje
   /api/transfery?nacja=               zmiany klubów i nowi zawodnicy w bazie
   /api/kadra?nacja=                   wszyscy zawodnicy nacji (wyszukiwarka)
@@ -156,6 +157,7 @@ def dzien_polakow(data_str):
     if nacja not in dane.NACJE: abort(400, f"Nieznana nacja - dostępne: {', '.join(dane.NACJE)}")
     lista = dane.mecze_polakow_dnia(_dzien_z_adresu(data_str), nacja)
     if lista is None: abort(404, "Serwer nie ma jeszcze danych dla tego dnia")
+    historia.rozgrzej_najblizsze(nacja)   # profile zawodników tej nacji otworzą się od razu
     return odpowiedz_json({"dzien": data_str, "stan_na": _czas(time.time()), "mecze": lista})
 
 
@@ -171,6 +173,13 @@ def zawodnik():
     nacja, nazwa = _nacja_z_adresu(), request.args.get("nazwa", "").strip()[:100]
     if not nazwa: abort(400, "Brak nazwy zawodnika")
     return odpowiedz_json(historia.profil(nacja, nazwa))
+
+
+@app.route("/api/zawodnik/najblizszy")
+def zawodnik_najblizszy():
+    nacja, nazwa = _nacja_z_adresu(), request.args.get("nazwa", "").strip()[:100]
+    if not nazwa: abort(400, "Brak nazwy zawodnika")
+    return odpowiedz_json(historia.najblizszy(nacja, nazwa))
 
 
 @app.route("/api/rankingi")
@@ -195,7 +204,8 @@ def kadra():
 @app.route("/api/ulubieni")
 def ulubieni():
     dane.kopia_gotowa.wait(timeout=60)
-    return odpowiedz_json({"zawodnicy": historia.ulubieni(request.args.getlist("z")[:historia.MAX_ULUBIONYCH])})
+    lista, doliczanie = historia.ulubieni(request.args.getlist("z")[:historia.MAX_ULUBIONYCH])
+    return odpowiedz_json({"zawodnicy": lista, "doliczanie": doliczanie})
 
 
 @app.route("/api/push/klucz")

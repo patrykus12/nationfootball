@@ -583,8 +583,17 @@ async function otworzProfil(n, nazwa) {
   try {
     const p = await pobierzJSON(`/api/zawodnik?nacja=${n}&nazwa=${encodeURIComponent(nazwa)}`);
     if (profilOtwarty && profilOtwarty.nazwa === nazwa) { profilOtwarty.dane = p; rysujProfil(); }
+    else return;
+    // Najbliższy mecz liczy się na serwerze osobno - profil pokazujemy od razu, a mecz dociągamy
+    if (p.najblizszy_liczony) {
+      const r = await pobierzJSON(`/api/zawodnik/najblizszy?nacja=${n}&nazwa=${encodeURIComponent(nazwa)}`);
+      if (profilOtwarty && profilOtwarty.nazwa === nazwa && profilOtwarty.dane === p) {
+        p.najblizszy = r.najblizszy; p.najblizszy_liczony = false;
+        if (r.najblizszy) rysujProfil();
+      }
+    }
   } catch (e) {
-    if (profilOtwarty && profilOtwarty.nazwa === nazwa) $("profil-tresc").innerHTML = BLAD_SIECI();
+    if (profilOtwarty && profilOtwarty.nazwa === nazwa && !profilOtwarty.dane) $("profil-tresc").innerHTML = BLAD_SIECI();
   }
 }
 
@@ -699,15 +708,20 @@ async function wczytajTransfery() {
 }
 
 // --- WIDOK ULUBIONYCH + WYSZUKIWARKA ---
-async function wczytajUlubionych() {
+let czasDoliczania = null;
+async function wczytajUlubionych(ponowienie = 0) {
+  clearTimeout(czasDoliczania);
   if (!ulubieni.length) {
     $("ulubieni-tresc").innerHTML = komunikatHTML("★", t("brak_ulub"), t("brak_ulub_opis"));
     return;
   }
-  $("ulubieni-tresc").innerHTML = '<div class="szkielet"></div>';
+  if (!ponowienie) $("ulubieni-tresc").innerHTML = '<div class="szkielet"></div>';
   let r;
   try { r = await pobierzJSON(`/api/ulubieni?${ulubieni.map((u) => "z=" + encodeURIComponent(u)).join("&")}`); }
-  catch (e) { $("ulubieni-tresc").innerHTML = BLAD_SIECI(); return; }
+  catch (e) { if (!ponowienie) $("ulubieni-tresc").innerHTML = BLAD_SIECI(); return; }
+  if (widok !== "widok-ulubieni") return;
+  // Serwer jeszcze liczy najbliższe mecze którejś nacji - pokazujemy, co jest, i dociągamy za chwilę
+  if (r.doliczanie && ponowienie < 6) czasDoliczania = setTimeout(() => { if (widok === "widok-ulubieni") wczytajUlubionych(ponowienie + 1); }, 5000);
   $("ulubieni-tresc").innerHTML = r.zawodnicy.map((u) => {
     const o = u.ostatni, s = u.sumy30;
     return `<div class="karta ulubiony">
