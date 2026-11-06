@@ -295,11 +295,6 @@ select.chip {
 .ulubiony-gora { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
 .ulubiony-gora .flaga { margin-right: 4px; }
 .najblizszy { font-size: 13px; color: var(--tekst-2); margin: 6px 0; }
-.push-btn {
-  width: 100%; margin: 0 0 12px; padding: 11px 12px; border-radius: 12px; cursor: pointer; text-align: left;
-  border: 1px dashed var(--zloto); background: transparent; color: var(--zloto); font-size: 13.5px;
-}
-.push-btn.wlaczony { border-style: solid; color: var(--tekst-2); }
 .szukaj {
   width: 100%; height: 42px; padding: 0 14px; margin-bottom: 10px; border-radius: 12px; font: inherit; font-size: 15px;
   border: 1px solid var(--ramka); background: var(--karta-2); color: var(--tekst);

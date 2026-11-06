@@ -11,3 +11,8 @@ services:
     envVars:
       - key: RAPIDAPI_KEY
         sync: false
+      # Klucze VAPID - ciche powiadomienia push o golach/asystach ulubionych (włączane w Ustawieniach aplikacji)
+      - key: NF_VAPID_PRIVATE
+        sync: false
+      - key: NF_VAPID_PUBLIC
+        sync: false

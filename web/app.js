@@ -700,7 +700,6 @@ async function wczytajTransfery() {
 
 // --- WIDOK ULUBIONYCH + WYSZUKIWARKA ---
 async function wczytajUlubionych() {
-  odswiezPrzyciskPush();
   if (!ulubieni.length) {
     $("ulubieni-tresc").innerHTML = komunikatHTML("★", t("brak_ulub"), t("brak_ulub_opis"));
     return;
@@ -764,17 +763,6 @@ function kluczVapid(b64) {
   return Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
 }
 
-async function odswiezPrzyciskPush() {
-  const b = $("push-przycisk");
-  if (!pushMozliwy) { b.hidden = true; return; }
-  if (pushSerwer === null) { try { pushSerwer = await pobierzJSON("/api/push/klucz"); } catch (e) { pushSerwer = { wlaczone: false }; } }
-  if (!pushSerwer.wlaczone) { b.hidden = true; return; }
-  b.hidden = false;
-  const wl = pushWlaczony() && Notification.permission === "granted";
-  b.classList.toggle("wlaczony", wl);
-  b.innerHTML = wl ? t("push_wl_btn") : Notification.permission === "denied" ? esc(t("push_zablok")) : esc(t("push_wlacz_btn"));
-}
-
 async function wyslijSubskrypcje() {
   if (!pushMozliwy || !pushWlaczony() || Notification.permission !== "granted") return;
   try {
@@ -796,12 +784,11 @@ async function przelaczPush() {
       await sub.unsubscribe().catch(() => {});
     }
     try { localStorage.setItem("nf-push", "0"); } catch (e) {}
-    odswiezPrzyciskPush();
     rysujUstawienia();
     return;
   }
   const zgoda = await Notification.requestPermission();
-  if (zgoda !== "granted") { odswiezPrzyciskPush(); rysujUstawienia(); return; }
+  if (zgoda !== "granted") { rysujUstawienia(); return; }
   try {
     let sub = await reg.pushManager.getSubscription();
     if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: kluczVapid(pushSerwer.klucz) });
@@ -810,10 +797,8 @@ async function przelaczPush() {
   } catch (e) {
     alert(t("push_blad"));
   }
-  odswiezPrzyciskPush();
   rysujUstawienia();
 }
-$("push-przycisk").addEventListener("click", przelaczPush);
 
 // Powiadomienie otwiera profil zawodnika (#zawodnik=nacja|nazwa)
 function profilZAdresu() {
@@ -882,7 +867,6 @@ function ustawJezyk(j) {
   if (widok === "glowna") { const z = pamiec[`${nacja}:${wybrany}`]; if (z) pokaz(z); }
   else if (nacja) pokazWidok(widok);
   if (profilOtwarty && profilOtwarty.dane) rysujProfil();
-  odswiezPrzyciskPush();
   rysujUstawienia();
   wyslijSubskrypcje();      // powiadomienia przychodzą w wybranym języku
 }
