@@ -2650,5 +2650,25 @@
     "1000001656": {
         "nazwa": "Copa Sudamericana",
         "flaga": "int"
+    },
+    "938419": {
+        "nazwa": "Cup Grp. B",
+        "flaga": "ru"
+    },
+    "938418": {
+        "nazwa": "Cup Grp. A",
+        "flaga": "ru"
+    },
+    "1000001443": {
+        "nazwa": "Premier League",
+        "flaga": "ca"
+    },
+    "957981": {
+        "nazwa": "Major League Soccer Playoff",
+        "flaga": "us"
+    },
+    "958044": {
+        "nazwa": "Allsvenskan Qualification",
+        "flaga": "se"
     }
 }
