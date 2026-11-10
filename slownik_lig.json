@@ -2670,5 +2670,21 @@
     "958044": {
         "nazwa": "Allsvenskan Qualification",
         "flaga": "se"
+    },
+    "1000001862": {
+        "nazwa": "Süper Lig",
+        "flaga": "int"
+    },
+    "1000001730": {
+        "nazwa": "Liga Profesional",
+        "flaga": "ar"
+    },
+    "1000001217": {
+        "nazwa": "League Cup",
+        "flaga": "za"
+    },
+    "1000001844": {
+        "nazwa": "Liga de Expansión MX",
+        "flaga": "mx"
     }
 }
