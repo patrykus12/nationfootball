@@ -2686,5 +2686,17 @@
     "1000001844": {
         "nazwa": "Liga de Expansión MX",
         "flaga": "mx"
+    },
+    "1000005300": {
+        "nazwa": "Copa del Rey",
+        "flaga": "es"
+    },
+    "9468": {
+        "nazwa": "CAF Confed Cup",
+        "flaga": "int"
+    },
+    "1000007001": {
+        "nazwa": "HNL",
+        "flaga": "hr"
     }
 }
