@@ -31,3 +31,6 @@ zawodnicy*_kopia_zapasowa.xlsx
 
 # Konsola - lokalny stan skanów
 ostatnie_skany.json
+
+# Klucz API-Football (test)
+apifootball_klucz.txt

@@ -63,7 +63,14 @@ def plik_bazy(nacja, szeroka=False):
     return plik_bazy_tm(nacja, szeroka)
 
 
+# Stare API (free-api-live-football-data na RapidAPI) wyłączone 2026-11-12 - subskrypcja anulowana,
+# dane przejdą na API-Football. Serwer nie wysyła już żadnych zapytań, tylko serwuje to, co ma w cache.
+# Awaryjne ponowne włączenie: zmienna środowiskowa NF_STARE_API=1.
+STARE_API_WYLACZONE = os.environ.get("NF_STARE_API", "") != "1"
+
+
 def _wczytaj_klucz_api():
+    if STARE_API_WYLACZONE: return ""
     klucz = os.environ.get("RAPIDAPI_KEY", "").strip()
     if klucz: return klucz
     plik = os.path.join(KATALOG_PROJEKTU, "rapidapi_klucz.txt")  # lokalnie, poza repozytorium (.gitignore)
@@ -152,7 +159,8 @@ class AwariaAPI(Exception):
 
 
 def awaria_api():
-    """True, gdy po serii błędów czekamy z kolejną próbą (patrz _api_get)."""
+    """True, gdy po serii błędów czekamy z kolejną próbą (patrz _api_get) albo API jest wyłączone."""
+    if STARE_API_WYLACZONE: return True
     return bool(STATYSTYKI["awaria_api_do"] and time.time() < STATYSTYKI["awaria_api_do"])
 
 
@@ -199,6 +207,8 @@ def _api_get(endpoint, params, timeout=20):
     """JEDYNE miejsce wywołujące RapidAPI. Używane tylko przez harmonogram.
     Po BLEDY_DO_AWARII nieudanych zapytaniach z rzędu (np. awaria dostawcy API) przez
     PRZERWA_PO_AWARII_MIN minut nie wysyła niczego - ponawianie w kółko zjadałoby limit."""
+    if STARE_API_WYLACZONE:
+        raise AwariaAPI("stare API wyłączone")
     if awaria_api():
         raise AwariaAPI(f"awaria API - kolejna próba po {datetime.fromtimestamp(STATYSTYKI['awaria_api_do'], TZ_PL):%H:%M}")
     STATYSTYKI["zapytania_api"] += 1
@@ -1032,7 +1042,9 @@ def cykl_harmonogramu(wymus_repo=False):
         if REPO_RAW and (wymus_repo or ostatnia is None or time.time() - ostatnia > SYNC_REPO_H * 3600):
             STATYSTYKI["etap"] = "synchronizacja z repozytorium"
             for plik in synchronizuj_z_repo(): raport.append(f"z repozytorium: {plik}")
-        if awaria_api():
+        if STARE_API_WYLACZONE:
+            raport.append("(stare API wyłączone - bez pobierania)")
+        elif awaria_api():
             raport.append(f"(awaria API - kolejna próba po {datetime.fromtimestamp(STATYSTYKI['awaria_api_do'], TZ_PL):%H:%M})")
         else:
             STATYSTYKI["etap"] = "terminarze"

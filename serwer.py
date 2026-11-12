@@ -30,7 +30,7 @@ Endpointy (wszystkie GET, JSON skompresowany gzipem jeśli klient to obsługuje)
 Lokalnie:     python serwer.py
 Na hostingu:  gunicorn -w 1 --threads 8 -b 0.0.0.0:$PORT serwer:app
               (JEDEN worker - harmonogram działa w obrębie procesu)
-Zmienne:      RAPIDAPI_KEY (wymagana), NF_KATALOG_DANYCH, NF_INTERWAL_MIN, NF_REPO_RAW (opcjonalnie)
+Zmienne:      NF_STARE_API=1 (awaryjnie włącza stare API, wtedy też RAPIDAPI_KEY), NF_KATALOG_DANYCH, NF_INTERWAL_MIN, NF_REPO_RAW (opcjonalnie)
 """
 import gzip
 import json
@@ -123,7 +123,7 @@ def status():
         "harmonogram": {"watek_dziala": bool(_watek and _watek.is_alive()), "etap": s["etap"], "pid": os.getpid(),
                         "ostatni_blad": s["ostatni_blad"]},
         "kopia_zapasowa": s["kopia"],
-        "awaria_api": f"tak - kolejna próba po {_czas(s['awaria_api_do'])[11:]}" if dane.awaria_api() else "nie",
+        "awaria_api": "stare API wyłączone - serwer nie pobiera danych" if dane.STARE_API_WYLACZONE else f"tak - kolejna próba po {_czas(s['awaria_api_do'])[11:]}" if dane.awaria_api() else "nie",
         "ostatni_blad_api": s["ostatni_blad_api"],
         "zuzycie_api": dane.podsumowanie_licznika(),
         "kadry_z_api": kadry_api.status(),
