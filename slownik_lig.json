@@ -2698,5 +2698,33 @@
     "1000007001": {
         "nazwa": "HNL",
         "flaga": "hr"
+    },
+    "940374": {
+        "nazwa": "National League South",
+        "flaga": "gb-eng"
+    },
+    "955496": {
+        "nazwa": "CAF Champions League Grp. A",
+        "flaga": "int"
+    },
+    "955497": {
+        "nazwa": "CAF Champions League Grp. B",
+        "flaga": "int"
+    },
+    "955498": {
+        "nazwa": "CAF Champions League Grp. C",
+        "flaga": "int"
+    },
+    "955500": {
+        "nazwa": "CAF Champions League Grp. D",
+        "flaga": "int"
+    },
+    "958674": {
+        "nazwa": "SAFF Championship",
+        "flaga": "int"
+    },
+    "945609": {
+        "nazwa": "2. Division",
+        "flaga": "cy"
     }
 }
